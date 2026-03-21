@@ -125,9 +125,9 @@ Browser (React + ioquake3.wasm)
 
 ## Running everything with Docker
 
-- **Server:** `docker build -t q3js/server ./server && docker run --rm -p 27960:27960/udp -p 27961:27961 q3js/server`.
+- **Server:** `docker build -t q3js-server . -f ./server/Dockerfile --platform linux/amd64`.
   Mount `baseq3/` if you do not bake assets into the image.
-- **Website:** `docker build -t q3js/website ./website` (Dockerfile provided), or deploy the static `dist/` folder
+- **Website:** `docker build -t q3js-website ./website --platform linux/amd64` (Dockerfile provided), or deploy the static `dist/` folder
   produced by `npm run build`.
 
 ## Run your own server
