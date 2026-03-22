@@ -23,8 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerService {
     private static final Logger LOG = Logger.getLogger(ServerService.class);
     private static final int HEARTBEAT_TTL_MINUTES = 5;
-    private static final String DEFAULT_HOST = "tsal.al";
-    private static final int DEFAULT_PROXY_PORT = 27691;
 
     private final Map<String, Server> servers = new ConcurrentHashMap<>();
     private final ServerStatusClient serverStatusClient;
@@ -67,8 +65,6 @@ public class ServerService {
 
     @Scheduled(every = "5s")
     public void refreshServerInfo() {
-        addIfMissing(DEFAULT_HOST, DEFAULT_PROXY_PORT, true);
-
         List<Server> snapshot = List.copyOf(servers.values());
 
         serverResponseCache = snapshot.stream()
@@ -110,20 +106,6 @@ public class ServerService {
         );
     }
 
-    private void addIfMissing(String host, int proxyPort, boolean secure) {
-        String key = key(host, proxyPort);
-
-        servers.computeIfAbsent(key, k -> {
-            LOG.infof("Adding static server %s:%d", host, proxyPort);
-            return Server.builder()
-                    .host(host)
-                    .proxyPort(proxyPort)
-                    .secure(secure)
-                    .lastHeartbeat(OffsetDateTime.now())
-                    .build();
-        });
-    }
-
     @Scheduled(every = "10s")
     public void pruneServers() {
         OffsetDateTime cutoff = OffsetDateTime.now().minusMinutes(HEARTBEAT_TTL_MINUTES);
@@ -158,11 +140,7 @@ public class ServerService {
     }
 
     private static int getDisplayPriority(ServerResponse server) {
-        if (isServer(server, DEFAULT_HOST, DEFAULT_PROXY_PORT)) {
-            return 0;
-        }
-
-        return 1;
+        return 0;
     }
 
     private static boolean isServer(ServerResponse server, String host, int proxyPort) {
