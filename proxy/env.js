@@ -3,7 +3,7 @@ const {z} = require('zod');
 
 const env = createEnv({
     server: {
-        MASTER_SERVER_BASE: z.url().default('https://master.q3js.com'),
+        MASTER_SERVER_BASE: z.url().default('https://q3master.tsal.al'),
         HEARTBEAT_INTERVAL_MS: z.coerce.number().int().positive().default(5000),
         TARGET_HOST: z.string().min(1).default('127.0.0.1'),
         TARGET_PORT: z.coerce.number().int().min(1).max(65535).default(27960),

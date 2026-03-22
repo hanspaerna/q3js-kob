@@ -40,7 +40,7 @@ COPY --from=serverbuilder /server/build/Release /server
 COPY --from=serverbuilder /server/entrypoint.sh /server/entrypoint.sh
 
 RUN mkdir -p /server/q3js && cp -a /server/baseq3/. /server/q3js/
-RUN printf 'seta sv_killpost_url "https://master.q3js.com/api/events"\n' > /server/q3js/q3js-defaults.cfg
+RUN printf 'seta sv_killpost_url "https://q3master.tsal.al/api/events"\n' > /server/q3js/q3js-defaults.cfg
 
 WORKDIR /server
 

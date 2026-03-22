@@ -6,8 +6,8 @@ export const env = createEnv({
     clientPrefix: "NEXT_PUBLIC_",
     client: {
         NEXT_PUBLIC_APP_TITLE: z.string().min(1).optional(),
-        NEXT_PUBLIC_MASTER_SERVER_URL: z.string().default("https://master.q3js.com"),
-        NEXT_PUBLIC_INSECURE_GAME_PAGE_BASE_URL: z.string().min(1).default("http://nohttps.q3js.com"),
+        NEXT_PUBLIC_MASTER_SERVER_URL: z.string().default("https://q3master.tsal.al"),
+        NEXT_PUBLIC_INSECURE_GAME_PAGE_BASE_URL: z.string().min(1).default("https://q3master.tsal.al"),
         NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().default("G-X7L740SND7"),
     },
     runtimeEnv: process.env,

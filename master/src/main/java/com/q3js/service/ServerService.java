@@ -23,9 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServerService {
     private static final Logger LOG = Logger.getLogger(ServerService.class);
     private static final int HEARTBEAT_TTL_MINUTES = 5;
-    private static final String FFA_HOST = "ffa.q3js.com";
-    private static final String PIETER_HOST = "q3.pieter.com";
-    private static final int DEFAULT_PROXY_PORT = 443;
+    private static final String DEFAULT_HOST = "tsal.al";
+    private static final int DEFAULT_PROXY_PORT = 27691;
 
     private final Map<String, Server> servers = new ConcurrentHashMap<>();
     private final ServerStatusClient serverStatusClient;
@@ -68,8 +67,7 @@ public class ServerService {
 
     @Scheduled(every = "5s")
     public void refreshServerInfo() {
-        addIfMissing(FFA_HOST, DEFAULT_PROXY_PORT, true);
-        addIfMissing(PIETER_HOST, DEFAULT_PROXY_PORT, true);
+        addIfMissing(DEFAULT_HOST, DEFAULT_PROXY_PORT, true);
 
         List<Server> snapshot = List.copyOf(servers.values());
 
@@ -160,15 +158,11 @@ public class ServerService {
     }
 
     private static int getDisplayPriority(ServerResponse server) {
-        if (isServer(server, FFA_HOST, DEFAULT_PROXY_PORT)) {
+        if (isServer(server, DEFAULT_HOST, DEFAULT_PROXY_PORT)) {
             return 0;
         }
 
-        if (isServer(server, PIETER_HOST, DEFAULT_PROXY_PORT)) {
-            return 1;
-        }
-
-        return 2;
+        return 1;
     }
 
     private static boolean isServer(ServerResponse server, String host, int proxyPort) {
