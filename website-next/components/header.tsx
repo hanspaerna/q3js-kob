@@ -155,19 +155,14 @@ export function Header() {
             href: profileHref ?? undefined,
             label: "My Profile",
         },
-        {
-            href: "https://discord.gg/mKvM9su443",
-            label: "Join Discord",
-            external: true,
-        },
     ];
 
     return <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
             <Link href="/" className="flex items-center gap-3">
                 <div>
-                    <p className="text-xl font-bold tracking-tight text-foreground">Q3JS</p>
-                    <p className="text-xs text-muted-foreground font-mono">v0.0.1</p>
+                    <p className="text-xl font-bold tracking-tight text-foreground">KOB Q3 SERVER</p>
+                    <p className="text-xs text-muted-foreground font-mono">Q3JS v0.0.1</p>
                 </div>
             </Link>
 

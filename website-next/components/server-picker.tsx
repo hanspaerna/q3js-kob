@@ -58,51 +58,6 @@ export function ServerPicker({servers}: { servers: ServerResponse[] }) {
     return (
         <section id="server-browser" className="container mx-auto px-4 pb-24 scroll-mt-24">
             <div className="max-w-5xl mx-auto space-y-6">
-                <div className="space-y-2">
-                    <h2 className="text-3xl font-bold">Server Browser</h2>
-                    <p className="text-muted-foreground text-sm">
-                        Pick a server and jump in immediately. Your player name is reused for every join.
-                    </p>
-                </div>
-
-                <Card className="bg-card/60 border-border/60">
-                    <CardContent className="p-4 space-y-4">
-                        <div className="grid gap-3">
-                            <div className="relative">
-                                <Search
-                                    className="h-4 w-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2"/>
-                                <Input
-                                    placeholder="Search server or map"
-                                    className="pl-9"
-                                    value={searchTerm}
-                                    onChange={(event) => setSearchTerm(event.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-2">
-                            <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
-                                <span>
-                                    {activeFilterCount > 0
-                                        ? `${filteredServers.length}/${servers.length} servers`
-                                        : formatCount(servers.length, "server")}
-                                </span>
-                                <span>
-                                    {activeFilterCount > 0
-                                        ? `${filteredPlayerCount}/${totalPlayerCount} players online`
-                                        : `${formatCount(totalPlayerCount, "player")} online`}
-                                </span>
-                                {activeFilterCount > 0 && (
-                                    <Button variant="ghost" size="sm" onClick={clearFilters}>
-                                        Clear filters
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-
-                    </CardContent>
-                </Card>
-
                 <div className="grid gap-4">
                     {filteredServers.map((server) => (
                         <ServerCard
@@ -119,9 +74,6 @@ export function ServerPicker({servers}: { servers: ServerResponse[] }) {
                             <div className="flex items-center justify-center gap-2">
                                 <Button variant="outline" onClick={refreshServerList} disabled={isRefreshing}>
                                     {isRefreshing ? "Refreshing..." : "Refresh list"}
-                                </Button>
-                                <Button asChild>
-                                    <Link href="/guide">Run your own server</Link>
                                 </Button>
                             </div>
                         </CardContent>

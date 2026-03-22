@@ -25,48 +25,16 @@ export function Hero(props: {
         <section className="border-b border-border/60 bg-background">
             <div className="container mx-auto px-4 py-14 md:py-18">
                 <div className="mx-auto max-w-4xl text-center">
-                    <p className="text-xs uppercase tracking-[0.24em] text-primary">
-                        Quake 3 in browser
-                    </p>
-
-                    <h1 className="mt-3 text-3xl font-bold uppercase leading-tight tracking-[0.04em] md:text-4xl">
-                        Play Quake III Multiplayer in Your Browser
-                    </h1>
-
-                    <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-muted-foreground md:text-base">
-                        No install step. Click play, pick a server, and jump straight into a live Quake 3 match.
-                    </p>
-
                     <div className="mt-6 mx-auto grid max-w-md grid-cols-2 gap-3">
                         {props.firstServer ? (
-                            <JoinServerButton server={props.firstServer} ctaLabel={"Quick Play"}/>
+                            <JoinServerButton server={props.firstServer} ctaLabel={"Play"}/>
                         ) : (
                             <Button size="lg" className="w-full" asChild>
-                                <Link href="#server-browser">Quick Play</Link>
+                                <Link href="#server-browser">Play</Link>
                             </Button>
                         )}
                         <Button variant="secondary" size="lg" className="w-full" asChild>
                             <Link href="/scoreboard">Scoreboard</Link>
-                        </Button>
-                        <Button variant="outline" size="lg" className="w-full" asChild>
-                            <Link
-                                href="https://github.com/lklacar/q3js"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                <Github className="h-4 w-4"/>
-                                GitHub Repo
-                            </Link>
-                        </Button>
-                        <Button variant="outline" size="lg" className="w-full" asChild>
-                            <Link
-                                href="https://x.com/lukathedev"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                <XIcon className="h-4 w-4"/>
-                                @lukathedev
-                            </Link>
                         </Button>
                     </div>
 

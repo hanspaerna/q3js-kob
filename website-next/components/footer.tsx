@@ -27,12 +27,6 @@ export function Footer() {
                 <p className="font-mono">Built with ❤️ by <span className="text-red-500">L</span><span
                     className="text-green-500">K</span></p>
                 <div className="flex items-center gap-4">
-                    <Link
-                        href="/guide"
-                        className="transition-colors hover:text-foreground"
-                    >
-                        Run your server
-                    </Link>
                     <a
                         href="https://github.com/lklacar/q3js"
                         target="_blank"

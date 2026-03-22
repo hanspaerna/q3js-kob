@@ -3,30 +3,18 @@ import type {Metadata} from "next";
 export const siteConfig = {
     name: "Q3JS",
     url: "https://q3.tsal.al",
-    defaultTitle: "Play Quake III Arena in Your Browser",
-    description:
-        "Play Quake III Arena instantly with no install. Q3JS brings the classic arena shooter to the web with WebAssembly and online servers.",
+    defaultTitle: "KOB Q3 SERVER",
+    description: "",
     ogImage: "/og-cover.jpg",
     locale: "en_US",
-    keywords: [
-        "Quake 3",
-        "Quake III Arena",
-        "browser game",
-        "webassembly game",
-        "FPS",
-        "arena shooter",
-        "Q3JS",
-        "multiplayer browser game",
-        "ioquake3",
-        "retro FPS",
-    ],
+    keywords: [],
 };
 
 export const siteOgImage = {
     url: siteConfig.ogImage,
     width: 1200,
     height: 630,
-    alt: "Q3JS - Play Quake III Arena in your browser",
+    alt: "",
 } as const;
 
 export function absoluteUrl(path: string) {

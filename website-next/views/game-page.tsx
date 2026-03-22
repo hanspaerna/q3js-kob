@@ -427,7 +427,6 @@ export default function GamePage() {
 
     return (
         <main ref={gameShellRef} className="relative isolate h-dvh min-h-dvh w-screen overflow-hidden bg-black">
-            <h1 className="sr-only">Play Quake III Arena in your browser</h1>
             <canvas id="canvas" className="absolute inset-0 z-0 h-full w-full"/>
             {showMobileControls && (
                 <MobileControls

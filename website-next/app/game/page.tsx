@@ -4,8 +4,8 @@ import {Suspense} from "react";
 import {buildPageMetadata} from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-    title: "Play Quake III Arena",
-    description: "Join a Q3JS server and play Quake III Arena in your browser.",
+    title: "KOB Q3 SERVER",
+    description: "",
     path: "/game",
     robots: {
         index: false,
