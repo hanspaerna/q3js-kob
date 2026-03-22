@@ -2,7 +2,7 @@ import type {Metadata} from "next";
 
 export const siteConfig = {
     name: "Q3JS",
-    url: "https://q3js.com",
+    url: "https://q3.tsal.al",
     defaultTitle: "Play Quake III Arena in Your Browser",
     description:
         "Play Quake III Arena instantly with no install. Q3JS brings the classic arena shooter to the web with WebAssembly and online servers.",
