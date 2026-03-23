@@ -6,7 +6,7 @@ export const env = createEnv({
     clientPrefix: "NEXT_PUBLIC_",
     client: {
         NEXT_PUBLIC_WEBSITE_TITLE: z.string().min(1).optional(),
-        NEXT_PUBLIC_MASTER_SERVER_URL: z.string(),
+        NEXT_PUBLIC_MASTER_SERVER_URL: z.string().default("https://master.example.com"),
     },
     runtimeEnv: {
         NEXT_PUBLIC_WEBSITE_TITLE: process.env.NEXT_PUBLIC_WEBSITE_TITLE,

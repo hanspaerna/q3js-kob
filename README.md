@@ -10,34 +10,39 @@ Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets throu
 traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend. You can jump straight in at
 [q3js.com](https://q3js.com), or read on to see how the pieces fit together and how to work on each one locally.
 
+
 ## Building Docker images
 
+NOTE: there is no need to bake 'baseq3' game folder into the server image, just mount it in Compose/Kubernetes instead.
+
+Create/overwrite 'autoexec.cfg' file with all the server settings needed (FS_GAME must be set to 'baseq3' for vanilla server).
+
 - **Server:** `docker build -t q3js-server . -f ./server/Dockerfile --platform linux/amd64`.
-  Mount `baseq3/` if you do not bake assets into the image.
 - **Master:**: `docker build -t q3js-master . -f ./master/Dockerfile --platform linux/amd64`.
 - **Website:** `docker build -t q3js-website ./website --platform linux/amd64`.
 
 ## Uploading Docker images
 
 ```
-docker tag q3js-master:latest {url_to_repo}/q3js-website:latest
+docker tag q3js-master:latest {url_to_repo}/q3js-master:latest
 docker tag q3js-server:latest {url_to_repo}/q3js-server:latest
 docker tag q3js-website:latest {url_to_repo}/q3js-website:latest
-docker push {url_to_repo}/q3js-website:latest
+docker push {url_to_repo}/q3js-master:latest
 docker push {url_to_repo}/q3js-server:latest
 docker push {url_to_repo}/q3js-website:latest
 ``` 
 
 ## Repository map
 
-| Path            | Description                                                                      |
-|-----------------|----------------------------------------------------------------------------------|
-| `game/`         | Emscripten build scripts that compile `ioquake3` into `ioquake3.{js,wasm}`.      |
-| `game/emsdk/`   | Local Emscripten SDK checkout used by `game/build.sh`.                           |
-| `game/ioq3/`    | Submodule pointing to the `ioquake3` source code.                                |
-| `server/`       | Native dedicated server build, Dockerfile, entrypoint, and WebSocket↔UDP proxy.  |
-| `master/`       | Quarkus app (REST master server)                                                 |
-| `website/`      | Vite + React + TanStack Router UI that embeds the WASM build and server picker.  |
+| Path            | Description                                                                                 |
+|-----------------|---------------------------------------------------------------------------------------------|
+| `game/`         | Emscripten build scripts that compile `ioquake3` into `ioquake3.{js,wasm}`.                 |
+| `game/emsdk/`   | Local Emscripten SDK checkout used by `game/build.sh`.                                      |
+| `game/ioq3/`    | Submodule pointing to the `ioquake3` source code.                                           |
+| `server/`       | Native dedicated server build, Dockerfile, entrypoint, and WebSocket↔UDP proxy.             |
+| `server/proxy/` | A proxy of the server that creates a WebSocket for clients and sends a heartbeat to master. |
+| `master/`       | Quarkus app (REST master server)                                                            |
+| `website/`      | Vite + React + TanStack Router UI that embeds the WASM build and server picker.             |
 
 
 ## Local development

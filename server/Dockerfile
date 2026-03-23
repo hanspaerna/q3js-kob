@@ -26,15 +26,12 @@ RUN chmod +x build.sh && ./build.sh
 
 FROM node:20-trixie AS runner
 
-ENV RCON_PASSWORD="changeme"
-ENV FS_GAME=""
-
 RUN apt-get update && apt-get install -y \
     libcurl4 \
     ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=proxybuilder /proxy /proxy
+COPY --from=proxybuilder /server/proxy /proxy
 
 COPY --from=serverbuilder /server/build/Release /server
 COPY --from=serverbuilder /server/entrypoint.sh /server/entrypoint.sh
