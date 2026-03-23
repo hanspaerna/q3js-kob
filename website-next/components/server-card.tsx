@@ -9,6 +9,7 @@ import {ServerResponse} from "@/lib/client";
 
 export function ServerCard(props: {
     server: ServerResponse;
+    mobileControlsEnabled: boolean;
 }) {
     const info = props.server.info;
 
@@ -56,6 +57,7 @@ export function ServerCard(props: {
 
                             <JoinServerButton
                                 server={props.server}
+                                mobileControlsEnabled={props.mobileControlsEnabled}
                                 className="sm:self-start"
                             />
                         </div>

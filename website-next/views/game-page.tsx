@@ -4,7 +4,7 @@ import {type RefObject, useEffect, useRef, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Progress} from "@/components/ui/progress";
 import {makeRafUpdater, type Prog} from "@/lib/fs.ts";
-import {useFullscreenOnF11} from "@/hooks/use-fullscreen.ts";
+import {useFullscreenOnF8} from "@/hooks/use-fullscreen.ts";
 import startGame from "@/game";
 import {useSearchParams} from "next/navigation";
 import {toInt} from "@/lib/utils.ts";
@@ -24,7 +24,7 @@ const STAGE_LABELS: Record<Prog["stage"], string> = {
 };
 
 const STAGE_TIPS: Record<Prog["stage"], string> = {
-    initializing: "Tip: Press F11 to toggle fullscreen.",
+    initializing: "Tip: Press F8 to toggle fullscreen.",
     downloading: "Tip: Assets are cached after first load.",
     launching: "Tip: If sound is muted, click the page once.",
     ready: "Tip: If sound is muted, click the page once.",
@@ -164,7 +164,6 @@ function useLandscapeFullscreen(targetRef: RefObject<HTMLElement | null>) {
         isFullscreen,
         isLandscape,
         hasSeenLandscape,
-        isTouchDevice,
         canRequestFullscreen,
         isViewportReady,
         requestFullscreenLandscape,
@@ -172,7 +171,7 @@ function useLandscapeFullscreen(targetRef: RefObject<HTMLElement | null>) {
 }
 
 export default function GamePage() {
-    useFullscreenOnF11();
+    useFullscreenOnF8();
     const gameShellRef = useRef<HTMLElement | null>(null);
     const startedGameKeyRef = useRef<string | null>(null);
 
@@ -190,18 +189,16 @@ export default function GamePage() {
     const proxyPort = toInt(searchParams?.get("proxyPort") ?? undefined, 0);
     const name = searchParams?.get("name") ?? "Player";
     const fsGame = searchParams?.get("fs_game") ?? "baseq3";
-    const forceMobileControls = searchParams?.get("mobileControls") === "1";
+    const showTouchUi = searchParams?.get("mobileControls") === "1";
     const {
         isFullscreen,
         isLandscape,
         hasSeenLandscape,
-        isTouchDevice,
         canRequestFullscreen,
         isViewportReady,
         requestFullscreenLandscape
     } = useLandscapeFullscreen(gameShellRef);
     const [mobileBridgeReady, setMobileBridgeReady] = useState(false);
-    const showTouchUi = isTouchDevice || forceMobileControls;
     const portraitGate = showTouchUi && (!isViewportReady || !hasSeenLandscape);
     const showRotateOverlay = showTouchUi && hasSeenLandscape && !isLandscape;
     const canStartGame = Boolean(host && proxyPort && isViewportReady && (!showTouchUi || hasSeenLandscape));

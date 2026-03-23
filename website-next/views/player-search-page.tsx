@@ -2,26 +2,10 @@ import Link from "next/link";
 import {Badge} from "@/components/ui/badge.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {JsonLd} from "@/components/seo/json-ld";
 import {PlayerSearchForm} from "@/components/player-search-form";
 import {Q3ColoredText} from "@/components/q3-colored-text.tsx";
-import {absoluteUrl, siteConfig} from "@/lib/seo";
 import {PlayerResponse} from "@/lib/client";
 import {stripQ3Colors} from "@/lib/utils.ts";
-
-const playerSearchStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "SearchResultsPage",
-    name: "Player Search",
-    description: "Search Q3JS player profiles by name, including names that use Quake color codes.",
-    url: absoluteUrl("/players"),
-    isPartOf: {
-        "@type": "WebSite",
-        name: siteConfig.name,
-        url: siteConfig.url,
-    },
-    inLanguage: "en-US",
-};
 
 function formatResultLabel(count: number) {
     return `${count} ${count === 1 ? "player" : "players"} found`;
@@ -35,7 +19,6 @@ export default function PlayerSearchPage(props: {
 
     return (
         <main className="container mx-auto px-4 py-12 md:py-16">
-            <JsonLd data={playerSearchStructuredData}/>
             <section className="mx-auto max-w-5xl space-y-6">
                 <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">

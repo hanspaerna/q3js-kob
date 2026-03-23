@@ -25,13 +25,13 @@ export function Footer() {
             <div
                 className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
                 <p className="font-mono">Built with ❤️ by <span className="text-red-500">L</span><span
-                    className="text-green-500">K</span></p>
+                    className="text-green-500">K</span>. Customized by Sul-Matuul.</p>
                 <div className="flex items-center gap-4">
                     <a
-                        href="https://github.com/lklacar/q3js"
+                        href="https://github.com/hanspaerna/q3js-kob"
                         target="_blank"
                         rel="noreferrer"
-                        aria-label="View Q3JS on GitHub"
+                        aria-label="View Q3JS-KOB on GitHub"
                         className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
                     >
                         <SiGithub className="h-4 w-4"/>

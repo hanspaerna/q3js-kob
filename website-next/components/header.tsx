@@ -19,6 +19,7 @@ import {createRandomPlayerName} from "@/lib/player-name-generator.ts";
 import {MenuIcon} from "lucide-react";
 import {cn} from "@/lib/utils.ts";
 import {PwaInstallControl} from "@/components/pwa-install-control.tsx";
+import {env} from "@/env";
 
 const HEADER_STATUS_STYLES = {
     offline: {
@@ -161,8 +162,8 @@ export function Header() {
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
             <Link href="/" className="flex items-center gap-3">
                 <div>
-                    <p className="text-xl font-bold tracking-tight text-foreground">KOB Q3 SERVER</p>
-                    <p className="text-xs text-muted-foreground font-mono">Q3JS v0.0.1</p>
+                    <p className="text-xl font-bold tracking-tight text-foreground">{env.NEXT_PUBLIC_WEBSITE_TITLE}</p>
+                    <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v0.0.2</p>
                 </div>
             </Link>
 

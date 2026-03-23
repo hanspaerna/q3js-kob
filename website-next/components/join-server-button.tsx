@@ -16,10 +16,10 @@ import {Label} from "@/components/ui/label.tsx";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
 import {createRandomPlayerName} from "@/lib/player-name-generator.ts";
 import {ServerResponse} from "@/lib/client";
-import {env} from "@/env";
 
 export function JoinServerButton(props: {
     server: ServerResponse;
+    mobileControlsEnabled: boolean
     ctaLabel?: string;
     className?: string;
 }) {
@@ -30,10 +30,6 @@ export function JoinServerButton(props: {
         "name",
         createRandomPlayerName()
     );
-
-    const gamePageBaseUrl = !props.server.secure
-        ? env.NEXT_PUBLIC_INSECURE_GAME_PAGE_BASE_URL
-        : "";
 
     if (isFull) {
         return (
@@ -49,9 +45,9 @@ export function JoinServerButton(props: {
         );
     }
 
-    const gameUrl = `${gamePageBaseUrl}/game?host=${props.server.host}&proxyPort=${props.server.proxyPort}&name=${encodeURIComponent(
+    const gameUrl = `/game?host=${props.server.host}&proxyPort=${props.server.proxyPort}&name=${encodeURIComponent(
         name
-    )}&fs_game=${props.server.info.gamename}`;
+    )}&fs_game=${props.server.info.gamename}&mobileControls=${Number(props.mobileControlsEnabled)}`;
 
     return (
         <Dialog>

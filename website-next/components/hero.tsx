@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {Button} from "@/components/ui/button.tsx";
-import {Github, Skull, Target, Twitter, Users, XIcon} from "lucide-react";
+import {Checkbox} from "@/components/ui/checkbox.tsx";
+import {Skull, Target, Users} from "lucide-react";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
 import {Q3ColoredText} from "@/components/q3-colored-text.tsx";
 import {ScoreboardEntryResponse, ServerResponse} from "@/lib/client";
@@ -18,6 +19,8 @@ export function Hero(props: {
     currentPlayerCount: number;
     serverCount: number;
     totalKillCount: number;
+    mobileControlsEnabled: boolean;
+    onMobileControlsChange: (checked: boolean) => void;
     topDailyPlayer: ScoreboardEntryResponse | null;
     firstServer?: ServerResponse;
 }) {
@@ -27,7 +30,7 @@ export function Hero(props: {
                 <div className="mx-auto max-w-4xl text-center">
                     <div className="mt-6 mx-auto grid max-w-md grid-cols-2 gap-3">
                         {props.firstServer ? (
-                            <JoinServerButton server={props.firstServer} ctaLabel={"Play"}/>
+                            <JoinServerButton server={props.firstServer} mobileControlsEnabled={props.mobileControlsEnabled} ctaLabel={"Play"}/>
                         ) : (
                             <Button size="lg" className="w-full" asChild>
                                 <Link href="#server-browser">Play</Link>
@@ -36,6 +39,17 @@ export function Hero(props: {
                         <Button variant="secondary" size="lg" className="w-full" asChild>
                             <Link href="/scoreboard">Scoreboard</Link>
                         </Button>
+                    </div>
+
+                    <div className="mt-8 flex flex-col items-center gap-3 text-center">
+                        <Checkbox
+                            id="mobile-controls"
+                            label="Enable mobile controls?"
+                            checked={props.mobileControlsEnabled}
+                            onChange={props.onMobileControlsChange}
+                        />
+
+                        Press 'F8' in-game to enable fullscreen mode.
                     </div>
 
                     <div className="mt-8 grid gap-3 text-left md:grid-cols-3">

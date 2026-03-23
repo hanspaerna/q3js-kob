@@ -11,12 +11,16 @@ import {Search} from "lucide-react";
 import {ServerResponse} from "@/lib/client";
 import {useRouter} from "next/navigation";
 
+interface ServerPickerProps {
+  servers: ServerResponse[];
+  mobileControlsEnabled: boolean;
+}
 
 function formatCount(count: number, singular: string, plural = `${singular}s`) {
     return `${count} ${count === 1 ? singular : plural}`;
 }
 
-export function ServerPicker({servers}: { servers: ServerResponse[] }) {
+export function ServerPicker({servers, mobileControlsEnabled}: ServerPickerProps) {
     const [searchTerm, setSearchTerm] = useState("");
     const [isRefreshing, startRefreshTransition] = useTransition();
     const router = useRouter();
@@ -63,6 +67,7 @@ export function ServerPicker({servers}: { servers: ServerResponse[] }) {
                         <ServerCard
                             key={`${server.host}:${server.proxyPort}`}
                             server={server}
+                            mobileControlsEnabled={mobileControlsEnabled}
                         />
                     ))}
                 </div>

@@ -1,8 +1,5 @@
 import "./globals.css";
-import type {Metadata, Viewport} from "next";
-import {siteConfig, siteOgImage} from "@/lib/seo";
-import {env} from "@/env";
-import {GoogleAnalytics} from "@next/third-parties/google";
+import type {Viewport} from "next";
 import QueryClientProviderWrapper from "@/lib/query-client-provider-wrapper.tsx";
 import {TimeZoneSync} from "@/components/time-zone-sync";
 import {ServiceWorkerRegistration} from "@/components/service-worker-registration.tsx";
@@ -10,61 +7,6 @@ import {ServiceWorkerRegistration} from "@/components/service-worker-registratio
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
-
-export const metadata: Metadata = {
-    metadataBase: new URL(siteConfig.url),
-    title: {
-        default: siteConfig.defaultTitle,
-        template: `%s | ${siteConfig.name}`,
-    },
-    description: siteConfig.description,
-    applicationName: siteConfig.name,
-    keywords: siteConfig.keywords,
-    category: "Gaming",
-    creator: siteConfig.name,
-    publisher: siteConfig.name,
-    formatDetection: {
-        telephone: false,
-        address: false,
-        email: false,
-    },
-    manifest: "/manifest.json",
-    icons: {
-        icon: "/favicon.ico",
-        apple: "/apple-touch-icon.png",
-    },
-    appleWebApp: {
-        capable: true,
-        title: siteConfig.name,
-        statusBarStyle: "black-translucent",
-    },
-    robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-            index: true,
-            follow: true,
-            "max-video-preview": -1,
-            "max-image-preview": "large",
-            "max-snippet": -1,
-        },
-    },
-    openGraph: {
-        type: "website",
-        locale: siteConfig.locale,
-        url: siteConfig.url,
-        siteName: siteConfig.name,
-        title: `${siteConfig.defaultTitle} | ${siteConfig.name}`,
-        description: siteConfig.description,
-        images: [siteOgImage],
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: `${siteConfig.defaultTitle} | ${siteConfig.name}`,
-        description: siteConfig.description,
-        images: [siteConfig.ogImage],
-    },
-};
 
 export const viewport: Viewport = {
     themeColor: "#101010",
@@ -76,8 +18,6 @@ export default function RootLayout({
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const gaMeasurementId = env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-
     return (
         <html lang="en-US">
         <body className="antialiased">
@@ -87,7 +27,6 @@ export default function RootLayout({
             <div className="font-mono">{children}</div>
         </QueryClientProviderWrapper>
         </body>
-        <GoogleAnalytics gaId={gaMeasurementId}/>
         </html>
     );
 }

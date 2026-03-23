@@ -1,19 +1,5 @@
-import type {Metadata} from "next";
 import PlayerSearchPage from "@/views/player-search-page";
-import {buildPageMetadata} from "@/lib/seo";
 import {getAllPlayers, PlayerResponse} from "@/lib/client";
-
-export const metadata: Metadata = buildPageMetadata({
-    title: "Player Search",
-    description: "Search Q3JS player profiles by handle and jump straight to match stats.",
-    path: "/players",
-    keywords: [
-        "Q3JS player search",
-        "Quake 3 player search",
-        "Q3JS player profiles",
-        "Quake III player stats",
-    ],
-});
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

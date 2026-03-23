@@ -1,9 +1,9 @@
 import {useEffect} from "react";
 
-export function useFullscreenOnF11() {
+export function useFullscreenOnF8() {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "F11") {
+            if (e.key === "F8") {
                 e.preventDefault();
                 const el = document.documentElement;
                 if (!document.fullscreenElement) {

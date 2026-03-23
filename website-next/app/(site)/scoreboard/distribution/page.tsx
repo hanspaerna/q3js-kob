@@ -1,20 +1,7 @@
-import type {Metadata} from "next";
 import {Suspense} from "react";
 import {Card, CardContent} from "@/components/ui/card";
-import {buildPageMetadata} from "@/lib/seo";
 import {ScoreboardDistributionPageContent} from "@/components/scoreboard-distribution-page-content";
 
-export const metadata: Metadata = buildPageMetadata({
-    title: "Activity",
-    description: "Reported Q3JS activity by hour or day across scoreboard periods.",
-    path: "/scoreboard/distribution",
-    keywords: [
-        "Q3JS activity",
-        "Quake 3 activity chart",
-        "Q3JS kill chart",
-        "Quake III stats chart",
-    ],
-});
 
 function ScoreboardDistributionPageSkeleton() {
     return (

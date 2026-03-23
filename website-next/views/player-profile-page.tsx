@@ -2,9 +2,7 @@ import Link from "next/link";
 import {Badge} from "@/components/ui/badge.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card.tsx";
-import {JsonLd} from "@/components/seo/json-ld";
 import {Q3ColoredText} from "@/components/q3-colored-text.tsx";
-import {absoluteUrl, siteConfig} from "@/lib/seo";
 import {stripQ3Colors} from "@/lib/utils.ts";
 import {SCOREBOARD_PERIOD_LABELS} from "@/lib/scoreboard.ts";
 import {PlayerStatsResponse, ScoreboardPeriod} from "@/lib/client";
@@ -117,33 +115,10 @@ export default function PlayerProfilePage(props: {
 }) {
     const plainName = stripQ3Colors(props.playerName);
     const periodLabel = SCOREBOARD_PERIOD_LABELS[props.period];
-    const playerProfileUrl = absoluteUrl(`/players/${encodeURIComponent(props.playerName)}`);
     const playtimeSeconds = Number(props.stats.playtimeSeconds);
-    const playerStructuredData = {
-        "@type": "Person",
-        name: plainName,
-        url: playerProfileUrl,
-        description: `${periodLabel} Q3JS stats for ${plainName}.`,
-        mainEntityOfPage: playerProfileUrl,
-    };
-    const profileStructuredData = {
-        "@context": "https://schema.org",
-        "@type": "ProfilePage",
-        name: `${plainName} player profile`,
-        description: `${periodLabel} Q3JS profile for ${plainName}, including kills, deaths, favorite map, and rivals.`,
-        url: playerProfileUrl,
-        isPartOf: {
-            "@type": "WebSite",
-            name: siteConfig.name,
-            url: siteConfig.url,
-        },
-        inLanguage: "en-US",
-        mainEntity: playerStructuredData,
-    };
 
     return (
         <main className="container mx-auto px-4 py-12 md:py-16">
-            <JsonLd data={profileStructuredData}/>
             <section className="mx-auto max-w-5xl space-y-8">
                 <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div className="space-y-3">
