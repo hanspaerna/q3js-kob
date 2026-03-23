@@ -17,8 +17,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: env.NEXT_PUBLIC_WEBSITE_TITLE ?? "",
-    template: `%s | ${env.NEXT_PUBLIC_WEBSITE_TITLE ?? ""}`,
+    default: process.env.WEBSITE_TITLE ?? "",
+    template: `%s | ${process.env.WEBSITE_TITLE ?? ""}`,
   },
 };
 
@@ -29,13 +29,21 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en-US">
-        <body className="antialiased">
-        <QueryClientProviderWrapper>
-            <ServiceWorkerRegistration/>
-            <TimeZoneSync/>
-            <div className="font-mono">{children}</div>
-        </QueryClientProviderWrapper>
-        </body>
+            <head>
+                <script dangerouslySetInnerHTML={{ __html: `
+                    window.__ENV__ = {
+                        masterServerUrl: "${process.env.MASTER_SERVER_URL}",
+                        websiteTitle: "${process.env.WEBSITE_TITLE}"
+                    }
+                `}} />
+            </head>
+            <body className="antialiased">
+                <QueryClientProviderWrapper>
+                    <ServiceWorkerRegistration/>
+                    <TimeZoneSync/>
+                    <div className="font-mono">{children}</div>
+                </QueryClientProviderWrapper>
+            </body>
         </html>
     );
 }

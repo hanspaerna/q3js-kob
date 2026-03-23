@@ -17,7 +17,7 @@ import {getAllServersOptions} from "@/lib/client/@tanstack/react-query.gen.ts";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
 import {createRandomPlayerName} from "@/lib/player-name-generator.ts";
 import {MenuIcon} from "lucide-react";
-import {cn} from "@/lib/utils.ts";
+import {cn, getClientEnv} from "@/lib/utils.ts";
 import {PwaInstallControl} from "@/components/pwa-install-control.tsx";
 import {env} from "@/env";
 
@@ -158,11 +158,13 @@ export function Header() {
         },
     ];
 
+    const { websiteTitle } = getClientEnv();
+
     return <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
             <Link href="/" className="flex items-center gap-3">
                 <div>
-                    <p className="text-xl font-bold tracking-tight text-foreground">{env.NEXT_PUBLIC_WEBSITE_TITLE}</p>
+                    <p className="text-xl font-bold tracking-tight text-foreground">{websiteTitle}</p>
                     <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v0.0.2</p>
                 </div>
             </Link>

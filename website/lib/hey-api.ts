@@ -1,7 +1,8 @@
 import type {CreateClientConfig} from './client/client.gen';
-import {env} from "@/env";
 
 export const createClientConfig: CreateClientConfig = (config) => ({
-    ...config,
-    baseUrl: env.NEXT_PUBLIC_MASTER_SERVER_URL,
+  ...config,
+  baseUrl: typeof window !== 'undefined'
+    ? (window as any).__ENV__?.masterServerUrl
+    : process.env.MASTER_SERVER_URL,
 });

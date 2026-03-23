@@ -61,3 +61,8 @@ export function toInt(s?: string, d = 0): number {
 export function getWsProtocol() {
     return location.protocol === "https:" ? "wss:" : "ws:";
 }
+
+export function getClientEnv() {
+  if (typeof window === 'undefined') return {};
+  return (window as any).__ENV__ ?? {};
+}
