@@ -2,8 +2,8 @@
 set -Eeuo pipefail
 
 CURRENT_DIR="$(pwd)"
-EMSDK_ROOT="${EMSDK_ROOT:-$CURRENT_DIR/../emsdk}"
-BASEQ3_SRC="${BASEQ3_SRC:-$CURRENT_DIR/../baseq3}"
+EMSDK_ROOT="${EMSDK_ROOT:-$CURRENT_DIR/emsdk}"
+BASEQ3_SRC="${BASEQ3_SRC:-$CURRENT_DIR/baseq3}"
 BUILD_DIR="${BUILD_DIR:-$CURRENT_DIR/build}"
 SHADER_DIR="$CURRENT_DIR/../ioq3/code/renderergl2/glsl"
 WEB_PORT="${WEB_PORT:-8000}"

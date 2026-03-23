@@ -1,100 +1,46 @@
-# Q3JS
+# Q3JS-KOB (a fork of Q3JS)
 
-> Quake III Arena rebuilt for the web: WebAssembly client, dedicated server, and supporting services all living in one
-> repo.
+This fork has a few differences:
+  - no Google Analytics or SEO
+  - mobile controls are enabled with a checkbox and not guessed
+  - home page is simplified (no server search)
+  - intended for a small private environment
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
 traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend. You can jump straight in at
 [q3js.com](https://q3js.com), or read on to see how the pieces fit together and how to work on each one locally.
 
-## Highlights
+## Building Docker images
 
-- **Browser-native Quake 3** – the `game/` module builds `ioquake3` with Emscripten 4.0.19 and serves it through the
-  Vite/TanStack app in `website/`.
-- **Dedicated server + WS bridge** – the `server/` module builds `ioq3ded` and exposes it to browsers via a Node-based
-  WebSocket↔UDP proxy.
-- **Master/API service** – the Quarkus service listens for heartbeats on /api/servers/heartbeat, and exposes a REST API.
-- **Single workspace** – scripts, Dockerfiles, and helper tooling live alongside the code so you can spin up the entire
-  stack with a few commands.
+- **Server:** `docker build -t q3js-server . -f ./server/Dockerfile --platform linux/amd64`.
+  Mount `baseq3/` if you do not bake assets into the image.
+- **Master:**: `docker build -t q3js-master . -f ./master/Dockerfile --platform linux/amd64`.
+- **Website:** `docker build -t q3js-website ./website --platform linux/amd64`.
+
+## Uploading Docker images
+
+```
+docker tag q3js-master:latest {url_to_repo}/q3js-website:latest
+docker tag q3js-server:latest {url_to_repo}/q3js-server:latest
+docker tag q3js-website:latest {url_to_repo}/q3js-website:latest
+docker push {url_to_repo}/q3js-website:latest
+docker push {url_to_repo}/q3js-server:latest
+docker push {url_to_repo}/q3js-website:latest
+``` 
 
 ## Repository map
 
-| Path       | Description                                                                     |
-|------------|---------------------------------------------------------------------------------|
-| `game/`    | Emscripten build scripts that compile `ioquake3` into `ioquake3.{js,wasm}`.     |
-| `server/`  | Native dedicated server build, Dockerfile, entrypoint, and WebSocket↔UDP proxy. |
-| `master/`  | Quarkus app (REST master server)                                                |
-| `website/` | Vite + React + TanStack Router UI that embeds the WASM build and server picker. |
-| `emsdk/`   | Local Emscripten SDK checkout used by `game/build.sh`.                          |
-| `ioq3/`    | Submodule pointing to the `ioquake3` source code.                               |~~~~
+| Path            | Description                                                                      |
+|-----------------|----------------------------------------------------------------------------------|
+| `game/`         | Emscripten build scripts that compile `ioquake3` into `ioquake3.{js,wasm}`.      |
+| `game/emsdk/`   | Local Emscripten SDK checkout used by `game/build.sh`.                           |
+| `game/ioq3/`    | Submodule pointing to the `ioquake3` source code.                                |
+| `server/`       | Native dedicated server build, Dockerfile, entrypoint, and WebSocket↔UDP proxy.  |
+| `master/`       | Quarkus app (REST master server)                                                 |
+| `website/`      | Vite + React + TanStack Router UI that embeds the WASM build and server picker.  |
 
-## Architecture
 
-```
-Browser (React + ioquake3.wasm)
-    │
-    ├── HTTP(S) → Quarkus Service (REST /api/servers)
-    └── WebSocket → ws-udp-proxy → UDP → ioq3ded (maps, rcon, gameplay)
-```
-
-## Requirements
-
-| Tool                    | Version / Notes                                                                               |
-|-------------------------|-----------------------------------------------------------------------------------------------|
-| Node.js & npm           | Node 18+ (Node 20.x recommended) for the website and ws proxy.                                |
-| Java                    | JDK 21 for Quarkus.                                                                           |
-| Maven                   | Included via `master/mvnw`, but installing Maven 3.9+ helps.                                  |
-| Docker + Docker Compose | Required for the Postgres dev DB and optional server builds.                                  |
-| CMake + build-essential | Needed to compile the native server locally.                                                  |
-| Emscripten SDK          | 4.0.19 (included via `emsdk/`; run `git submodule update --init emsdk` or download manually). |
-| Quake III Arena assets  | Copy your legal `pak*.pk3` files into `baseq3/` and `baseq3.zip`.                             |
-
-> **Legal notice:** The `pak` files are free, shareware demo versions of Quake III Arena. To play the full game, you
-> must own a legal copy of Quake III Arena or Quake III: Team Arena and copy the corresponding `pak` files from your
-> installation.
-
-## Quick start
-
-1. **Acquire assets**
-    - Copy the baseq3 folder into `website/public/` so the browser client can download them.
-
-2. **Build the WebAssembly client**
-   ```bash
-   pushd game
-   ./build.sh                   # installs/activates emsdk 4.0.19 and compiles ioquake3
-   popd
-   ```
-   The output `game/build/Release/ioquake3.{js,wasm}` must be copied (or symlinked) into `website/src/lib/`. The script
-   already patches OpenGL shaders for WebGL 2 / GLES precision requirements.
-
-3. **Run the Quarkus service**
-   ```bash
-   pushd master
-   ./mvnw quarkus:dev           # REST API on http://localhost:8080, UDP master on :27950
-   popd
-   ```
-   Test the API: `curl http://localhost:8080/api/servers`.
-
-4. **Build & run the dedicated server + proxy**
-   ```bash
-   pushd server
-   ./build.sh                   # cmake build of ioq3ded in server/build/Release
-   ./entrypoint.sh              # launches ioq3ded with the default cvars/maps
-   popd
-   ```
-    - The proxy listens on `WS_PORT` (default `27961`) and points to `Q3_HOST:Q3_PORT` (default `127.0.0.1:27960`).
-      Override via env vars when running `entrypoint.sh` or the Docker container.
-
-5. **Run the web UI**
-   ```bash
-   pushd website
-   npm install
-   npm run dev                  # Vite dev server on http://localhost:3000
-   popd
-   ```
-   The SPA polls the REST API for server data and opens the WebSocket proxy when you click “Play”.
-
-## Component details
+## Local development
 
 ### Browser client (`game/` + `website/`)
 
@@ -104,6 +50,22 @@ Browser (React + ioquake3.wasm)
   lives in IDBFS; `GamePage.tsx` handles mounting/syncing and versioned cache invalidation.
 - Tooling: Vite + Tailwind CSS, TanStack Router, TanStack Query, shadcn/ui, Vitest, and Biome for formatting/linting.
   Use `npm run test`, `npm run lint`, `npm run format`, `npm run check`.
+
+-  **Build the WebAssembly client**
+   ```bash
+   cd game
+   ./build.sh                   # installs/activates emsdk 4.0.19 and compiles ioquake3
+   ```
+   The output `game/build/Release/ioquake3.{js,wasm}` must be copied (or symlinked) into `website/src/lib/`. The script
+   already patches OpenGL shaders for WebGL 2 / GLES precision requirements.
+
+-  **Run the website (UI)**
+   ```bash
+   cd website
+   npm install
+   npm run dev                  # Vite dev server on http://localhost:3000
+   ```
+   The SPA polls the REST API for server data and opens the WebSocket proxy when you click “Play”.
 
 ### Dedicated server (`server/`)
 
@@ -118,37 +80,38 @@ Browser (React + ioquake3.wasm)
 - `entrypoint.sh` launches both the proxy and `ioq3ded` with sensible defaults (dedicated server, `q3dm17`). Use the
   multi-stage `server/Dockerfile` if you prefer container builds: `docker build -t q3js/server ./server`.
 
+-  **Build & run the dedicated server + proxy**
+   ```bash
+   cd server
+   ./build.sh                   # cmake build of ioq3ded in server/build/Release
+   ./entrypoint.sh              # launches ioq3ded with the default cvars/maps
+   ```
+    - The proxy listens on `WS_PORT` (default `27961`) and points to `Q3_HOST:Q3_PORT` (default `127.0.0.1:27960`).
+      Override via env vars when running `entrypoint.sh` or the Docker container.
+
 ### Master/API service (`master/`)
 
-- Built with Quarkus 3.29 (Jakarta EE 10 APIs), exposes `GET /api/servers` returning `ServerResponse` DTOs.
+- **Run the Quarkus service**
+   ```bash
+   cd master
+   ./mvnw quarkus:dev           # REST API on http://localhost:8080, UDP master on :27950
+   ```
+   Test the API: `curl http://localhost:8080/api/servers`.
 - Tests: `./mvnw test`. Native builds: `./mvnw package -Dnative`.
-
-## Running everything with Docker
-
-- **Server:** `docker build -t q3js-server . -f ./server/Dockerfile --platform linux/amd64`.
-  Mount `baseq3/` if you do not bake assets into the image.
-- **Website:** `docker build -t q3js-website ./website-next --platform linux/amd64` (Dockerfile provided), or deploy the static `dist/` folder
-  produced by `npm run build`.
-
-## Run your own server
-
-- Want to customize game types, maps, or run a persistent instance? Follow the hosted guide at
-  [q3js.com/guide](https://q3js.com/guide) for detailed steps on provisioning assets, configuring the Quarkus master,
-  and exposing the WebSocket proxy.
-- The guide walks through the Docker-based deployments.
-
-## Useful scripts
-
-| Command           | Purpose                                                                                                        |
-|-------------------|----------------------------------------------------------------------------------------------------------------|
-| `game/build.sh`   | Full WebAssembly rebuild (deletes `game/build/`). Accepts `EMSDK_ROOT`, `BASEQ3_SRC`, `BUILD_DIR`, `WEB_PORT`. |
-| `server/build.sh` | Native server rebuild. Set `BASEQ3_SRC`/`BUILD_DIR` to override defaults.                                      |
 
 ## Troubleshooting
 
 - **Browser shows black screen:** Ensure `website/src/lib/ioquake3.{js,wasm}` matches the latest build and that the
   files are referenced by Vite (restart `npm run dev` after copying).
 - **`emsdk_env.sh not found`:** Set `EMSDK_ROOT=/path/to/emsdk` before running `game/build.sh`.
+
+## Using acquired assets
+
+Copy the baseq3 folder into `public/` folder of the website deployment (i.e. `public/baseq3/`) so the browser client can download them.
+
+> **Legal notice:** The `pak` files are free, shareware demo versions of Quake III Arena. To play the full game, you
+> must own a legal copy of Quake III Arena or Quake III: Team Arena and copy the corresponding `pak` files from your
+> installation.
 
 ## License & credits
 
@@ -159,5 +122,3 @@ Browser (React + ioquake3.wasm)
   [lklacar](https://github.com/lklacar); please provide attribution if you reuse these components.
 - The `q3js.com` website and its original content are likewise authored and owned by lklacar; include proper credit when
   referencing or republishing any portion of it.
-
-Happy fragging! Feel free to open issues or PRs with improvements to the stack.

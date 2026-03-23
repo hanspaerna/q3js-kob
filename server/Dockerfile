@@ -2,7 +2,7 @@ FROM node:20-trixie AS proxybuilder
 
 WORKDIR /
 COPY . .
-WORKDIR /proxy
+WORKDIR /server/proxy
 
 RUN npm install
 
