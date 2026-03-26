@@ -46,10 +46,6 @@ async function initPublishHost() {
 }
 
 async function sendHeartbeat() {
-    console.warn('before condition at the beginning of sendHeartbeat():'); 
-    console.warn('heartbeatBodyJson: ' + heartbeatBodyJson);
-    console.warn('heartbeatInFlight: ' + heartbeatInFlight); 
-
     if (!heartbeatBodyJson || heartbeatInFlight) {
         return;
     }
@@ -61,11 +57,6 @@ async function sendHeartbeat() {
             headers: { 'Content-Type': 'application/json' },
             body: heartbeatBodyJson,
         });
-
-
-	console.warn('Heartbeat sent to ' + HEARTBEAT_URL);
-	console.warn('Body: ' + heartbeatBodyJson);
-
 
         if (!res.ok) {
             console.warn('Heartbeat failed:', res.status, res.statusText);
@@ -79,8 +70,6 @@ async function sendHeartbeat() {
 
 async function heartbeatLoop() {
     for (;;) {
-	console.warn('[HB LOOP] Sending a heartbeat...');
-	console.warn('Timeout set to: ' + HEARTBEAT_INTERVAL_MS);
         await sendHeartbeat();
         await new Promise(resolve => setTimeout(resolve, HEARTBEAT_INTERVAL_MS));
     }
