@@ -3,4 +3,4 @@
 	url = https://github.com/emscripten-core/emsdk.git
 [submodule "ioq3"]
 	path = game/ioq3
-	url = https://github.com/lklacar/q3js-ioq3
+	url = https://github.com/hanspaerna/q3js-ioq3
