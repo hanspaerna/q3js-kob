@@ -26,8 +26,23 @@ export function Hero(props: {
 }) {
     return (
         <section className="border-b border-border/60 bg-background">
-            <div className="container mx-auto px-4 py-14 md:py-18">
+            <div className="container mx-auto px-4 py-14 md:py-14">
                 <div className="mx-auto max-w-4xl text-center">
+                    <div className="mt-8 flex flex-col items-center gap-3">
+                        <i>
+                            <p className="text-left">
+                                Лижи макет шершавой плоти,<br />
+                                Вервольф с звезды Ольдеборан,<br />
+                                Ты, может, выжил при Пол Поте,<br />
+                                Но мой сильнее раилган.<br />
+                                <br />
+                            </p>
+                            <p className="text-right">
+                                В. П. Пидоренко
+                            </p>
+                        </i>
+                    </div>
+
                     <div className="mt-6 mx-auto grid max-w-md grid-cols-2 gap-3">
                         {props.firstServer ? (
                             <JoinServerButton server={props.firstServer} mobileControlsEnabled={props.mobileControlsEnabled} ctaLabel={"Play"}/>
