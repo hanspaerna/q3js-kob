@@ -80,7 +80,10 @@ Automatic download of maps is already enabled by ioquake3 client itself, just ad
 
 The website part of this custom fork can also download custom models from baseq3/ folder of the server and install them into clients dynamically. Just copy your model into baseq3/ and name it accordingly: "model-$NAME.pk3". That's it.
 
+If custom model is no longer on server, it will also be removed from clients on their next loading.
+
 NB! The server's baseq3 folder must be mapped to /app/public/baseq3 of the website container for this feature to work. The models are global for any fs_game, so they in theory will be available in CPMA as well, even though they're installed in baseq3.
+
 
 ### Dedicated server (`server/`)
 
