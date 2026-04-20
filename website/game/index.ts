@@ -43,6 +43,11 @@ const config = {
             {src: "baseq3/vm/cgame.qvm", dst: "/baseq3/vm"},
             {src: "baseq3/vm/qagame.qvm", dst: "/baseq3/vm"},
             {src: "baseq3/vm/ui.qvm", dst: "/baseq3/vm"},
+            // add custom player models below
+            {src: "baseq3/model-chaos-marine.pk3", dst: "/baseq3"},
+            {src: "baseq3/model-manson.pk3", dst: "/baseq3"},
+            {src: "baseq3/model-manson-mechanicalanimal.pk3", dst: "/baseq3"},
+            {src: "baseq3/model-meuble.pk3", dst: "/baseq3"},
         ],
     },
     cpma: {
@@ -179,6 +184,8 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
           +set com_introplayed 1
           +set ui_cdkeychecked 1
           +set cl_firststart 0
+          +set r_picmip 0
+          +set cg_fov 120
         `;
 
     if (mobileMode) {
