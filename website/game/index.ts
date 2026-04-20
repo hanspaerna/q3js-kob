@@ -204,6 +204,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
           +set cl_firststart 0
           +set r_picmip 0
           +set cg_fov 120
+          +bind h "+button3"
         `;
 
     if (mobileMode) {
@@ -220,10 +221,6 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
 
     generatedArguments += ` +connect ${host}:${proxyPort} `;
     generatedArguments += ` +set name "${name.replace(/"/g, "'")}" `;
-
-    if (name === "^1L^2K") {
-        generatedArguments += ` +set cg_autoswitch "0" +bind 3 "weapon 7" +bind e "+zoom" `;
-    }
 
     const dataURL = new URL(location.origin + location.pathname);
 

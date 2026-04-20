@@ -26,7 +26,7 @@ const STAGE_LABELS: Record<Prog["stage"], string> = {
 const STAGE_TIPS: Record<Prog["stage"], string> = {
     initializing: "Tip: Press F8 to toggle fullscreen.",
     downloading: "Tip: Assets are cached after first load.",
-    launching: "Tip: If sound is muted, click the page once.",
+    launching: "Tip: Press H in-game to shout.",
     ready: "Tip: If sound is muted, click the page once.",
 };
 
