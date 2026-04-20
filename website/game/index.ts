@@ -135,7 +135,8 @@ const config = {
 
 // models are stored in baseq3 for any fs_game, be it CPMA or anything else
 export function getConfigWithCustomModels(customPlayerModels: string[]) {
-  const extraModelFiles = customPlayerModels.map(model => ({ src: `baseq3/${model}`, dst: "/baseq3" }));
+  // "api/" prefix is very important, as we call an internal API route to dynamically load the new models
+  const extraModelFiles = customPlayerModels.map(model => ({ src: `api/baseq3/${model}`, dst: "/baseq3" }));
     
   return {
     ...config,
