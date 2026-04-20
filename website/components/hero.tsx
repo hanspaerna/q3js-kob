@@ -64,7 +64,12 @@ export function Hero(props: {
                             onChange={props.onMobileControlsChange}
                         />
 
-                        Press 'F8' in-game to enable fullscreen mode.
+                        <p>
+                            Press <strong>F8</strong> in-game to enable fullscreen mode.
+                        </p>
+                        <p>
+                            Press <strong>H</strong> in-game to shout after killing (or being killed by) someone.
+                        </p>
                     </div>
 
                     <div className="mt-8 grid gap-3 text-left md:grid-cols-3">

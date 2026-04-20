@@ -165,7 +165,7 @@ export function Header() {
             <Link href="/" className="flex items-center gap-3">
                 <div>
                     <p className="text-xl font-bold tracking-tight text-foreground">{websiteTitle}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v0.0.2</p>
+                    <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v0.0.3</p>
                 </div>
             </Link>
 

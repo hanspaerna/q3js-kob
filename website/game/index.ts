@@ -264,6 +264,26 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         ).values()
                     );
 
+                    const validModelFiles = new Set(
+                        uniqueFileEntries
+                            .map(f => f.src.split("/").pop() as string)
+                    );
+
+                    // to clean-up server and clients from bad custom models, remove all models from clients that are no longer on the server
+                    try {
+                        const baseq3Files = module.FS.readdir('/baseq3') as string[];
+                        for (const file of baseq3Files) {
+                            if (file.startsWith('model-') && file.endsWith('.pk3')) {
+                                if (!validModelFiles.has(file)) {
+                                    module.FS.unlink(`/baseq3/${file}`);
+                                    console.log(`Removed a custom model from client that does not exist on server: ${file}`);
+                                }
+                            }
+                        }
+                    } catch {
+                        // /baseq3 might not exist yet on first run, safe to ignore
+                    }
+
                     const pendingEntries = uniqueFileEntries.filter((f: FileEntry) => {
                         const assetName = f.src.split("/").pop() as string;
                         const dstPath = `${f.dst}/${assetName}`;
