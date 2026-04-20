@@ -45,6 +45,10 @@ type ScreenOrientationWithLock = ScreenOrientation & {
     lock?: (orientation: ScreenOrientationLockMode) => Promise<void>;
 };
 
+interface GamePageProps {
+   customPlayerModels: string[];
+}
+
 function isIPhoneUserAgent() {
     if (typeof navigator === "undefined") {
         return false;
@@ -170,7 +174,7 @@ function useLandscapeFullscreen(targetRef: RefObject<HTMLElement | null>) {
     };
 }
 
-export default function GamePage() {
+export default function GamePage({ customPlayerModels }: GamePageProps) {
     useFullscreenOnF8();
     const gameShellRef = useRef<HTMLElement | null>(null);
     const startedGameKeyRef = useRef<string | null>(null);
@@ -221,6 +225,7 @@ export default function GamePage() {
             rafUpdate,
             fsGame,
             mobileMode: showTouchUi,
+            customPlayerModels
         });
     }, [canStartGame, fsGame, gameStartKey, host, name, proxyPort, rafUpdate, showTouchUi]);
 

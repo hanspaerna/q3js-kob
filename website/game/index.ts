@@ -18,6 +18,7 @@ type Params = {
     rafUpdate: (prog: Prog) => void;
     fsGame: string;
     mobileMode?: boolean;
+    customPlayerModels?: string[];
 }
 
 type FileEntry = {
@@ -43,11 +44,6 @@ const config = {
             {src: "baseq3/vm/cgame.qvm", dst: "/baseq3/vm"},
             {src: "baseq3/vm/qagame.qvm", dst: "/baseq3/vm"},
             {src: "baseq3/vm/ui.qvm", dst: "/baseq3/vm"},
-            // add custom player models below
-            {src: "baseq3/model-chaos-marine.pk3", dst: "/baseq3"},
-            {src: "baseq3/model-manson.pk3", dst: "/baseq3"},
-            {src: "baseq3/model-manson-mechanicalanimal.pk3", dst: "/baseq3"},
-            {src: "baseq3/model-meuble.pk3", dst: "/baseq3"},
         ],
     },
     cpma: {
@@ -137,6 +133,27 @@ const config = {
 
 } as const satisfies Record<string, { files: readonly FileEntry[] }>;
 
+// models are stored in baseq3 for any fs_game, be it CPMA or anything else
+export function getConfigWithCustomModels(customPlayerModels: string[]) {
+  const extraModelFiles = customPlayerModels.map(model => ({ src: `baseq3/${model}`, dst: "/baseq3" }));
+    
+  return {
+    ...config,
+    baseq3: {
+      files: [
+        ...config.baseq3.files,
+        ...extraModelFiles
+      ]
+    },
+    cpma: {
+      files: [
+        ...config.cpma.files,
+        ...extraModelFiles
+      ]
+    }
+  };
+}
+
 type SupportedGameDir = keyof typeof config;
 type RuntimeModule = IOQ3RuntimeModule & {
     addRunDependency: (id: string) => void;
@@ -147,7 +164,7 @@ function isSupportedGameDir(gameDir: string): gameDir is SupportedGameDir {
     return gameDir in config;
 }
 
-export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false}: Params) {
+export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false, customPlayerModels = []}: Params) {
     const importIoquake3 = new Function("return import('/ioquake3.js')");
     const ioquake3Module = await (importIoquake3() as Promise<{ default: (moduleArg?: unknown) => unknown }>);
     const ioquake3 = ioquake3Module.default;
@@ -236,7 +253,9 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                     const mountDirs = Array.from(new Set([com_basegame, fs_basegame, fs_game, "baseq3"]));
                     const {persist} = await ensureMounts(module, {assetGameDirs: mountDirs});
                     const configuredGameDirs = mountDirs.filter(isSupportedGameDir);
-                    const allFileEntries = configuredGameDirs.flatMap<FileEntry>((g) => config[g].files);
+                    const configWithCustomModels = getConfigWithCustomModels(customPlayerModels);
+
+                    const allFileEntries = configuredGameDirs.flatMap<FileEntry>((g) => configWithCustomModels[g].files);
                     const uniqueFileEntries = Array.from(
                         new Map(
                             allFileEntries.map((f: FileEntry) => {
