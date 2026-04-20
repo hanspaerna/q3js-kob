@@ -72,6 +72,16 @@ docker push {url_to_repo}/q3js-website:latest
    ```
    The SPA polls the REST API for server data and opens the WebSocket proxy when you click “Play”.
 
+#### Custom maps
+
+Automatic download of maps is already enabled by ioquake3 client itself, just add a new map to baseq3/ dir of the server, reload the current map once again with rcon, and then the new one will be available.
+
+#### Custom player models
+
+The website part of this custom fork can also download custom models from baseq3/ folder of the server and install them into clients dynamically. Just copy your model into baseq3/ and name it accordingly: "model-$NAME.pk3". That's it.
+
+NB! The server's baseq3 folder must be mapped to /app/public/baseq3 of the website container for this feature to work. The models are global for any fs_game, so they in theory will be available in CPMA as well, even though they're installed in baseq3.
+
 ### Dedicated server (`server/`)
 
 - `server/build.sh` configures `ioq3ded` (headless server, QVMs enabled) via CMake/GCC, copies `baseq3/` into the build
