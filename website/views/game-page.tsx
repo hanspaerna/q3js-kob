@@ -410,7 +410,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         // since ioquake3 won't re-request it either, we do it ourselves
         const handleClick = () => {
             if (document.pointerLockElement !== canvas) {
-            canvas.requestPointerLock();
+                canvas.requestPointerLock({ unadjustedMovement: true });
             }
         };
 
