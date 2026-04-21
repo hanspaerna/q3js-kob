@@ -156,6 +156,10 @@ export function Header() {
             href: profileHref ?? undefined,
             label: "My Profile",
         },
+        {
+            href: "/admin",
+            label: "Admin",
+        },
     ];
 
     const { websiteTitle } = getClientEnv();
