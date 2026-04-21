@@ -41,93 +41,13 @@ const config = {
             {src: "baseq3/pak6.pk3", dst: "/baseq3"},
             {src: "baseq3/pak7.pk3", dst: "/baseq3"},
             {src: "baseq3/pak8.pk3", dst: "/baseq3"},
-            {src: "baseq3/vm/cgame.qvm", dst: "/baseq3/vm"},
+            {src: "baseq3/vm/cgame.qvm", dst: "/baseq3/vm"}, // to fix HUD aspect ratio, replace these 3 compiled QVMs with files from https://github.com/clover-moe/flexible-hud-for-ioq3
             {src: "baseq3/vm/qagame.qvm", dst: "/baseq3/vm"},
             {src: "baseq3/vm/ui.qvm", dst: "/baseq3/vm"},
-        ],
-    },
-    cpma: {
-        files: [
-            {src: "cpma/missing.pk3", dst: "/cpma"},
-
-            {src: "cpma/cfg-maps/mapmodes.txt", dst: "/cpma/cfg-maps"},
-
-            // core pak + maps (already had)
-            {src: "cpma/z-cpma-pak153.pk3", dst: "/cpma"},
-
-            {src: "cpma/map_cpm10.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm11a.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm11.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm12.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm13.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm14.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm15.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm16.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm17.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm18.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm18r.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm19.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm1a.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm20.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm21.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm22.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm23.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm24.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm25.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm26_cpmctf4.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm27.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm28.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm29.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm2.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm3a.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm3.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm4a.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm4.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm5.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm6.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm7.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm8.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm9.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpma3.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpmctf1.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpmctf2.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpmctf3.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpmctf5.pk3", dst: "/cpma"},
-
-            // misc root files
-            {src: "cpma/changelog.txt", dst: "/cpma"},
-            {src: "cpma/description.txt", dst: "/cpma"},
-            {src: "cpma/readme.txt", dst: "/cpma"},
-            {src: "cpma/openlibm_license.md", dst: "/cpma"},
-            {src: "cpma/cpma.ico", dst: "/cpma"},
-            {src: "cpma/cpma-trans.ico", dst: "/cpma"},
-
-            // classes
-            {src: "cpma/classes/fighter.cfg", dst: "/cpma/classes"},
-            {src: "cpma/classes/scout.cfg", dst: "/cpma/classes"},
-            {src: "cpma/classes/sniper.cfg", dst: "/cpma/classes"},
-            {src: "cpma/classes/tank.cfg", dst: "/cpma/classes"},
-
-            // hud
-            {src: "cpma/hud/arqon.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud1.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud2.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud3.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud4.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud5.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud6.cfg", dst: "/cpma/hud"},
-            {src: "cpma/hud/hud7.cfg", dst: "/cpma/hud"},
-
-            // stats
-            {src: "cpma/stats/basics/arrdown.gif", dst: "/cpma/stats/basics"},
-            {src: "cpma/stats/basics/arrup.gif", dst: "/cpma/stats/basics"},
-            {src: "cpma/stats/basics/stats141.css", dst: "/cpma/stats/basics"},
-            {src: "cpma/stats/basics/stats141.xsl", dst: "/cpma/stats/basics"},
-
-            // viewcam
-            {src: "cpma/viewcam/cpm3a.cfg", dst: "/cpma/viewcam"},
-            {src: "cpma/viewcam/cpm3.cfg", dst: "/cpma/viewcam"},
-            {src: "cpma/viewcam/q3dm12.cfg", dst: "/cpma/viewcam"},
+            {src: "baseq3/zzczhdwr1.pk3", dst: "/baseq3"}, // CZ45 Q3A Weapon Model Remake (3 files)
+            {src: "baseq3/zzczhdwr2.pk3", dst: "/baseq3"},
+            {src: "baseq3/zzczhdwr3.pk3", dst: "/baseq3"},
+            {src: "baseq3/pak9hqq37.pk3", dst: "/baseq3"}, // [HQQ] High Quality Quake - v3.7 (UI/menu upscaler)
         ],
     }
 
@@ -143,12 +63,6 @@ export function getConfigWithCustomModels(customPlayerModels: string[]) {
     baseq3: {
       files: [
         ...config.baseq3.files,
-        ...extraModelFiles
-      ]
-    },
-    cpma: {
-      files: [
-        ...config.cpma.files,
         ...extraModelFiles
       ]
     }
