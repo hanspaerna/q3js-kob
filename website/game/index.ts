@@ -120,10 +120,9 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +bind h "+button3"
     `;
 
-    // Spearmint's Very High Quality Graphics settings by zturtleman, compatible with ioquake3
+    // Spearmint's Very High Quality Graphics settings by zturtleman, compatible with ioquake3 (r_flares excluded due to OpenGL error)
     generatedArguments += `
         +set r_picmip 0
-        +set r_flares 1
         +set r_lodBias -2
         +set r_subdivisions 1
         +set r_textureMode "GL_LINEAR_MIPMAP_LINEAR"
