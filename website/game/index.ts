@@ -103,33 +103,46 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
     const fs_game = fsGame;
 
     let generatedArguments = `
-          +set sv_pure 0
-          +set net_enabled 1
-          +set r_mode -2
-          +set r_fullscreen 0
-          +set cl_allowDownload 1
-          +set con_scale 2
-          +set fs_game "${fs_game}"
-          +set fs_homeconfigpath "${PERSIST_CONFIG_DIR}"
-          +set fs_homedatapath "${PERSIST_DATA_DIR}"
-          +set fs_homestatepath "${PERSIST_STATE_DIR}"
-          +set com_introplayed 1
-          +set ui_cdkeychecked 1
-          +set cl_firststart 0
-          +set r_picmip 0
-          +set cg_fov 120
-          +bind h "+button3"
-        `;
+        +set sv_pure 0
+        +set net_enabled 1
+        +set r_mode -2
+        +set r_fullscreen 0
+        +set cl_allowDownload 1
+        +set con_scale 2
+        +set fs_game "${fs_game}"
+        +set fs_homeconfigpath "${PERSIST_CONFIG_DIR}"
+        +set fs_homedatapath "${PERSIST_DATA_DIR}"
+        +set fs_homestatepath "${PERSIST_STATE_DIR}"
+        +set com_introplayed 1
+        +set ui_cdkeychecked 1
+        +set cl_firststart 0
+        +set cg_fov 120
+        +bind h "+button3"
+    `;
+
+    // Spearmint's Very High Quality Graphics settings by zturtleman, compatible with ioquake3
+    generatedArguments += `
+        +set r_picmip 0
+        +set r_flares 1
+        +set r_lodBias -2
+        +set r_subdivisions 1
+        +set r_textureMode "GL_LINEAR_MIPMAP_LINEAR"
+        +set r_ext_texture_filter_anisotropic 1
+        +set r_ext_max_anisotropy 16
+        +set r_ext_multisample 4
+        +set r_ext_framebuffer_multisample 4
+        +set r_lodCurveError 10000
+    `;
 
     if (mobileMode) {
         generatedArguments += `
-          +set r_mode -1
-          +set r_customwidth ${initialRenderWidth}
-          +set r_customheight ${initialRenderHeight}
-          +set in_nograb 1
-          +set in_joystickUseAnalog 1
-          +set j_forward -1
-          +set j_side 1
+            +set r_mode -1
+            +set r_customwidth ${initialRenderWidth}
+            +set r_customheight ${initialRenderHeight}
+            +set in_nograb 1
+            +set in_joystickUseAnalog 1
+            +set j_forward -1
+            +set j_side 1
         `;
     }
 

@@ -15,7 +15,7 @@ export async function GET(req: Request) {
   }
 
   const files = fs.readdirSync(BASEQ3_DIR)
-    .filter(f => f.endsWith('.pk3') && !f.startsWith('pak'))
+    .filter(f => f.endsWith('.pk3') && !f.startsWith('pak') && !f.startsWith('zzczhdwr'))
     .map(f => ({
       name: f,
       size: fs.statSync(`${BASEQ3_DIR}/${f}`).size
