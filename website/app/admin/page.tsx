@@ -18,6 +18,9 @@ export default function AdminPage() {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  const modelFiles = files.filter(f => f.name.startsWith('model-'));
+  const mapFiles = files.filter(f => !f.name.startsWith('model-'));
+
   const headers = { 'x-admin-password': password };
 
   async function login() {
@@ -158,24 +161,52 @@ export default function AdminPage() {
         </label>
         {uploadError && <p className={s.error}>{uploadError}</p>}
 
-        <div className={s.fileList}>
-          {files.length === 0
-            ? <p className={s.emptyState}>No files found</p>
-            : files.map(f => (
-                <div key={f.name} className={s.fileItem}>
-                  <div className={s.fileItemName}>
-                    <File size={14} color="var(--color-text-faint)" />
-                    <span>{f.name}</span>
-                  </div>
-                  <div className={s.fileItemMeta}>
-                    <span className={s.fileSize}>{formatBytes(f.size)}</span>
-                    <button className={s.btnIcon} onClick={() => openConfirm(f.name)}>
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                </div>
-              ))
-          }
+        <div className={s.fileLists}>
+          <div className={s.fileColumn}>
+            <h2 className={s.columnHeader}>Skins / Models</h2>
+            <div className={s.fileList}>
+              {modelFiles.length === 0
+                ? <p className={s.emptyState}>No models found</p>
+                : modelFiles.map(f => (
+                    <div key={f.name} className={s.fileItem}>
+                      <div className={s.fileItemName}>
+                        <File size={14} color="var(--color-text-faint)" />
+                        <span>{f.name}</span>
+                      </div>
+                      <div className={s.fileItemMeta}>
+                        <span className={s.fileSize}>{formatBytes(f.size)}</span>
+                        <button className={s.btnIcon} onClick={() => openConfirm(f.name)}>
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+              }
+            </div>
+          </div>
+
+          <div className={s.fileColumn}>
+            <h2 className={s.columnHeader}>Maps</h2>
+            <div className={s.fileList}>
+              {mapFiles.length === 0
+                ? <p className={s.emptyState}>No maps found</p>
+                : mapFiles.map(f => (
+                    <div key={f.name} className={s.fileItem}>
+                      <div className={s.fileItemName}>
+                        <File size={14} color="var(--color-text-faint)" />
+                        <span>{f.name}</span>
+                      </div>
+                      <div className={s.fileItemMeta}>
+                        <span className={s.fileSize}>{formatBytes(f.size)}</span>
+                        <button className={s.btnIcon} onClick={() => openConfirm(f.name)}>
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+              }
+            </div>
+          </div>
         </div>
       </div>
 

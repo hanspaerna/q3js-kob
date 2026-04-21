@@ -21,7 +21,7 @@
 
 .container {
   width: 100%;
-  max-width: 600px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -297,4 +297,27 @@
 .fileSize {
   color: var(--color-text-faint);
   font-size: 12px;
+}
+
+.fileLists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.fileColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.columnHeader {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 8px;
 }
