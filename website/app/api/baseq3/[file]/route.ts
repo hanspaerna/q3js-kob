@@ -12,5 +12,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ file: st
   }
 
   const fileBuffer = fs.readFileSync(filePath);
-  return new NextResponse(fileBuffer);
+  return new NextResponse(fileBuffer, {
+    headers: {
+        'Content-Length': fileBuffer.byteLength.toString(),
+    }
+});
 }

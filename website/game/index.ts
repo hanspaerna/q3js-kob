@@ -211,16 +211,32 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         // /baseq3 might not exist yet on first run, safe to ignore
                     }
 
-                    const pendingEntries = uniqueFileEntries.filter((f: FileEntry) => {
-                        const assetName = f.src.split("/").pop() as string;
-                        const dstPath = `${f.dst}/${assetName}`;
-                        try {
-                            const st = module.FS.stat(dstPath);
-                            return !st || (st.size ?? 0) <= 0;
-                        } catch {
-                            return true;
-                        }
-                    });
+                    const pendingEntries = (await Promise.all(
+                        uniqueFileEntries.map(async (f: FileEntry) => {
+                            const assetName = f.src.split("/").pop() as string;
+                            const dstPath = `${f.dst}/${assetName}`;
+
+                            let localSize = -1;
+                            try {
+                                const st = module.FS.stat(dstPath);
+                                localSize = st?.size ?? -1;
+                            } catch {
+                                // file doesn't exist yet
+                            }
+
+                            if (localSize <= 0) return f; // doesn't exist, always download
+
+                            try {
+                                const url = new URL(f.src, dataURL);
+                                const head = await fetch(url, { method: 'HEAD' });
+                                const remoteSize = parseInt(head.headers.get('content-length') ?? '-1', 10);
+                                if (remoteSize > 0 && remoteSize !== localSize) return f; // size mismatch, re-download
+                                return null; // sizes match, skip
+                            } catch {
+                                return null; // can't check, assume it's fine
+                            }
+                        })
+                    )).filter((f): f is FileEntry => f !== null);
 
                     const pendingUrls = pendingEntries.map((f: FileEntry) => new URL(f.src, dataURL));
                     const totalBytes = await estimateTotalBytes(pendingUrls);
