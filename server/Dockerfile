@@ -36,8 +36,7 @@ COPY --from=proxybuilder /server/proxy /proxy
 COPY --from=serverbuilder /server/build/Release /server
 COPY --from=serverbuilder /server/entrypoint.sh /server/entrypoint.sh
 
-RUN mkdir -p /server/q3js && cp -a /server/baseq3/. /server/q3js/
-RUN printf '' > /server/q3js/q3js-defaults.cfg
+RUN mkdir -p /server/vm-q3js && cp -a /server/baseq3/vm /server/vm-q3js
 
 WORKDIR /server
 
@@ -47,4 +46,4 @@ EXPOSE 27961
 EXPOSE 27960/udp
 
 ENTRYPOINT ["./entrypoint.sh"]
-CMD ["+set", "dedicated", "2", "+set", "sv_pure", "1", "+set", "sv_allowDownload", "1", "+set", "net_ip", "0.0.0.0", "+set", "sv_dlrate", "0", "+set", "com_hunkMegs", "256", "+exec", "q3js-defaults.cfg", "+exec", "autoexec.cfg"]
+CMD ["+set", "dedicated", "2", "+set", "sv_pure", "1", "+set", "sv_allowDownload", "1", "+set", "net_ip", "0.0.0.0", "+set", "sv_dlrate", "0", "+set", "com_hunkMegs", "256", "+exec", "autoexec.cfg"]

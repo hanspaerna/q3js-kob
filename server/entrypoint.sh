@@ -14,7 +14,7 @@ for ((i = 0; i < ${#args[@]} - 1; i++)); do
 done
 
 if [[ "$has_fs_game_arg" == false ]]; then
-  args=("+set" "fs_game" "${FS_GAME:-q3js}" "${args[@]}")
+  args=("+set" "fs_game" "${FS_GAME:-baseq3}" "${args[@]}")
 fi
 
 node ../proxy/index.js &
