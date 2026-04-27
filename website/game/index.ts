@@ -47,7 +47,7 @@ const config = {
             {src: "baseq3/zzczhdwr1.pk3", dst: "/baseq3"}, // CZ45 Q3A Weapon Model Remake (3 files)
             {src: "baseq3/zzczhdwr2.pk3", dst: "/baseq3"},
             {src: "baseq3/zzczhdwr3.pk3", dst: "/baseq3"},
-//            {src: "baseq3/pak9hqq37.pk3", dst: "/baseq3"}, // [HQQ] High Quality Quake - v3.7 (UI/menu upscaler), not compatible with CPMA
+            {src: "baseq3/pak9hqq37.pk3", dst: "/baseq3"}, // [HQQ] High Quality Quake - v3.7 (UI/font upscaler)
         ],
     },
     cpma: {
@@ -221,6 +221,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set r_ext_multisample 4
         +set r_ext_framebuffer_multisample 4
         +set r_lodCurveError 10000
+        +set sv_killpost_url "https://q3master.tsal.al/api/events"
     `;
 
     if (mobileMode) {

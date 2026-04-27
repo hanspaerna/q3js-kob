@@ -1,5 +1,5 @@
 # --- Build Stage ---
-FROM node:22.11.0 AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -7,14 +7,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --verbose
 
 # Copy source code and build
 COPY . .
 RUN npm run build
 
 # --- Production Stage ---
-FROM node:22.11.0
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -23,8 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-RUN NODE_OPTIONS=--dns-result-order=ipv4first \
-    npm i -g pm2
+RUN NODE_OPTIONS=--dns-result-order=ipv4first npm i -g pm2 --verbose
 
 # Copy only the necessary build output
 COPY --from=builder /app/.next/standalone ./
