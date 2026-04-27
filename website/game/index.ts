@@ -18,7 +18,7 @@ type Params = {
     rafUpdate: (prog: Prog) => void;
     fsGame: string;
     mobileMode?: boolean;
-    customPlayerModels?: string[];
+    customPlayerModelsCpma?: string[];
 }
 
 type FileEntry = {
@@ -47,26 +47,70 @@ const config = {
             {src: "baseq3/zzczhdwr1.pk3", dst: "/baseq3"}, // CZ45 Q3A Weapon Model Remake (3 files)
             {src: "baseq3/zzczhdwr2.pk3", dst: "/baseq3"},
             {src: "baseq3/zzczhdwr3.pk3", dst: "/baseq3"},
-            {src: "baseq3/pak9hqq37.pk3", dst: "/baseq3"}, // [HQQ] High Quality Quake - v3.7 (UI/menu upscaler)
+//            {src: "baseq3/pak9hqq37.pk3", dst: "/baseq3"}, // [HQQ] High Quality Quake - v3.7 (UI/menu upscaler), not compatible with CPMA
+        ],
+    },
+    cpma: {
+        files: [
+            {src: "cpma/cfg-maps/mapmodes.txt", dst: "/cpma/cfg-maps"},
+
+            // core pak
+            {src: "cpma/z-cpma-pak153.pk3", dst: "/cpma"},
+
+            // misc root files
+            {src: "cpma/changelog.txt", dst: "/cpma"},
+            {src: "cpma/description.txt", dst: "/cpma"},
+            {src: "cpma/readme.txt", dst: "/cpma"},
+            {src: "cpma/openlibm_license.md", dst: "/cpma"},
+            {src: "cpma/cpma.ico", dst: "/cpma"},
+            {src: "cpma/cpma-trans.ico", dst: "/cpma"},
+
+            // classes
+            {src: "cpma/classes/fighter.cfg", dst: "/cpma/classes"},
+            {src: "cpma/classes/scout.cfg", dst: "/cpma/classes"},
+            {src: "cpma/classes/sniper.cfg", dst: "/cpma/classes"},
+            {src: "cpma/classes/tank.cfg", dst: "/cpma/classes"},
+
+            // hud
+            {src: "cpma/hud/arqon.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud1.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud2.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud3.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud4.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud5.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud6.cfg", dst: "/cpma/hud"},
+            {src: "cpma/hud/hud7.cfg", dst: "/cpma/hud"},
+	
+            // stats
+            {src: "cpma/stats/basics/arrdown.gif", dst: "/cpma/stats/basics"},
+            {src: "cpma/stats/basics/arrup.gif", dst: "/cpma/stats/basics"},
+            {src: "cpma/stats/basics/stats141.css", dst: "/cpma/stats/basics"},
+            {src: "cpma/stats/basics/stats141.xsl", dst: "/cpma/stats/basics"},
+	
+            // viewcam
+            {src: "cpma/viewcam/cpm3a.cfg", dst: "/cpma/viewcam"},
+            {src: "cpma/viewcam/cpm3.cfg", dst: "/cpma/viewcam"},
+            {src: "cpma/viewcam/q3dm12.cfg", dst: "/cpma/viewcam"},
         ],
     }
 
 } as const satisfies Record<string, { files: readonly FileEntry[] }>;
 
-// models are stored in baseq3 for any fs_game, be it CPMA or anything else
-export function getConfigWithCustomModels(customPlayerModels: string[]) {
+// custom models are implemented only for CPMA mode, but can be easily done for baseq3 as well
+export function getConfigWithCustomModels(customPlayerModelsCpma: string[]) {
   // "api/" prefix is very important, as we call an internal API route to dynamically load the new models
-  const extraModelFiles = customPlayerModels.map(model => ({ src: `api/baseq3/${model}`, dst: "/baseq3" }));
+  const extraModelFilesCpma = customPlayerModelsCpma.map(model => ({ src: `api/cpma/${model}`, dst: "/cpma" }));
     
   return {
-    ...config,
-    baseq3: {
-      files: [
-        ...config.baseq3.files,
-        ...extraModelFiles
-      ]
-    }
-  };
+        ...config,
+        baseq3: config.baseq3,
+        cpma: {
+            files: [
+                ...config.cpma.files,
+                ...extraModelFilesCpma
+            ]
+        }
+    };
 }
 
 type SupportedGameDir = keyof typeof config;
@@ -79,7 +123,7 @@ function isSupportedGameDir(gameDir: string): gameDir is SupportedGameDir {
     return gameDir in config;
 }
 
-export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false, customPlayerModels = []}: Params) {
+export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false, customPlayerModelsCpma = []}: Params) {
     const importIoquake3 = new Function("return import('/ioquake3.js')");
     const ioquake3Module = await (importIoquake3() as Promise<{ default: (moduleArg?: unknown) => unknown }>);
     const ioquake3 = ioquake3Module.default;
@@ -177,7 +221,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                     const mountDirs = Array.from(new Set([com_basegame, fs_basegame, fs_game, "baseq3"]));
                     const {persist} = await ensureMounts(module, {assetGameDirs: mountDirs});
                     const configuredGameDirs = mountDirs.filter(isSupportedGameDir);
-                    const configWithCustomModels = getConfigWithCustomModels(customPlayerModels);
+                    const configWithCustomModels = getConfigWithCustomModels(customPlayerModelsCpma);
 
                     const allFileEntries = configuredGameDirs.flatMap<FileEntry>((g) => configWithCustomModels[g].files);
                     const uniqueFileEntries = Array.from(
@@ -197,11 +241,11 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
 
                     // to clean-up server and clients from bad custom models, remove all models from clients that are no longer on the server
                     try {
-                        const baseq3Files = module.FS.readdir('/baseq3') as string[];
+                        const baseq3Files = module.FS.readdir('/cpma') as string[];
                         for (const file of baseq3Files) {
                             if (file.startsWith('model-') && file.endsWith('.pk3')) {
                                 if (!validModelFiles.has(file)) {
-                                    module.FS.unlink(`/baseq3/${file}`);
+                                    module.FS.unlink(`/cpma/${file}`);
                                     console.log(`Removed a custom model from client that does not exist on server: ${file}`);
                                 }
                             }

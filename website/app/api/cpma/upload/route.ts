@@ -1,4 +1,4 @@
-import { ADMIN_UPLOAD_LIMIT_MB, BASEQ3_DIR } from '@/lib/constants';
+import { ADMIN_UPLOAD_LIMIT_MB, CPMA_DIR } from '@/lib/constants';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(`${BASEQ3_DIR}/${file.name}`, buffer);
+  fs.writeFileSync(`${CPMA_DIR}/${file.name}`, buffer);
 
   return NextResponse.json({ success: true });
 }

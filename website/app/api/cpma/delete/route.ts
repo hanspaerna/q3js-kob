@@ -1,4 +1,4 @@
-import { BASEQ3_DIR } from '@/lib/constants';
+import { CPMA_DIR } from '@/lib/constants';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 
@@ -16,6 +16,6 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: 'Invalid filename' }, { status: 400 });
   }
 
-  fs.unlinkSync(`${BASEQ3_DIR}/${filename}`);
+  fs.unlinkSync(`${CPMA_DIR}/${filename}`);
   return NextResponse.json({ success: true });
 }
