@@ -18,7 +18,7 @@ type Params = {
     rafUpdate: (prog: Prog) => void;
     fsGame: string;
     mobileMode?: boolean;
-    customPlayerModelsCpma?: string[];
+    customPlayerModels?: string[];
 }
 
 type FileEntry = {
@@ -137,26 +137,25 @@ const config = {
             {src: "cpma/map_cpm32_b1.pk3", dst: "/cpma"},
             {src: "cpma/map_cpm30_b1.pk3", dst: "/cpma"},
             {src: "cpma/map_cpm3b_b1.pk3", dst: "/cpma"},
-
         ],
     }
 
 } as const satisfies Record<string, { files: readonly FileEntry[] }>;
 
-// custom models are implemented only for CPMA mode, but can be easily done for baseq3 as well
-export function getConfigWithCustomModels(customPlayerModelsCpma: string[]) {
+// models are stored in baseq3 for any fs_game, be it CPMA or anything else
+export function getConfigWithCustomModels(customPlayerModels: string[]) {
   // "api/" prefix is very important, as we call an internal API route to dynamically load the new models
-  const extraModelFilesCpma = customPlayerModelsCpma.map(model => ({ src: `api/cpma/${model}`, dst: "/cpma" }));
+  const extraModelFiles = customPlayerModels.map(model => ({ src: `api/baseq3/${model}`, dst: "/baseq3" }));
     
   return {
         ...config,
-        baseq3: config.baseq3,
-        cpma: {
+        baseq3: {
             files: [
-                ...config.cpma.files,
-                ...extraModelFilesCpma
+                ...config.baseq3.files,
+                ...extraModelFiles
             ]
-        }
+        },
+        cpma: config.cpma,
     };
 }
 
@@ -170,7 +169,7 @@ function isSupportedGameDir(gameDir: string): gameDir is SupportedGameDir {
     return gameDir in config;
 }
 
-export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false, customPlayerModelsCpma = []}: Params) {
+export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false, customPlayerModels = []}: Params) {
     const importIoquake3 = new Function("return import('/ioquake3.js')");
     const ioquake3Module = await (importIoquake3() as Promise<{ default: (moduleArg?: unknown) => unknown }>);
     const ioquake3 = ioquake3Module.default;
@@ -268,7 +267,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                     const mountDirs = Array.from(new Set([com_basegame, fs_basegame, fs_game, "baseq3"]));
                     const {persist} = await ensureMounts(module, {assetGameDirs: mountDirs});
                     const configuredGameDirs = mountDirs.filter(isSupportedGameDir);
-                    const configWithCustomModels = getConfigWithCustomModels(customPlayerModelsCpma);
+                    const configWithCustomModels = getConfigWithCustomModels(customPlayerModels);
 
                     const allFileEntries = configuredGameDirs.flatMap<FileEntry>((g) => configWithCustomModels[g].files);
                     const uniqueFileEntries = Array.from(
@@ -288,11 +287,11 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
 
                     // to clean-up server and clients from bad custom models, remove all models from clients that are no longer on the server
                     try {
-                        const baseq3Files = module.FS.readdir('/cpma') as string[];
+                        const baseq3Files = module.FS.readdir('/baseq3') as string[];
                         for (const file of baseq3Files) {
                             if (file.startsWith('model-') && file.endsWith('.pk3')) {
                                 if (!validModelFiles.has(file)) {
-                                    module.FS.unlink(`/cpma/${file}`);
+                                    module.FS.unlink(`/baseq3/${file}`);
                                     console.log(`Removed a custom model from client that does not exist on server: ${file}`);
                                 }
                             }

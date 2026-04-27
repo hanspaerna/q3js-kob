@@ -5,6 +5,9 @@ This fork has a few differences:
   - mobile controls are enabled with a checkbox and not guessed
   - home page is simplified (no server search)
   - intended for a small private environment
+  - automatic download of custom player models
+  - admin page to upload/delete custom maps and models from/to baseq3 folder on server
+  - check of integrity of the client files and removal of those that are no longer on server
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
 traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend. You can jump straight in at
@@ -82,7 +85,7 @@ The website part of this custom fork can also download custom models from baseq3
 
 If custom model is no longer on server, it will also be removed from clients on their next loading.
 
-NB! The server's baseq3 folder must be mapped to /app/public/baseq3 of the website container for this feature to work. The models are global for any fs_game, so they in theory will be available in CPMA as well, even though they're installed in baseq3.
+NB! The server's baseq3 folder must be mapped to /app/public/baseq3 of the website container for this feature to work. The models (and custom maps) are global for any fs_game, so they will be available in CPMA as well, even though they're installed in baseq3.
 
 
 ### Dedicated server (`server/`)

@@ -25,7 +25,7 @@ export default function AdminPage() {
 
   async function login() {
     setError('');
-    const res = await fetch('/api/cpma', { headers });
+    const res = await fetch('/api/baseq3', { headers });
     if (res.status === 401) setError('Wrong password');
     else if (res.status === 404) setError('Directory not found on server');
     else if (res.ok) {
@@ -71,7 +71,7 @@ export default function AdminPage() {
 
       xhr.addEventListener('error', () => reject(new Error('Upload failed')));
 
-      xhr.open('POST', '/api/cpma/upload');
+      xhr.open('POST', '/api/baseq3/upload');
       xhr.setRequestHeader('x-admin-password', password);
       xhr.send(formData);
     });
@@ -99,7 +99,7 @@ export default function AdminPage() {
       setConfirmError('Wrong password');
       return;
     }
-    await fetch('/api/cpma/delete', {
+    await fetch('/api/baseq3/delete', {
       method: 'DELETE',
       headers: { ...headers, 'Content-Type': 'application/json' },
       body: JSON.stringify({ filename: confirmFile })
