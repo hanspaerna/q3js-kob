@@ -16,8 +16,6 @@ interface HomePageProps {
 }
 
 export function HomePage({ initialServers, scoreboards, currentPlayerCount, totalKillCount, firstServer, topDailyPlayer }: HomePageProps) {
-  const [mobileControlsEnabled, setMobileControlsEnabled] = useState(false);
-
   return (
     <>
       <Hero
@@ -26,11 +24,9 @@ export function HomePage({ initialServers, scoreboards, currentPlayerCount, tota
         totalKillCount={totalKillCount}
         topDailyPlayer={topDailyPlayer}
         firstServer={firstServer}
-        mobileControlsEnabled={mobileControlsEnabled}
-        onMobileControlsChange={setMobileControlsEnabled}
       />
       <ScoreboardPreview initialPeriod="DAILY" scoreboards={scoreboards} />
-      <ServerPicker servers={initialServers} mobileControlsEnabled={mobileControlsEnabled} />
+      <ServerPicker servers={initialServers} />
     </>
   );
 }

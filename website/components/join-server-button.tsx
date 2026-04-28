@@ -19,7 +19,6 @@ import {ServerResponse} from "@/lib/client";
 
 export function JoinServerButton(props: {
     server: ServerResponse;
-    mobileControlsEnabled: boolean
     ctaLabel?: string;
     className?: string;
 }) {
@@ -47,7 +46,7 @@ export function JoinServerButton(props: {
 
     const gameUrl = `/game?host=${props.server.host}&proxyPort=${props.server.proxyPort}&name=${encodeURIComponent(
         name
-    )}&fs_game=${props.server.info.gamename}&mobileControls=${Number(props.mobileControlsEnabled)}`;
+    )}&fs_game=${props.server.info.gamename}`;
 
     return (
         <Dialog>

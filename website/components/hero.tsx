@@ -19,8 +19,6 @@ export function Hero(props: {
     currentPlayerCount: number;
     serverCount: number;
     totalKillCount: number;
-    mobileControlsEnabled: boolean;
-    onMobileControlsChange: (checked: boolean) => void;
     topDailyPlayer: ScoreboardEntryResponse | null;
     firstServer?: ServerResponse;
 }) {
@@ -45,7 +43,7 @@ export function Hero(props: {
 
                     <div className="mt-6 mx-auto grid max-w-md grid-cols-2 gap-3">
                         {props.firstServer ? (
-                            <JoinServerButton server={props.firstServer} mobileControlsEnabled={props.mobileControlsEnabled} ctaLabel={"Play"}/>
+                            <JoinServerButton server={props.firstServer} ctaLabel={"Play"}/>
                         ) : (
                             <Button size="lg" className="w-full" asChild>
                                 <Link href="#server-browser">Play</Link>
@@ -57,13 +55,6 @@ export function Hero(props: {
                     </div>
 
                     <div className="mt-8 flex flex-col items-center gap-3 text-center">
-                        <Checkbox
-                            id="mobile-controls"
-                            label="Enable mobile controls?"
-                            checked={props.mobileControlsEnabled}
-                            onChange={props.onMobileControlsChange}
-                        />
-
                         <p>
                             Press <strong>F8</strong> in-game to enable fullscreen mode.
                         </p>

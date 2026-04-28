@@ -7,9 +7,9 @@ import {
     PERSIST_DATA_DIR,
     PERSIST_STATE_DIR,
     type Prog,
+    type IOQ3Module,
     syncfs
 } from "@/lib/fs.ts";
-import {registerIOQ3Runtime, type IOQ3RuntimeModule} from "@/lib/ioquake3-runtime";
 
 type Params = {
     host: string;
@@ -17,7 +17,6 @@ type Params = {
     name: string;
     rafUpdate: (prog: Prog) => void;
     fsGame: string;
-    mobileMode?: boolean;
     customPlayerModels?: string[];
 }
 
@@ -25,8 +24,6 @@ type FileEntry = {
     src: string;
     dst: string;
 };
-
-const MOBILE_RENDER_SCALE = 2;
 
 const config = {
     baseq3: {
@@ -157,6 +154,11 @@ export function getConfigWithCustomModels(customPlayerModels: string[]) {
 }
 
 type SupportedGameDir = keyof typeof config;
+
+type IOQ3RuntimeModule = IOQ3Module & {
+    canvas?: HTMLCanvasElement;
+};
+
 type RuntimeModule = IOQ3RuntimeModule & {
     addRunDependency: (id: string) => void;
     removeRunDependency: (id: string) => void;
@@ -166,7 +168,27 @@ function isSupportedGameDir(gameDir: string): gameDir is SupportedGameDir {
     return gameDir in config;
 }
 
-export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, mobileMode = false, customPlayerModels = []}: Params) {
+
+let runtimeModule: IOQ3RuntimeModule | null = null;
+let runtimePromise: Promise<IOQ3RuntimeModule> | null = null;
+
+function registerIOQ3Runtime(promise: Promise<IOQ3RuntimeModule>) {
+    runtimePromise = promise;
+    runtimeModule = null;
+
+    promise
+        .then((module) => {
+            runtimeModule = module;
+        })
+        .catch(() => {
+            if (runtimePromise === promise) {
+                runtimePromise = null;
+                runtimeModule = null;
+            }
+        });
+}
+
+export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = []}: Params) {
     const importIoquake3 = new Function("return import('/ioquake3.js')");
     const ioquake3Module = await (importIoquake3() as Promise<{ default: (moduleArg?: unknown) => unknown }>);
     const ioquake3 = ioquake3Module.default;
@@ -179,11 +201,9 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
     const initialViewport = canvas.getBoundingClientRect();
     const initialWidth = Math.max(1, Math.round(initialViewport.width || window.innerWidth));
     const initialHeight = Math.max(1, Math.round(initialViewport.height || window.innerHeight));
-    const initialRenderWidth = mobileMode ? initialWidth * MOBILE_RENDER_SCALE : initialWidth;
-    const initialRenderHeight = mobileMode ? initialHeight * MOBILE_RENDER_SCALE : initialHeight;
 
-    canvas.width = initialRenderWidth;
-    canvas.height = initialRenderHeight;
+    canvas.width = initialWidth;
+    canvas.height = initialHeight;
 
     const fs_basegame = "baseq3";
     const fs_game = fsGame;
@@ -218,18 +238,6 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set r_ext_framebuffer_multisample 4
         +set r_lodCurveError 10000
     `;
-
-    if (mobileMode) {
-        generatedArguments += `
-            +set r_mode -1
-            +set r_customwidth ${initialRenderWidth}
-            +set r_customheight ${initialRenderHeight}
-            +set in_nograb 1
-            +set in_joystickUseAnalog 1
-            +set j_forward -1
-            +set j_side 1
-        `;
-    }
 
     generatedArguments += ` +connect ${host}:${proxyPort} `;
     generatedArguments += ` +set name "${name.replace(/"/g, "'")}" `;

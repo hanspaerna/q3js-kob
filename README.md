@@ -4,7 +4,7 @@ This fork has a few differences:
   - intended for a small private environment
   - uses the official ioq3 engine's repo instead of a fork
   - no Google Analytics or SEO
-  - mobile controls are enabled with a checkbox and not guessed
+  - mobile controls support is removed
   - home page is simplified (no server search)
   - automatic download of custom player models
   - admin page to upload/delete custom maps and models from/to baseq3 folder on server
