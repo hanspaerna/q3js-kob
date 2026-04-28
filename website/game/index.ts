@@ -41,9 +41,6 @@ const config = {
             {src: "baseq3/pak6.pk3", dst: "/baseq3"},
             {src: "baseq3/pak7.pk3", dst: "/baseq3"},
             {src: "baseq3/pak8.pk3", dst: "/baseq3"},
-            {src: "baseq3/vm/cgame.qvm", dst: "/baseq3/vm"}, // to fix HUD aspect ratio, replace these 3 compiled QVMs with files from https://github.com/clover-moe/flexible-hud-for-ioq3
-            {src: "baseq3/vm/qagame.qvm", dst: "/baseq3/vm"},
-            {src: "baseq3/vm/ui.qvm", dst: "/baseq3/vm"},
             {src: "baseq3/zzczhdwr1.pk3", dst: "/baseq3"}, // CZ45 Q3A Weapon Model Remake (3 files)
             {src: "baseq3/zzczhdwr2.pk3", dst: "/baseq3"},
             {src: "baseq3/zzczhdwr3.pk3", dst: "/baseq3"},
@@ -188,8 +185,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
     canvas.width = initialRenderWidth;
     canvas.height = initialRenderHeight;
 
-    const com_basegame = fsGame;
-    const fs_basegame = fsGame;
+    const fs_basegame = "baseq3";
     const fs_game = fsGame;
 
     let generatedArguments = `
@@ -221,7 +217,6 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set r_ext_multisample 4
         +set r_ext_framebuffer_multisample 4
         +set r_lodCurveError 10000
-        +set sv_killpost_url "https://q3master.tsal.al/api/events"
     `;
 
     if (mobileMode) {
@@ -265,7 +260,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         current: "Preparing local storage",
                         stage: "initializing"
                     });
-                    const mountDirs = Array.from(new Set([com_basegame, fs_basegame, fs_game, "baseq3"]));
+                    const mountDirs = Array.from(new Set([fs_basegame, fs_game]));
                     const {persist} = await ensureMounts(module, {assetGameDirs: mountDirs});
                     const configuredGameDirs = mountDirs.filter(isSupportedGameDir);
                     const configWithCustomModels = getConfigWithCustomModels(customPlayerModels);
@@ -281,10 +276,16 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         ).values()
                     );
 
+                    console.log("uniqueFileEntries: ");
+                    console.log(uniqueFileEntries);
+
                     const validModelFiles = new Set(
                         uniqueFileEntries
                             .map(f => f.src.split("/").pop() as string)
                     );
+
+                    console.log("validModelFiles: ");
+                    console.log(validModelFiles);
 
                     // to clean-up server and clients from bad custom models, remove all models from clients that are no longer on the server
                     try {
@@ -327,6 +328,9 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                             }
                         })
                     )).filter((f): f is FileEntry => f !== null);
+
+                    console.log("pendingEntries: ");
+                    console.log(pendingEntries);
 
                     const pendingUrls = pendingEntries.map((f: FileEntry) => new URL(f.src, dataURL));
                     const totalBytes = await estimateTotalBytes(pendingUrls);

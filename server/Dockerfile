@@ -36,8 +36,6 @@ COPY --from=proxybuilder /server/proxy /proxy
 COPY --from=serverbuilder /server/build/Release /server
 COPY --from=serverbuilder /server/entrypoint.sh /server/entrypoint.sh
 
-RUN mkdir -p /server/vm-q3js && cp -a /server/baseq3/vm /server/vm-q3js
-
 WORKDIR /server
 
 VOLUME ["/server/baseq3"]

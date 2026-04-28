@@ -1,17 +1,17 @@
 # Q3JS-KOB (a fork of Q3JS)
 
 This fork has a few differences:
+  - intended for a small private environment
+  - uses the official ioq3 engine's repo instead of a fork
   - no Google Analytics or SEO
   - mobile controls are enabled with a checkbox and not guessed
   - home page is simplified (no server search)
-  - intended for a small private environment
   - automatic download of custom player models
   - admin page to upload/delete custom maps and models from/to baseq3 folder on server
   - check of integrity of the client files and removal of those that are no longer on server
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
-traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend. You can jump straight in at
-[q3js.com](https://q3js.com), or read on to see how the pieces fit together and how to work on each one locally.
+traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend.
 
 
 ## Building Docker images
@@ -136,7 +136,7 @@ Copy the baseq3 folder into `public/` folder of the website deployment (i.e. `pu
 
 ## License & credits
 
-- Engine source is derived from [ioquake3](https://github.com/ioquake/ioq3) (GPLv2). See `ioq3/`.
+- Engine source is [ioquake3](https://github.com/ioquake/ioq3) (GPLv2). See `game/ioq3/`.
 - Game assets remain © id Software / Bethesda. Supply your own `baseq3` data.
 - New code in this repository is licensed under the same terms as the respective sub-projects unless noted otherwise.
 - The WebSocket proxy and integration glue were developed by
