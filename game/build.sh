@@ -38,8 +38,8 @@ if [[ ! -f "$EMSDK_ROOT/emsdk_env.sh" ]]; then
   echo "emsdk_env.sh not found at $EMSDK_ROOT" >&2; exit 1
 fi
 
-$EMSDK_ROOT/emsdk install 4.0.19
-$EMSDK_ROOT/emsdk activate 4.0.19
+$EMSDK_ROOT/emsdk install 3.1.74
+$EMSDK_ROOT/emsdk activate 3.1.74
 
 source "$EMSDK_ROOT/emsdk_env.sh"
 
