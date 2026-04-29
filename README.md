@@ -67,6 +67,8 @@ docker push {url_to_repo}/q3js-website:latest
    The output `game/build/Release/ioquake3.{js,wasm}` must be copied (or symlinked) into `website/src/lib/`. The script
    already patches OpenGL shaders for WebGL 2 / GLES precision requirements.
 
+   **NB!** Do **NOT** rebuild client and replace ioquake3.{js,wasm} stored in `website/lib/` and `website/public/` if playing in CPMA, as there is a very hard to debug network issue that prevents CPMA client to connect to the server with endless "Awaiting challenge...".
+
 -  **Run the website (UI)**
    ```bash
    cd website
