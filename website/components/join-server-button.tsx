@@ -15,6 +15,7 @@ import {Input} from "@/components/ui/input.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
 import {ServerResponse} from "@/lib/client";
+import {useState} from "react";
 
 export function JoinServerButton(props: {
     server: ServerResponse;
@@ -25,6 +26,11 @@ export function JoinServerButton(props: {
     const ctaLabel = props.ctaLabel ?? "Join now";
 
     const [name, setName] = useLocalStorage("name", "Anonymous");
+
+    const handleJoin = () => {
+        if (!name) return;
+        window.location.href = gameUrl;
+    };
 
     if (isFull) {
         return (
@@ -66,7 +72,7 @@ export function JoinServerButton(props: {
                         <span className="font-semibold">
               {props.server.info.sv_hostname}.
             </span><br />
-            <strong>Max length:</strong> 16 chars
+            <strong>Length:</strong> 2-16. Spaces aren't allowed.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -76,7 +82,7 @@ export function JoinServerButton(props: {
                         <Input
                             id="player-name"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => setName(e.target.value.replace(/\s/g, ''))}
                             placeholder="Enter your player name"
                             maxLength={16}
                         />
@@ -84,16 +90,9 @@ export function JoinServerButton(props: {
                 </div>
 
                 <DialogFooter className="mt-4">
-                    <a
-                        className="w-full"
-                        href={gameUrl}
-                        aria-label={`Join ${props.server.info.sv_hostname}`}
-                    >
-                        <Button className="w-full" size="lg">
-                            <Zap className="h-4 w-4 mr-2"/>
-                            {ctaLabel}
-                        </Button>
-                    </a>
+                    <Button className="w-full" size="lg" disabled={!name || name.length < 2} onClick={handleJoin}>
+                        {ctaLabel}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
