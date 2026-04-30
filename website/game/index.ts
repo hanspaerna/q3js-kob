@@ -46,18 +46,8 @@ const config = {
     },
     cpma: {
         files: [
-            {src: "cpma/cfg-maps/mapmodes.txt", dst: "/cpma/cfg-maps"},
-
             // core pak
             {src: "cpma/z-cpma-pak153.pk3", dst: "/cpma"},
-
-            // misc root files
-            {src: "cpma/changelog.txt", dst: "/cpma"},
-            {src: "cpma/description.txt", dst: "/cpma"},
-            {src: "cpma/readme.txt", dst: "/cpma"},
-            {src: "cpma/openlibm_license.md", dst: "/cpma"},
-            {src: "cpma/cpma.ico", dst: "/cpma"},
-            {src: "cpma/cpma-trans.ico", dst: "/cpma"},
 
             // classes
             {src: "cpma/classes/fighter.cfg", dst: "/cpma/classes"},
@@ -223,6 +213,11 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set ui_cdkeychecked 1
         +set cl_firststart 0
         +set cg_fov 120
+        +set s_ambient 1
+        +set cg_noTaunt 0
+        +set cg_enemymodel ""
+        +set cg_enemycolors ""
+        +set cg_deadBodyDarken 1
         +bind h "+button3"
     `;
 
