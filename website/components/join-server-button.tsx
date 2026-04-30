@@ -14,7 +14,6 @@ import {
 import {Input} from "@/components/ui/input.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
-import {createRandomPlayerName} from "@/lib/player-name-generator.ts";
 import {ServerResponse} from "@/lib/client";
 
 export function JoinServerButton(props: {
@@ -25,10 +24,7 @@ export function JoinServerButton(props: {
     const isFull = props.server.info.players >= props.server.info.sv_maxclients;
     const ctaLabel = props.ctaLabel ?? "Join now";
 
-    const [name, setName] = useLocalStorage(
-        "name",
-        createRandomPlayerName()
-    );
+    const [name, setName] = useLocalStorage("name", "Anonymous");
 
     if (isFull) {
         return (
@@ -68,8 +64,9 @@ export function JoinServerButton(props: {
                     <DialogDescription>
                         Choose your player name before joining{" "}
                         <span className="font-semibold">
-              {props.server.info.sv_hostname}
-            </span>
+              {props.server.info.sv_hostname}.
+            </span><br />
+            <strong>Max length:</strong> 16 chars
                     </DialogDescription>
                 </DialogHeader>
 
@@ -81,11 +78,8 @@ export function JoinServerButton(props: {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Enter your player name"
+                            maxLength={16}
                         />
-                        <Button variant={'secondary'} size={"icon"} onClick={() => setName(createRandomPlayerName())}
-                                className="ml-2">
-                            <Dice6Icon/>
-                        </Button>
                     </div>
                 </div>
 

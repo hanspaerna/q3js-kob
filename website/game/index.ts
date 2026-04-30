@@ -213,11 +213,11 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set ui_cdkeychecked 1
         +set cl_firststart 0
         +set cg_fov 120
-        +set s_ambient 1
         +set cg_noTaunt 0
         +set cg_enemymodel ""
         +set cg_enemycolors ""
-        +set cg_deadBodyDarken 1
+        +set cg_forcemodel 0
+        +set cg_forcecolors 0
         +bind h "+button3"
     `;
 

@@ -15,7 +15,6 @@ import {
 import {useQuery} from "@tanstack/react-query";
 import {getAllServersOptions} from "@/lib/client/@tanstack/react-query.gen.ts";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
-import {createRandomPlayerName} from "@/lib/player-name-generator.ts";
 import {MenuIcon} from "lucide-react";
 import {cn, getClientEnv} from "@/lib/utils.ts";
 import {PwaInstallControl} from "@/components/pwa-install-control.tsx";
@@ -117,10 +116,7 @@ function HeaderSheetLink(props: HeaderNavItem) {
 }
 
 export function Header() {
-    const [name] = useLocalStorage(
-        "name",
-        createRandomPlayerName()
-    );
+    const [name] = useLocalStorage("name", "Anonymous");
 
     const serversResponse = useQuery({
         ...getAllServersOptions()
