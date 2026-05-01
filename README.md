@@ -21,22 +21,13 @@ traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backen
 
 NOTE: there is no need to bake 'baseq3' game folder into the server image, just mount it in Compose/Kubernetes instead.
 
-Create/overwrite 'autoexec.cfg' file with all the server settings needed (FS_GAME must be set to 'baseq3' for vanilla server).
-
-- **Server:** `docker build -t q3js-server . -f ./server/Dockerfile --platform linux/amd64`.
-- **Master:**: `docker build -t q3js-master . -f ./master/Dockerfile --platform linux/amd64`.
-- **Website:** `docker build -t q3js-website ./website --platform linux/amd64`.
-
-## Uploading Docker images
+You can just run one of these scripts to deploy the latest version to Docker registry:
 
 ```
-docker tag q3js-master:latest {url_to_repo}/q3js-master:latest
-docker tag q3js-server:latest {url_to_repo}/q3js-server:latest
-docker tag q3js-website:latest {url_to_repo}/q3js-website:latest
-docker push {url_to_repo}/q3js-master:latest
-docker push {url_to_repo}/q3js-server:latest
-docker push {url_to_repo}/q3js-website:latest
-``` 
+./pack-master.sh
+./pack-server.sh
+./pack-website.sh
+```
 
 ## Repository map
 
