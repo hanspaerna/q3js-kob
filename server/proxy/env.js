@@ -12,6 +12,12 @@ const env = createEnv({
 
         PUBLISH_HOST: z.string().optional(),
         PUBLISH_PORT: z.coerce.number().int().min(1).max(65535).optional(),
+
+        // Log parsing configuration
+        ENABLE_LOG_PARSING: z.coerce.boolean().default(true),
+        EVENT_BATCH_INTERVAL_MS: z.coerce.number().int().positive().default(5000),
+        SERVER_BINARY_PATH: z.string().default('../ioq3ded'),
+        SERVER_ARGS: z.string().default(''),
     },
     clientPrefix: '',
     client: {},

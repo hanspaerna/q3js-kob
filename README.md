@@ -3,6 +3,7 @@
 This fork has a few differences:
   - intended for a small private environment
   - uses the official ioq3 engine's repo instead of a fork
+  - player statistics are collected server-side (by proxy) and don't require any modifications of the client
   - no Google Analytics or SEO
   - mobile controls support is removed
   - home page is simplified (no server search)

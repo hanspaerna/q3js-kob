@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-set -m
-
 args=("$@")
 has_fs_game_arg=false
 
@@ -17,19 +15,9 @@ if [[ "$has_fs_game_arg" == false ]]; then
   args=("+set" "fs_game" "${FS_GAME:-baseq3}" "${args[@]}")
 fi
 
-node ../proxy/index.js &
-PROXY_PID=$!
+# Export server arguments for the proxy to use
+export SERVER_BINARY_PATH="./ioq3ded"
+export SERVER_ARGS="${args[*]}"
 
-./ioq3ded "${args[@]}" &
-Q3_PID=$!
-
-cleanup() {
-  echo "Shutting down..."
-  kill -TERM -$PROXY_PID 2>/dev/null || true
-  kill -TERM -$Q3_PID 2>/dev/null || true
-}
-trap cleanup SIGINT SIGTERM
-
-# Wait for both
-wait $PROXY_PID
-wait $Q3_PID
+# The proxy will now spawn and manage the server process
+exec node ../proxy/index.js
