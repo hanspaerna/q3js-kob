@@ -134,10 +134,6 @@ export default function PlayerProfilePage(props: {
                             <h1 className="text-4xl font-bold tracking-tight">
                                 <Q3ColoredText text={props.playerName}/>
                             </h1>
-                            <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-                                Frag profile for {plainName}. Drill into their output, favorite tools, and the players
-                                they farm or fear most.
-                            </p>
                         </div>
                     </div>
                     <Button asChild variant="outline">
@@ -174,26 +170,8 @@ export default function PlayerProfilePage(props: {
                             <div className="text-3xl font-bold">{formatRatio(props.stats.killDeathRatio)}</div>
                         </CardContent>
                     </Card>
-
-                    <Card className="border-border/60 bg-card/60">
-                        <CardHeader className="gap-1">
-                            <CardTitle className="text-sm text-muted-foreground">Playtime</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold">{formatPlaytime(playtimeSeconds)}</div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border-border/60 bg-card/60">
-                        <CardHeader className="gap-1">
-                            <CardTitle className="text-sm text-muted-foreground">Kills Per Minute</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold">
-                                {formatKillsPerMinute(props.stats.kills, playtimeSeconds)}
-                            </div>
-                        </CardContent>
-                    </Card>
+                </div>
+                <div className="grid gap-4 md:grid-cols-2">
 
                     <Card className="border-border/60 bg-card/60">
                         <CardHeader className="gap-1">
@@ -203,27 +181,6 @@ export default function PlayerProfilePage(props: {
                             <div className="text-xl font-bold leading-tight">
                                 {formatLastOnline(props.stats.lastOnline)}
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <Card className="border-border/60 bg-card/60">
-                        <CardHeader className="gap-1">
-                            <CardTitle className="text-lg">Favorite Map</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                            {props.stats.favoriteMap ? (
-                                <>
-                                    <div
-                                        className="text-3xl font-bold uppercase">{props.stats.favoriteMap.mapName}</div>
-                                    <p className="text-sm text-muted-foreground">
-                                        {props.stats.favoriteMap.kills} kills landed here.
-                                    </p>
-                                </>
-                            ) : (
-                                <p className="text-sm text-muted-foreground">No kills recorded for this period.</p>
-                            )}
                         </CardContent>
                     </Card>
 
@@ -245,7 +202,9 @@ export default function PlayerProfilePage(props: {
                             )}
                         </CardContent>
                     </Card>
+                </div>
 
+                <div className="grid gap-4 lg:grid-cols-2">
                     <WeaponBreakdownCard weapons={props.stats.weaponBreakdown} totalKills={props.stats.kills}/>
                 </div>
 

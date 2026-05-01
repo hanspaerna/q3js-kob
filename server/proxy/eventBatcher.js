@@ -42,16 +42,15 @@ class EventBatcher {
      */
     addEvent(event) {
         // Enrich event with additional data
+        // Note: serverTime and gameTime should be game server's internal time in milliseconds,
+        // not Unix timestamps. Since we don't have access to the actual values from logs,
+        // we use 0. The database will use received_at (timestamptz) for actual time tracking.
         const enrichedEvent = {
             ...event,
-            serverTime: Date.now(),
-            gameTime: 0, // We don't have access to game time from logs
+            serverTime: 0, // Game server internal time (not available from logs)
+            gameTime: 0, // In-game time (not available from logs)
+            map: this.currentMap || 'unknown', // Use 'unknown' if map not yet detected (database requires non-null)
         };
-
-        // Add map if available
-        if (this.currentMap) {
-            enrichedEvent.map = this.currentMap;
-        }
 
         this.eventQueue.push(enrichedEvent);
     }
@@ -76,12 +75,13 @@ class EventBatcher {
         const eventsToSend = [...this.eventQueue];
         this.eventQueue = [];
 
-        console.log(`Sending ${eventsToSend.length} event(s) to master server`);
+        const url = `${this.masterServerUrl}/api/events`;
+        console.log(`Sending ${eventsToSend.length} event(s) to ${url}`);
 
         // Send events one by one (master server expects individual POSTs)
         for (const event of eventsToSend) {
             try {
-                const response = await fetch(`${this.masterServerUrl}/api/events`, {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -90,11 +90,21 @@ class EventBatcher {
                 });
 
                 if (!response.ok) {
-                    console.warn(`Failed to send event: ${response.status} ${response.statusText}`);
+                    console.warn(`Failed to send event to ${url}: ${response.status} ${response.statusText}`);
                     console.warn('Event:', JSON.stringify(event));
+
+                    // Try to get error details from response body
+                    try {
+                        const errorText = await response.text();
+                        if (errorText) {
+                            console.warn('Error response:', errorText);
+                        }
+                    } catch (e) {
+                        // Ignore errors reading response body
+                    }
                 }
             } catch (error) {
-                console.error('Error sending event to master server:', error.message);
+                console.error(`Error sending event to ${url}:`, error.message);
                 console.warn('Event:', JSON.stringify(event));
             }
         }

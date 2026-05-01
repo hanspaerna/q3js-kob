@@ -9,6 +9,16 @@ class LogParser {
     }
 
     /**
+     * Strip Quake 3 color codes from a player name
+     * Color codes are in format: ^0-^9
+     * @param {string} name - Player name with color codes
+     * @returns {string} - Clean player name
+     */
+    stripColorCodes(name) {
+        return name.replace(/\^\d/g, '');
+    }
+
+    /**
      * Parse a single log line and return an event object if found
      * @param {string} line - Log line from server stdout/stderr
      * @returns {Object|null} - Event object or null if no event found
@@ -32,7 +42,37 @@ class LogParser {
             return null; // Not an event, just tracking player info
         }
 
-        // ClientBegin: <clientNum>
+        // CPMA join: "PlayerName^7 has passed authorization."
+        const cpmaJoinMatch = cleanLine.match(/^(.+?)\s+has passed authorization\.$/);
+        if (cpmaJoinMatch) {
+            const rawName = cpmaJoinMatch[1].trim();
+            const playerName = this.stripColorCodes(rawName);
+
+            return {
+                event: 'join',
+                player: {
+                    clientNum: 0, // We don't know the client number from this log
+                    name: playerName
+                }
+            };
+        }
+
+        // CPMA disconnect: broadcast: print "PlayerName^7 disconnected\n"
+        const cpmaDisconnectMatch = cleanLine.match(/broadcast:\s*print\s+"(.+?)\s+disconnected\\n"/);
+        if (cpmaDisconnectMatch) {
+            const rawName = cpmaDisconnectMatch[1].trim();
+            const playerName = this.stripColorCodes(rawName);
+
+            return {
+                event: 'leave',
+                player: {
+                    clientNum: 0, // We don't know the client number from this log
+                    name: playerName
+                }
+            };
+        }
+
+        // Standard Q3 ClientBegin: <clientNum>
         // This is when a player actually joins the game (after connecting)
         const beginMatch = cleanLine.match(/ClientBegin:\s*(\d+)/);
         if (beginMatch) {
@@ -50,7 +90,7 @@ class LogParser {
             }
         }
 
-        // ClientDisconnect: <clientNum>
+        // Standard Q3 ClientDisconnect: <clientNum>
         const disconnectMatch = cleanLine.match(/ClientDisconnect:\s*(\d+)/);
         if (disconnectMatch) {
             const clientNum = parseInt(disconnectMatch[1]);

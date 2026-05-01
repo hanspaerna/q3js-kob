@@ -10,17 +10,21 @@ const parser = new LogParser();
 // Sample log lines to test
 const sampleLogs = [
     'InitGame: \\sv_allowDownload\\0\\g_maxGameClients\\0\\sv_maxclients\\16\\sv_floodProtect\\1\\mapname\\q3dm6\\gamename\\cpma',
-    'ClientConnect: 0',
-    'ClientUserinfoChanged: 0 \\n\\Sul-Matuul\\t\\0\\model\\sarge/default\\hmodel\\sarge/default\\g_redteam\\\\g_blueteam\\\\c1\\4\\c2\\5',
-    'ClientBegin: 0',
-    'ClientConnect: 1',
-    'ClientUserinfoChanged: 1 \\n\\tester000\\t\\0\\model\\doom/default\\hmodel\\doom/default\\c1\\2\\c2\\3',
-    'ClientBegin: 1',
+
+    // CPMA-specific join/leave format
+    'Sul-Matuul^7 has passed authorization.',
+    'tester000^7 has passed authorization.',
     'Kill: 0 1 6: Sul-Matuul killed tester000 by MOD_ROCKET',
     'Kill: 1 0 10: tester000 killed Sul-Matuul by MOD_RAILGUN',
     'Kill: 0 1 7: Sul-Matuul killed tester000 by MOD_ROCKET_SPLASH 8 in arena 0',
-    'ClientDisconnect: 1',
-    'ClientDisconnect: 0',
+    'broadcast: print "tester000^7 disconnected\\n"',
+    'broadcast: print "Sul-Matuul^7 disconnected\\n"',
+
+    // Standard Q3 format (fallback)
+    'ClientConnect: 2',
+    'ClientUserinfoChanged: 2 \\n\\Player3\\t\\0\\model\\sarge/default\\hmodel\\sarge/default\\g_redteam\\\\g_blueteam\\\\c1\\4\\c2\\5',
+    'ClientBegin: 2',
+    'ClientDisconnect: 2',
 ];
 
 console.log('Testing Log Parser\n');
