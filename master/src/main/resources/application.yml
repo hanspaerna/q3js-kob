@@ -43,4 +43,6 @@ mp:
 q3js:
   server-info:
     timeout-ms: 3000
+  events:
+    api-token: ${API_TOKEN:}
 

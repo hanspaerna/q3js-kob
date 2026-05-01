@@ -19,6 +19,9 @@ const env = createEnv({
         SERVER_BINARY_PATH: z.string().default('../ioq3ded'),
         SERVER_ARGS: z.string().default(''),
         FILTER_BOT_EVENTS: z.coerce.boolean().default(true),
+
+        // API authentication
+        API_TOKEN: z.string().optional(),
     },
     clientPrefix: '',
     client: {},

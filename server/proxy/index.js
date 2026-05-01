@@ -18,6 +18,7 @@ const EVENT_BATCH_INTERVAL_MS = env.EVENT_BATCH_INTERVAL_MS;
 const SERVER_BINARY_PATH = env.SERVER_BINARY_PATH;
 const SERVER_ARGS = env.SERVER_ARGS;
 const FILTER_BOT_EVENTS = env.FILTER_BOT_EVENTS;
+const API_TOKEN = env.API_TOKEN;
 
 let publishHost = env.PUBLISH_HOST;
 const publishPort = env.PUBLISH_PORT || PROXY_PORT;
@@ -181,12 +182,21 @@ function startServerWithLogParsing() {
 
     // Initialize log parser and event batcher
     logParser = new LogParser();
-    eventBatcher = new EventBatcher(MASTER_SERVER_BASE, EVENT_BATCH_INTERVAL_MS, FILTER_BOT_EVENTS);
+
+    // Check if API_TOKEN is set
+    if (!API_TOKEN || API_TOKEN.trim() === '') {
+        console.error('ERROR: API_TOKEN environment variable is not set!');
+        console.error('Event submission to master server will fail.');
+        console.error('Please set API_TOKEN to the same value configured on the master server.');
+    }
+
+    eventBatcher = new EventBatcher(MASTER_SERVER_BASE, EVENT_BATCH_INTERVAL_MS, FILTER_BOT_EVENTS, API_TOKEN);
     eventBatcher.start();
 
     if (FILTER_BOT_EVENTS) {
         console.log('Bot event filtering enabled');
     }
+    console.log('API authentication:', API_TOKEN && API_TOKEN.trim() !== '' ? 'enabled' : 'DISABLED (events will be rejected!)');
 
     // Parse server arguments
     const args = SERVER_ARGS.trim().split(/\s+/).filter(arg => arg.length > 0);

@@ -12,14 +12,22 @@ const STANDARD_BOT_NAMES = [
 ];
 
 class EventBatcher {
-    constructor(masterServerUrl, batchIntervalMs = 5000, filterBots = true) {
+    constructor(masterServerUrl, batchIntervalMs = 5000, filterBots = true, apiToken = null) {
         this.masterServerUrl = masterServerUrl;
         this.batchIntervalMs = batchIntervalMs;
         this.filterBots = filterBots;
+        this.apiToken = apiToken;
         this.eventQueue = [];
         this.currentMap = null;
         this.intervalId = null;
         this.filteredCount = 0; // Track how many bot events were filtered
+
+        // Log token status for debugging
+        if (!this.apiToken || this.apiToken.trim() === '') {
+            console.warn('EventBatcher initialized WITHOUT API token - requests will fail!');
+        } else {
+            console.log('EventBatcher initialized with API token');
+        }
     }
 
     /**
@@ -133,11 +141,18 @@ class EventBatcher {
         // Send events one by one (master server expects individual POSTs)
         for (const event of eventsToSend) {
             try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+
+                // Add Authorization header if API token is configured
+                if (this.apiToken) {
+                    headers['Authorization'] = `Bearer ${this.apiToken}`;
+                }
+
                 const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers,
                     body: JSON.stringify(event),
                 });
 
