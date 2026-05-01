@@ -1,15 +1,17 @@
 # Q3JS-KOB (a fork of Q3JS)
 
 This fork has a few differences:
-  - intended for a small private environment
+  - primarily CPMA-oriented
+  - automatic download of custom player models
+  - admin page to upload/delete custom maps and models from/to baseq3 folder on server
   - uses the official ioq3 engine's repo instead of a fork
   - player statistics are collected server-side (by proxy) and don't require any modifications of the client
+  - intended for a small private environment
   - no Google Analytics or SEO
   - mobile controls support is removed
   - home page is simplified (no server search)
-  - automatic download of custom player models
-  - admin page to upload/delete custom maps and models from/to baseq3 folder on server
   - check of integrity of the client files and removal of those that are no longer on server
+  - usernames are limited to 16 chars according to CPMA requirements and cannot have spaces
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
 traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend.
