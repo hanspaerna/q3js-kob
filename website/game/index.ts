@@ -115,12 +115,6 @@ const config = {
             {src: "cpma/map_cpmctf2.pk3", dst: "/cpma"},
             {src: "cpma/map_cpmctf3.pk3", dst: "/cpma"},
             {src: "cpma/map_cpmctf5.pk3", dst: "/cpma"},
-
-            // beta core maps
-            {src: "cpma/map_cpm33_b1.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm32_b1.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm30_b1.pk3", dst: "/cpma"},
-            {src: "cpma/map_cpm3b_b1.pk3", dst: "/cpma"},
         ],
     }
 
