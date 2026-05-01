@@ -8,6 +8,7 @@ const LogParser = require('./logParser');
 const EventBatcher = require('./eventBatcher');
 
 const MASTER_SERVER_BASE = env.MASTER_SERVER_BASE;
+const SECONDARY_MASTER_SERVER_BASE = env.SECONDARY_MASTER_SERVER_BASE;
 const HEARTBEAT_INTERVAL_MS = env.HEARTBEAT_INTERVAL_MS;
 const TARGET_HOST = env.TARGET_HOST;
 const TARGET_PORT = env.TARGET_PORT;
@@ -24,6 +25,9 @@ let publishHost = env.PUBLISH_HOST;
 const publishPort = env.PUBLISH_PORT || PROXY_PORT;
 
 const HEARTBEAT_URL = `${MASTER_SERVER_BASE}/api/servers/heartbeat`;
+const SECONDARY_HEARTBEAT_URL = SECONDARY_MASTER_SERVER_BASE
+    ? `${SECONDARY_MASTER_SERVER_BASE}/api/servers/heartbeat`
+    : null;
 const MAX_WS_BUFFERED_BYTES = 1_000_000;
 
 let heartbeatBodyJson = null;
@@ -62,17 +66,37 @@ async function sendHeartbeat() {
 
     heartbeatInFlight = true;
     try {
-        const res = await fetch(HEARTBEAT_URL, {
+        // Send heartbeat to primary master server
+        const primaryPromise = fetch(HEARTBEAT_URL, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: heartbeatBodyJson,
+        }).then(res => {
+            if (!res.ok) {
+                console.warn('Primary heartbeat failed:', res.status, res.statusText);
+            }
+        }).catch(e => {
+            console.warn('Primary heartbeat error:', e.message);
         });
 
-        if (!res.ok) {
-            console.warn('Heartbeat failed:', res.status, res.statusText);
+        // Send heartbeat to secondary master server if configured
+        let secondaryPromise = Promise.resolve();
+        if (SECONDARY_HEARTBEAT_URL) {
+            secondaryPromise = fetch(SECONDARY_HEARTBEAT_URL, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: heartbeatBodyJson,
+            }).then(res => {
+                if (!res.ok) {
+                    console.warn('Secondary heartbeat failed:', res.status, res.statusText);
+                }
+            }).catch(e => {
+                console.warn('Secondary heartbeat error:', e.message);
+            });
         }
-    } catch (e) {
-        console.warn('Heartbeat error:', e.message);
+
+        // Wait for both heartbeats to complete
+        await Promise.all([primaryPromise, secondaryPromise]);
     } finally {
         heartbeatInFlight = false;
     }
