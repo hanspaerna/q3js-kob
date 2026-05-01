@@ -18,6 +18,7 @@ const env = createEnv({
         EVENT_BATCH_INTERVAL_MS: z.coerce.number().int().positive().default(5000),
         SERVER_BINARY_PATH: z.string().default('../ioq3ded'),
         SERVER_ARGS: z.string().default(''),
+        FILTER_BOT_EVENTS: z.coerce.boolean().default(true),
     },
     clientPrefix: '',
     client: {},

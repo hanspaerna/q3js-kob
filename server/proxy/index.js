@@ -17,6 +17,7 @@ const ENABLE_LOG_PARSING = env.ENABLE_LOG_PARSING;
 const EVENT_BATCH_INTERVAL_MS = env.EVENT_BATCH_INTERVAL_MS;
 const SERVER_BINARY_PATH = env.SERVER_BINARY_PATH;
 const SERVER_ARGS = env.SERVER_ARGS;
+const FILTER_BOT_EVENTS = env.FILTER_BOT_EVENTS;
 
 let publishHost = env.PUBLISH_HOST;
 const publishPort = env.PUBLISH_PORT || PROXY_PORT;
@@ -180,8 +181,12 @@ function startServerWithLogParsing() {
 
     // Initialize log parser and event batcher
     logParser = new LogParser();
-    eventBatcher = new EventBatcher(MASTER_SERVER_BASE, EVENT_BATCH_INTERVAL_MS);
+    eventBatcher = new EventBatcher(MASTER_SERVER_BASE, EVENT_BATCH_INTERVAL_MS, FILTER_BOT_EVENTS);
     eventBatcher.start();
+
+    if (FILTER_BOT_EVENTS) {
+        console.log('Bot event filtering enabled');
+    }
 
     // Parse server arguments
     const args = SERVER_ARGS.trim().split(/\s+/).filter(arg => arg.length > 0);

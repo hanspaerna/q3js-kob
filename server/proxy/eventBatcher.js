@@ -2,13 +2,37 @@
  * Batches game events and sends them to the master server
  */
 
+// Standard Quake 3 Arena bot names
+const STANDARD_BOT_NAMES = [
+    'Sarge', 'Grunt', 'Major', 'Visor', 'Razor', 'Bitterman', 'Crash', 'Orbb',
+    'Slash', 'Doom', 'Phobos', 'Hunter', 'Ranger', 'Wrack', 'Bones', 'Sorlag',
+    'Klesk', 'Tankjr', 'Mynx', 'Anarki', 'Hossman', 'Gorre', 'Uriel', 'Angel',
+    'Lucy', 'Patriot', 'Xaero', 'Keel', 'Cadavre', 'Daemia', 'Stripe', 'Grism',
+    'Tig', 'Sly'
+];
+
 class EventBatcher {
-    constructor(masterServerUrl, batchIntervalMs = 5000) {
+    constructor(masterServerUrl, batchIntervalMs = 5000, filterBots = true) {
         this.masterServerUrl = masterServerUrl;
         this.batchIntervalMs = batchIntervalMs;
+        this.filterBots = filterBots;
         this.eventQueue = [];
         this.currentMap = null;
         this.intervalId = null;
+        this.filteredCount = 0; // Track how many bot events were filtered
+    }
+
+    /**
+     * Check if a player name is a bot
+     * @param {string} name - Player name
+     * @returns {boolean} - True if the name is a bot
+     */
+    isBot(name) {
+        if (!name) return false;
+
+        // Case-insensitive comparison with standard bot names
+        const normalizedName = name.toLowerCase();
+        return STANDARD_BOT_NAMES.some(botName => botName.toLowerCase() === normalizedName);
     }
 
     /**
@@ -41,6 +65,34 @@ class EventBatcher {
      * @param {Object} event - Event object from log parser
      */
     addEvent(event) {
+        // Filter bot events if enabled
+        if (this.filterBots) {
+            if (event.event === 'kill') {
+                // Filter kills where killer or victim is a bot
+                const killerIsBot = this.isBot(event.killer?.name);
+                const victimIsBot = this.isBot(event.victim?.name);
+
+                if (killerIsBot || victimIsBot) {
+                    this.filteredCount++;
+                    if (this.filteredCount === 1 || this.filteredCount % 10 === 0) {
+                        console.log(`Filtered bot event (total: ${this.filteredCount}): ${event.killer?.name} killed ${event.victim?.name}`);
+                    }
+                    return; // Skip this event
+                }
+            } else if (event.event === 'join' || event.event === 'leave') {
+                // Filter join/leave events for bots
+                const playerIsBot = this.isBot(event.player?.name);
+
+                if (playerIsBot) {
+                    this.filteredCount++;
+                    if (this.filteredCount === 1 || this.filteredCount % 10 === 0) {
+                        console.log(`Filtered bot event (total: ${this.filteredCount}): ${event.player?.name} ${event.event}`);
+                    }
+                    return; // Skip this event
+                }
+            }
+        }
+
         // Enrich event with additional data
         // Note: serverTime and gameTime should be game server's internal time in milliseconds,
         // not Unix timestamps. Since we don't have access to the actual values from logs,
