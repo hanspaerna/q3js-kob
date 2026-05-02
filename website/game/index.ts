@@ -173,6 +173,16 @@ function registerIOQ3Runtime(promise: Promise<IOQ3RuntimeModule>) {
 }
 
 export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = []}: Params) {
+    // Block browser back/forward navigation (mouse buttons, keyboard shortcuts, etc.)
+    // Push a state to history so back button stays on this page
+    history.pushState(null, '', window.location.href);
+
+    // When user tries to navigate back, push another state to keep them here
+    const blockNavigation = () => {
+        history.pushState(null, '', window.location.href);
+    };
+    window.addEventListener('popstate', blockNavigation);
+
     const importIoquake3 = new Function("return import('/ioquake3.js')");
     const ioquake3Module = await (importIoquake3() as Promise<{ default: (moduleArg?: unknown) => unknown }>);
     const ioquake3 = ioquake3Module.default;
