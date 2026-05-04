@@ -18,4 +18,6 @@ public class ServerResponse {
 
     @NotNull
     private ServerInfoResponse info;
+
+    private String location;
 }

@@ -42,6 +42,7 @@ public class ServerService {
         int proxyPort = heartbeatRequest.getProxyPort();
         int targetPort = heartbeatRequest.getTargetPort();
         boolean secure = heartbeatRequest.isSecure();
+        String location = heartbeatRequest.getLocation();
         OffsetDateTime now = OffsetDateTime.now();
 
         String key = key(host, proxyPort);
@@ -59,6 +60,7 @@ public class ServerService {
                     .targetPort(targetPort)
                     .secure(secure)
                     .lastHeartbeat(now)
+                    .location(location)
                     .build();
         });
     }
@@ -74,7 +76,8 @@ public class ServerService {
                                 server.getProxyPort(),
                                 server.getTargetPort(),
                                 server.isSecure(),
-                                info
+                                info,
+                                server.getLocation()
                         )))
                 .peek(result -> {
                     if (result.isEmpty()) {

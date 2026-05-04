@@ -67,6 +67,7 @@ public final class ServerStatusParser {
                 .sv_floodProtect(toInt(kv.get("sv_floodprotect")))
                 .sv_allowDownload(toInt(kv.get("sv_allowdownload")))
                 .bot_minplayers(toInt(kv.get("bot_minplayers")))
+                .location(server.getLocation())
                 .gamename(kv.get("gamename"))
                 .g_maxGameClients(toInt(kv.get("g_maxgameclients")))
                 .host(server.getHost())

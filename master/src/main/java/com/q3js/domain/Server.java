@@ -16,6 +16,7 @@ public class Server {
     private int proxyPort;
     private int targetPort;
     private boolean secure;
+    private String location;
 
     private OffsetDateTime lastHeartbeat;
 }

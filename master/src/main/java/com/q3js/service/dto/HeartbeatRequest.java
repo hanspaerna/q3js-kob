@@ -14,4 +14,5 @@ public class HeartbeatRequest {
     private String targetHost;
     private int targetPort;
     private boolean secure;
+    private String location;
 }
