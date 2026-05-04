@@ -10,9 +10,6 @@ export default function ScoreboardDistributionPage(props: {
             <section className="mx-auto max-w-5xl space-y-6">
                 <div className="space-y-2">
                     <h1 className="text-4xl font-bold tracking-tight">Activity</h1>
-                    <p className="text-sm text-muted-foreground md:text-base">
-                        Break down reported scoreboard activity by hour or day and compare momentum across each window.
-                    </p>
                 </div>
 
                 <ScoreboardDistributionClient data={props.data} period={props.period}/>

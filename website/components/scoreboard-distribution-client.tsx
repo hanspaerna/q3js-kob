@@ -47,12 +47,6 @@ export function ScoreboardDistributionClient(props: {
                 <ScoreboardToolbar
                     description={
                         <>
-                            <p className="text-sm text-muted-foreground">
-                                Explore how reported match activity moves across the {periodLabel.toLowerCase()} window.
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                Switch periods to compare hourly or daily spikes across the global scoreboard feed.
-                            </p>
                         </>
                     }
                     actions={
