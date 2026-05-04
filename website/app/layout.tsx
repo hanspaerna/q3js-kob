@@ -33,7 +33,8 @@ export default function RootLayout({
                 <script dangerouslySetInnerHTML={{ __html: `
                     window.__ENV__ = {
                         masterServerUrl: "${process.env.MASTER_SERVER_URL}",
-                        websiteTitle: "${process.env.WEBSITE_TITLE}"
+                        websiteTitle: "${process.env.WEBSITE_TITLE}",
+                        logoutUrl: "${process.env.LOGOUT_URL}"
                     }
                 `}} />
             </head>

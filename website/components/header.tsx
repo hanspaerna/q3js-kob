@@ -137,6 +137,8 @@ export function Header() {
         online: `${serverCount} servers live`,
     }[status];
     const statusStyles = HEADER_STATUS_STYLES[status];
+    const { websiteTitle, logoutUrl } = getClientEnv();
+
     const navItems: HeaderNavItem[] = [
         {
             href: "/scoreboard/distribution",
@@ -156,9 +158,11 @@ export function Header() {
             href: "/admin",
             label: "Admin",
         },
+                {
+            href: logoutUrl,
+            label: "Logout",
+        },
     ];
-
-    const { websiteTitle } = getClientEnv();
 
     return <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
         <div className="container mx-auto flex items-center justify-between gap-3 px-4 py-4">
