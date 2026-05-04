@@ -23,6 +23,9 @@ const env = createEnv({
 
         // API authentication
         API_TOKEN: z.string().optional(),
+
+        // server location
+        LOCATION: z.string().optional(),
     },
     clientPrefix: '',
     client: {},

@@ -20,6 +20,7 @@ const SERVER_BINARY_PATH = env.SERVER_BINARY_PATH;
 const SERVER_ARGS = env.SERVER_ARGS;
 const FILTER_BOT_EVENTS = env.FILTER_BOT_EVENTS;
 const API_TOKEN = env.API_TOKEN;
+const LOCATION = env.LOCATION;
 
 let publishHost = env.PUBLISH_HOST;
 const publishPort = env.PUBLISH_PORT || PROXY_PORT;
@@ -44,6 +45,7 @@ function rebuildHeartbeatBody() {
         proxyPort: publishPort,
         targetPort: TARGET_PORT,
         secure: SECURE,
+        location: LOCATION,
     });
 }
 
