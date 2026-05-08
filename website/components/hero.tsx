@@ -56,7 +56,7 @@ export function Hero(props: {
 
                     <div className="mt-8 flex flex-col items-center gap-3 text-center">
                         <p>
-                            Press <strong>F8</strong> in-game to enable fullscreen mode.
+                            Press <strong>Shift+F</strong> in-game to enable fullscreen mode.
                         </p>
                         <p>
                             Press <strong>H</strong> in-game to shout after killing (or being killed by) someone.

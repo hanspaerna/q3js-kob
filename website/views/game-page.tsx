@@ -4,7 +4,7 @@ import {useEffect, useRef, useState} from "react";
 import {Card} from "@/components/ui/card";
 import {Progress} from "@/components/ui/progress";
 import {makeRafUpdater, type Prog} from "@/lib/fs.ts";
-import {useFullscreenOnF8} from "@/hooks/use-fullscreen.ts";
+import {useFullscreenOnKey} from "@/hooks/use-fullscreen.ts";
 import startGame from "@/game";
 import {useSearchParams} from "next/navigation";
 import {toInt} from "@/lib/utils.ts";
@@ -17,7 +17,7 @@ const STAGE_LABELS: Record<Prog["stage"], string> = {
 };
 
 const STAGE_TIPS: Record<Prog["stage"], string> = {
-    initializing: "Tip: Press F8 to toggle fullscreen.",
+    initializing: "Tip: Press Shift+F to toggle fullscreen.",
     downloading: "Tip: Assets are cached after first load.",
     launching: "Tip: Press H in-game to shout.",
     ready: "Tip: If sound is muted, click the page once.",
@@ -28,7 +28,7 @@ interface GamePageProps {
 }
 
 export default function GamePage({ customPlayerModels }: GamePageProps) {
-    useFullscreenOnF8();
+    useFullscreenOnKey();
     const gameShellRef = useRef<HTMLElement | null>(null);
     const startedGameKeyRef = useRef<string | null>(null);
 
