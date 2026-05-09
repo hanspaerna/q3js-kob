@@ -222,9 +222,11 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set cg_enemycolors ""
         +set cg_forcemodel 0
         +set cg_forcecolors 0
-        +bind h "+button3"
-        +bind c "+movedown"
     `;
+
+
+    // load custom bindings via exec to avoid issues with auto-connect (more than one +bind command listed directly in generatedArguments breaks it)
+    generatedArguments += ` +exec autoexec_binds.cfg `;
 
     // Spearmint's Very High Quality Graphics settings by zturtleman, compatible with ioquake3 (r_flares excluded due to OpenGL error)
     generatedArguments += `
@@ -243,6 +245,8 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
     generatedArguments += ` +set name "${name.replace(/"/g, "'")}" `;
 
     const dataURL = new URL(location.origin + location.pathname);
+
+    console.log("generatedArguments: " + generatedArguments.trim().split(/\s+/));
 
     const runtimePromise = ioquake3({
         websocket: {
@@ -379,6 +383,14 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         module.FS.mkdirTree(f.dst);
                         module.FS.writeFile(dstPath, data);
                     }
+
+                    // Write custom bindings to a config file
+                    const bindsConfig = [
+                        'bind h "+button3"',
+                        'bind c "+movedown"',
+                        'bind F1 "togglemenu"',
+                    ].join('\n');
+                    module.FS.writeFile(`/${fs_game}/autoexec_binds.cfg`, bindsConfig);
 
                     if (persist) {
                         await syncfs(module, false);
