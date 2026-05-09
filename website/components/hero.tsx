@@ -61,6 +61,9 @@ export function Hero(props: {
                         <p>
                             Press <strong>H</strong> in-game to shout after killing (or being killed by) someone.
                         </p>
+                        <p>
+                            Press <strong>C</strong> to crouch.
+                        </p>
                     </div>
 
                     <div className="mt-8 grid gap-3 text-left md:grid-cols-3">

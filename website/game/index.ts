@@ -223,6 +223,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         +set cg_forcemodel 0
         +set cg_forcecolors 0
         +bind h "+button3"
+        +bind c "+movedown"
     `;
 
     // Spearmint's Very High Quality Graphics settings by zturtleman, compatible with ioquake3 (r_flares excluded due to OpenGL error)
