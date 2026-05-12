@@ -187,6 +187,10 @@ export function Header() {
             href: profileHref ?? undefined,
             label: "My Profile",
         },
+        {
+            href: "/storage",
+            label: "Storage",
+        },
         ...(session ? [
             {
                 href: "/admin",
