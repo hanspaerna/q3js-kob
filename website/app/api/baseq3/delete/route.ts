@@ -1,11 +1,11 @@
 import { BASEQ3_DIR } from '@/lib/constants';
+import { auth } from '@/lib/auth';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 
-const PASSWORD = process.env.ADMIN_PASSWORD;
-
 export async function DELETE(req: Request) {
-  if (req.headers.get('x-admin-password') !== PASSWORD) {
+  const session = await auth();
+  if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

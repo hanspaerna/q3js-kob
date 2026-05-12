@@ -1,41 +1,47 @@
-/* app/admin/page.tsx */
 'use client';
-import { useState } from 'react';
-import { Trash2, Upload, Lock, FolderOpen, LogOut, File, AlertTriangle, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Trash2, Upload, FolderOpen, File, AlertTriangle, X } from 'lucide-react';
 import s from './admin.module.css';
 import { Button } from '@/components/ui/button';
 import { ADMIN_UPLOAD_LIMIT_MB } from '@/lib/constants';
 
 export default function AdminPage() {
-  const [password, setPassword] = useState('');
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [files, setFiles] = useState<{ name: string; size: number }[]>([]);
-  const [authed, setAuthed] = useState(false);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
   const [confirmFile, setConfirmFile] = useState<string | null>(null);
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirmError, setConfirmError] = useState('');
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const modelFiles = files.filter(f => f.name.startsWith('model-'));
   const mapFiles = files.filter(f => !f.name.startsWith('model-'));
 
-  const headers = { 'x-admin-password': password };
-
-  async function login() {
+  async function loadFiles() {
     setError('');
-    const res = await fetch('/api/baseq3', { headers });
-    if (res.status === 401) setError('Wrong password');
-    else if (res.status === 404) setError('Directory not found on server');
-    else if (res.ok) {
+    const res = await fetch('/api/baseq3');
+    if (res.status === 401) {
+      router.push('/');
+    } else if (res.status === 404) {
+      setError('Directory not found on server');
+    } else if (res.ok) {
       const data = await res.json();
       setFiles(data.files);
-      setAuthed(true);
     } else {
       setError(`Unexpected error: ${res.status}`);
     }
   }
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      loadFiles();
+    } else if (status === 'unauthenticated') {
+      router.push('/');
+    }
+  }, [status, router]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -72,61 +78,38 @@ export default function AdminPage() {
       xhr.addEventListener('error', () => reject(new Error('Upload failed')));
 
       xhr.open('POST', '/api/baseq3/upload');
-      xhr.setRequestHeader('x-admin-password', password);
       xhr.send(formData);
     });
 
-    await login();
+    await loadFiles();
     setUploading(false);
     setUploadProgress(null);
     e.target.value = '';
   }
 
-  function openConfirm(filename: string) {
-    setConfirmFile(filename);
-    setConfirmPassword('');
-    setConfirmError('');
-  }
-
-  function closeConfirm() {
-    setConfirmFile(null);
-    setConfirmPassword('');
-    setConfirmError('');
-  }
-
   async function handleDelete() {
-    if (confirmPassword !== password) {
-      setConfirmError('Wrong password');
-      return;
-    }
     await fetch('/api/baseq3/delete', {
       method: 'DELETE',
-      headers: { ...headers, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ filename: confirmFile })
     });
-    closeConfirm();
-    await login();
+    setConfirmFile(null);
+    await loadFiles();
   }
 
-  if (!authed) return (
-    <div className={s.page}>
-      <div className={s.card}>
-        <div className={s.cardHeader}>
-          <FolderOpen size={36} color="var(--primary)" />
-          <h1>q3js-kob manager</h1>
-          <p>Enter password to continue</p>
+  if (status === 'loading') {
+    return (
+      <div className={s.page}>
+        <div className={s.card}>
+          <p>Loading...</p>
         </div>
-        <div className={s.inputWrapper}>
-          <Lock size={15} color="#555" className={s.inputIcon} />
-          <input className={s.input} type="password" placeholder="Password"
-            onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && login()} />
-        </div>
-        {error && <p className={s.error}>{error}</p>}
-        <Button className="w-full" onClick={login}>Login</Button>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className={s.page}>
@@ -137,10 +120,9 @@ export default function AdminPage() {
             <FolderOpen size={24} color="var(--primary)" />
             <h1>q3js-kob manager</h1>
           </div>
-          <Button variant="secondary" onClick={() => setAuthed(false)}>
-            <LogOut size={13} /> Logout
-          </Button>
         </div>
+
+        {error && <p className={s.error}>{error}</p>}
 
         <div>
           <p><small>NB! All custom model filenames must match the format "model-$NAME.pk3".</small></p>
@@ -175,7 +157,7 @@ export default function AdminPage() {
                       </div>
                       <div className={s.fileItemMeta}>
                         <span className={s.fileSize}>{formatBytes(f.size)}</span>
-                        <button className={s.btnIcon} onClick={() => openConfirm(f.name)}>
+                        <button className={s.btnIcon} onClick={() => setConfirmFile(f.name)}>
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -198,7 +180,7 @@ export default function AdminPage() {
                       </div>
                       <div className={s.fileItemMeta}>
                         <span className={s.fileSize}>{formatBytes(f.size)}</span>
-                        <button className={s.btnIcon} onClick={() => openConfirm(f.name)}>
+                        <button className={s.btnIcon} onClick={() => setConfirmFile(f.name)}>
                           <Trash2 size={15} />
                         </button>
                       </div>
@@ -211,28 +193,20 @@ export default function AdminPage() {
       </div>
 
       {confirmFile && (
-        <div className={s.backdrop} onClick={e => { if (e.target === e.currentTarget) closeConfirm(); }}>
+        <div className={s.backdrop} onClick={e => { if (e.target === e.currentTarget) setConfirmFile(null); }}>
           <div className={s.dialog}>
             <div className={s.dialogHeader}>
               <div className={s.dialogTitle}>
                 <AlertTriangle size={20} color="var(--primary)" />
                 <span>Confirm deletion</span>
               </div>
-              <Button className={s.btnIcon} onClick={closeConfirm}><X size={16} /></Button>
+              <Button className={s.btnIcon} onClick={() => setConfirmFile(null)}><X size={16} /></Button>
             </div>
             <p className={s.dialogBody}>
-              You are about to delete <em>{confirmFile}</em>. Enter your password to confirm.
+              Are you sure you want to delete <em>{confirmFile}</em>?
             </p>
-            <div className={s.inputWrapper}>
-              <Lock size={15} color="#555" className={s.inputIcon} />
-              <input className={s.input} type="password" placeholder="Enter password to confirm"
-                value={confirmPassword} autoFocus
-                onChange={e => { setConfirmPassword(e.target.value); setConfirmError(''); }}
-                onKeyDown={e => e.key === 'Enter' && handleDelete()} />
-            </div>
-            {confirmError && <p className={s.error}>{confirmError}</p>}
             <div className={s.dialogActions}>
-              <Button variant="secondary" onClick={closeConfirm}>Cancel</Button>
+              <Button variant="secondary" onClick={() => setConfirmFile(null)}>Cancel</Button>
               <Button className={s.btnPrimary} onClick={handleDelete}>
                 <Trash2 size={13} /> Delete
               </Button>

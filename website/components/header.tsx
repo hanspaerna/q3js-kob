@@ -60,7 +60,7 @@ function HeaderNavBadge(props: HeaderNavItem) {
             <Badge
                 asChild
                 variant="outline"
-                className={HEADER_LINK_CLASS_NAME}
+                className={`${HEADER_LINK_CLASS_NAME} cursor-pointer`}
             >
                 <button type="button" onClick={props.onClick}>
                     {label}
@@ -108,7 +108,7 @@ function HeaderSheetLink(props: HeaderNavItem) {
                     onClick={props.onClick}
                     className={cn(
                         buttonVariants({variant: "outline"}),
-                        "justify-start border-muted-foreground/30 text-muted-foreground hover:border-foreground hover:text-foreground"
+                        "justify-start border-muted-foreground/30 text-muted-foreground hover:border-foreground hover:text-foreground cursor-pointer"
                     )}
                 >
                     {label}
@@ -193,8 +193,8 @@ export function Header() {
                 label: "Admin",
             },
             {
-                label: "Logout",
-                onClick: () => signOut(),
+                label: `Logout (${session.user?.name ?? "user"})`,
+                onClick: () => signOut({ redirectTo: "/logout" }),
             },
         ] : [
             {
