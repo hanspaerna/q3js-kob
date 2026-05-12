@@ -18,7 +18,7 @@ import {useLocalStorage} from "@/hooks/use-local-storage.ts";
 import {MenuIcon} from "lucide-react";
 import {cn, getClientEnv} from "@/lib/utils.ts";
 import {PwaInstallControl} from "@/components/pwa-install-control.tsx";
-import {env} from "@/env";
+import {useSession, signIn, signOut} from "next-auth/react";
 
 const HEADER_STATUS_STYLES = {
     offline: {
@@ -49,10 +49,25 @@ type HeaderNavItem = {
     label: string;
     mobileLabel?: string;
     external?: boolean;
+    onClick?: () => void;
 };
 
 function HeaderNavBadge(props: HeaderNavItem) {
     const label = props.mobileLabel ?? props.label;
+
+    if (props.onClick) {
+        return (
+            <Badge
+                asChild
+                variant="outline"
+                className={HEADER_LINK_CLASS_NAME}
+            >
+                <button type="button" onClick={props.onClick}>
+                    {label}
+                </button>
+            </Badge>
+        );
+    }
 
     if (!props.href) {
         return (
@@ -84,6 +99,23 @@ function HeaderNavBadge(props: HeaderNavItem) {
 
 function HeaderSheetLink(props: HeaderNavItem) {
     const label = props.mobileLabel ?? props.label;
+
+    if (props.onClick) {
+        return (
+            <SheetClose asChild>
+                <button
+                    type="button"
+                    onClick={props.onClick}
+                    className={cn(
+                        buttonVariants({variant: "outline"}),
+                        "justify-start border-muted-foreground/30 text-muted-foreground hover:border-foreground hover:text-foreground"
+                    )}
+                >
+                    {label}
+                </button>
+            </SheetClose>
+        );
+    }
 
     if (!props.href) {
         return (
@@ -117,6 +149,7 @@ function HeaderSheetLink(props: HeaderNavItem) {
 
 export function Header() {
     const [name] = useLocalStorage("name", "Anonymous");
+    const { data: session } = useSession();
 
     const serversResponse = useQuery({
         ...getAllServersOptions()
@@ -137,7 +170,7 @@ export function Header() {
         online: `${serverCount} servers live`,
     }[status];
     const statusStyles = HEADER_STATUS_STYLES[status];
-    const { websiteTitle, logoutUrl } = getClientEnv();
+    const { websiteTitle } = getClientEnv();
 
     const navItems: HeaderNavItem[] = [
         {
@@ -154,14 +187,21 @@ export function Header() {
             href: profileHref ?? undefined,
             label: "My Profile",
         },
-        {
-            href: "/admin",
-            label: "Admin",
-        },
-                {
-            href: logoutUrl,
-            label: "Logout",
-        },
+        ...(session ? [
+            {
+                href: "/admin",
+                label: "Admin",
+            },
+            {
+                label: "Logout",
+                onClick: () => signOut(),
+            },
+        ] : [
+            {
+                label: "Maintenance",
+                onClick: () => signIn("authelia"),
+            },
+        ]),
     ];
 
     return <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
@@ -169,7 +209,7 @@ export function Header() {
             <Link href="/" className="flex items-center gap-3">
                 <div>
                     <p className="text-xl font-bold tracking-tight text-foreground">{websiteTitle}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v0.0.3</p>
+                    <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v1.0.4</p>
                 </div>
             </Link>
 

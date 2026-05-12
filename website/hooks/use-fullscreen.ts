@@ -3,7 +3,7 @@ import {useEffect} from "react";
 export function useFullscreenOnKey() {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-           if (e.shiftKey && e.key === "F") {
+           if (e.shiftKey && e.code === "KeyF") {
                 e.preventDefault();
                 const el = document.documentElement;
                 if (!document.fullscreenElement) {

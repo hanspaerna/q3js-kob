@@ -3,6 +3,7 @@ import type {Viewport} from "next";
 import QueryClientProviderWrapper from "@/lib/query-client-provider-wrapper.tsx";
 import {TimeZoneSync} from "@/components/time-zone-sync";
 import {ServiceWorkerRegistration} from "@/components/service-worker-registration.tsx";
+import {SessionProvider} from "@/components/session-provider";
 import type { Metadata } from "next";
 import { env } from "@/env";
 
@@ -39,11 +40,13 @@ export default function RootLayout({
                 `}} />
             </head>
             <body className="antialiased">
-                <QueryClientProviderWrapper>
-                    <ServiceWorkerRegistration/>
-                    <TimeZoneSync/>
-                    <div className="font-mono">{children}</div>
-                </QueryClientProviderWrapper>
+                <SessionProvider>
+                    <QueryClientProviderWrapper>
+                        <ServiceWorkerRegistration/>
+                        <TimeZoneSync/>
+                        <div className="font-mono">{children}</div>
+                    </QueryClientProviderWrapper>
+                </SessionProvider>
             </body>
         </html>
     );
