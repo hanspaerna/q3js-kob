@@ -173,9 +173,6 @@ function registerIOQ3Runtime(promise: Promise<IOQ3RuntimeModule>) {
         });
 }
 
-// Protected files that require authentication - if 404, user must provide them
-const PROTECTED_FILES = ["pak0.pk3", "q3key"];
-
 export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = [], onNeedPak0}: Params) {
     // Block browser back/forward navigation (mouse buttons, keyboard shortcuts, etc.)
     // Push a state to history so back button stays on this page

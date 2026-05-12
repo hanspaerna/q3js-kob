@@ -11,6 +11,14 @@ import {useSearchParams} from "next/navigation";
 import {toInt} from "@/lib/utils.ts";
 import {Upload} from "lucide-react";
 
+const PAK0_EXPECTED_SHA256 = "7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae";
+
+async function sha256(data: ArrayBuffer): Promise<string> {
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
 const STAGE_LABELS: Record<Prog["stage"], string> = {
     initializing: "Initializing",
     needs_pak0: "Game Data Required",
@@ -45,6 +53,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         stage: "initializing"
     });
     const [rafUpdate] = useState(() => makeRafUpdater(setProg));
+    const [pak0Error, setPak0Error] = useState<string | null>(null);
 
     const searchParams = useSearchParams();
     const host = searchParams?.get("host") ?? "";
@@ -64,7 +73,16 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         const file = e.target.files?.[0];
         if (!file || !pak0ResolverRef.current) return;
 
+        setPak0Error(null);
         const buffer = await file.arrayBuffer();
+
+        const hash = await sha256(buffer);
+        if (hash !== PAK0_EXPECTED_SHA256) {
+            setPak0Error(`Invalid file. Expected SHA256: ${PAK0_EXPECTED_SHA256}, got: ${hash}`);
+            e.target.value = "";
+            return;
+        }
+
         const data = new Uint8Array(buffer);
         pak0ResolverRef.current(data);
         pak0ResolverRef.current = null;
@@ -154,7 +172,9 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                     {prog.stage === "needs_pak0" ? (
                         <div className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                To play, please provide your legally acquired <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena.
+                                To play, please provide your legally acquired <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena. 
+                                Only version 1.32c is supported. 
+                                SHA256: 7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae
                             </p>
                             <label className="flex items-center justify-center gap-2 cursor-pointer rounded-md border border-dashed border-muted-foreground/50 p-4 hover:border-foreground hover:bg-muted/50 transition-colors">
                                 <Upload size={18} />
@@ -166,6 +186,9 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                                     className="hidden"
                                 />
                             </label>
+                            {pak0Error && (
+                                <p className="text-sm text-destructive">{pak0Error}</p>
+                            )}
                         </div>
                     ) : (
                         <>
