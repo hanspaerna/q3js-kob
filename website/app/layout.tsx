@@ -35,7 +35,7 @@ export default function RootLayout({
                     window.__ENV__ = {
                         masterServerUrl: "${process.env.MASTER_SERVER_URL}",
                         websiteTitle: "${process.env.WEBSITE_TITLE}",
-                        logoutUrl: "${process.env.LOGOUT_URL}"
+                        appVersion: "${process.env.APP_VERSION ?? "0.0.0"}"
                     }
                 `}} />
             </head>

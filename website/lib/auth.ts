@@ -3,7 +3,6 @@ import NextAuth from "next-auth";
 const ALLOWED_GROUPS = ["quakers", "admins"];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    debug: true,
     trustHost: true,
     providers: [
         {
@@ -34,7 +33,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     callbacks: {
         signIn({ user }) {
             const groups = ((user as any).groups as string[]) ?? [];
-            console.log("User groups:", groups);
             return groups.some((g) => ALLOWED_GROUPS.includes(g));
         },
         async jwt({ token, user, account }) {

@@ -170,7 +170,7 @@ export function Header() {
         online: `${serverCount} servers live`,
     }[status];
     const statusStyles = HEADER_STATUS_STYLES[status];
-    const { websiteTitle } = getClientEnv();
+    const { websiteTitle, appVersion } = getClientEnv();
 
     const navItems: HeaderNavItem[] = [
         {
@@ -196,12 +196,7 @@ export function Header() {
                 label: `Logout (${session.user?.name ?? "user"})`,
                 onClick: () => signOut({ redirectTo: "/logout" }),
             },
-        ] : [
-            {
-                label: "Maintenance",
-                onClick: () => signIn("authelia"),
-            },
-        ]),
+        ] : []),
     ];
 
     return <header className="border-b border-border/50 backdrop-blur-sm sticky top-0 z-50 bg-background/80">
@@ -209,7 +204,23 @@ export function Header() {
             <Link href="/" className="flex items-center gap-3">
                 <div>
                     <p className="text-xl font-bold tracking-tight text-foreground">{websiteTitle}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Q3JS-KOB v1.0.4</p>
+                    <p className="text-xs text-muted-foreground font-mono">
+                        Q3JS-KOB{" "}
+                        {session ? (
+                            <span>v{appVersion}</span>
+                        ) : (
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    signIn("authelia");
+                                }}
+                                className="hover:text-foreground transition-colors cursor-pointer"
+                            >
+                                v{appVersion}
+                            </button>
+                        )}
+                    </p>
                 </div>
             </Link>
 

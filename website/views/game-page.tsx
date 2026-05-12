@@ -1,16 +1,19 @@
 "use client";
 
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useRef, useState, useCallback} from "react";
 import {Card} from "@/components/ui/card";
 import {Progress} from "@/components/ui/progress";
+import {Button} from "@/components/ui/button";
 import {makeRafUpdater, type Prog} from "@/lib/fs.ts";
 import {useFullscreenOnKey} from "@/hooks/use-fullscreen.ts";
 import startGame from "@/game";
 import {useSearchParams} from "next/navigation";
 import {toInt} from "@/lib/utils.ts";
+import {Upload} from "lucide-react";
 
 const STAGE_LABELS: Record<Prog["stage"], string> = {
     initializing: "Initializing",
+    needs_pak0: "Game Data Required",
     downloading: "Downloading assets",
     launching: "Launching",
     ready: "Ready",
@@ -18,6 +21,7 @@ const STAGE_LABELS: Record<Prog["stage"], string> = {
 
 const STAGE_TIPS: Record<Prog["stage"], string> = {
     initializing: "Tip: Press Shift+F to toggle fullscreen.",
+    needs_pak0: "You can find pak0.pk3 in your Quake 3 Arena installation folder.",
     downloading: "Tip: Assets are cached after first load.",
     launching: "Tip: Press H in-game to shout.",
     ready: "Tip: If sound is muted, click the page once.",
@@ -31,6 +35,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     useFullscreenOnKey();
     const gameShellRef = useRef<HTMLElement | null>(null);
     const startedGameKeyRef = useRef<string | null>(null);
+    const pak0ResolverRef = useRef<((data: Uint8Array) => void) | null>(null);
 
     const [prog, setProg] = useState<Prog>({
         received: 0,
@@ -49,6 +54,22 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     const canStartGame = Boolean(host && proxyPort);
     const gameStartKey = `${host}|${proxyPort}|${name}|${fsGame}|desktop}`;
 
+    const onNeedPak0 = useCallback(() => {
+        return new Promise<Uint8Array>((resolve) => {
+            pak0ResolverRef.current = resolve;
+        });
+    }, []);
+
+    const handlePak0Upload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !pak0ResolverRef.current) return;
+
+        const buffer = await file.arrayBuffer();
+        const data = new Uint8Array(buffer);
+        pak0ResolverRef.current(data);
+        pak0ResolverRef.current = null;
+    }, []);
+
     useEffect(() => {
         if (!canStartGame) {
             return;
@@ -65,9 +86,10 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             proxyPort,
             rafUpdate,
             fsGame,
-            customPlayerModels
+            customPlayerModels,
+            onNeedPak0
         });
-    }, [canStartGame, fsGame, gameStartKey, host, name, proxyPort, rafUpdate]);
+    }, [canStartGame, fsGame, gameStartKey, host, name, proxyPort, rafUpdate, onNeedPak0, customPlayerModels]);
 
     useEffect(() => {
         document.body.classList.add("game-page-active");
@@ -85,6 +107,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         ? {
             downloading: `Downloading: ${prog.current}`,
             initializing: prog.current,
+            needs_pak0: prog.current,
             launching: prog.current,
             ready: prog.current,
         }[prog.stage]
@@ -128,16 +151,36 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                     <div className="text-xs text-muted-foreground mb-2 font-mono">
                         {currentLabel}
                     </div>
-                    <Progress value={prog.pct} className="h-2 bg-secondary"/>
-                    <div className="text-xs text-muted-foreground mt-2 font-mono">
-                        {prog.total
-                            ? `${(prog.received / (1024 * 1024)).toFixed(1)} MB / ${(prog.total / (1024 * 1024)).toFixed(1)} MB`
-                            : `${prog.pct}%`}
-                    </div>
-                    {prog.etaSeconds !== undefined && prog.stage === "downloading" && (
-                        <div className="text-xs text-muted-foreground mt-1 font-mono">
-                            ETA: {prog.etaSeconds}s
+                    {prog.stage === "needs_pak0" ? (
+                        <div className="space-y-3">
+                            <p className="text-sm text-muted-foreground">
+                                To play, please provide your legally acquired <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena.
+                            </p>
+                            <label className="flex items-center justify-center gap-2 cursor-pointer rounded-md border border-dashed border-muted-foreground/50 p-4 hover:border-foreground hover:bg-muted/50 transition-colors">
+                                <Upload size={18} />
+                                <span className="text-sm">Click to select pak0.pk3</span>
+                                <input
+                                    type="file"
+                                    accept=".pk3"
+                                    onChange={handlePak0Upload}
+                                    className="hidden"
+                                />
+                            </label>
                         </div>
+                    ) : (
+                        <>
+                            <Progress value={prog.pct} className="h-2 bg-secondary"/>
+                            <div className="text-xs text-muted-foreground mt-2 font-mono">
+                                {prog.total
+                                    ? `${(prog.received / (1024 * 1024)).toFixed(1)} MB / ${(prog.total / (1024 * 1024)).toFixed(1)} MB`
+                                    : `${prog.pct}%`}
+                            </div>
+                            {prog.etaSeconds !== undefined && prog.stage === "downloading" && (
+                                <div className="text-xs text-muted-foreground mt-1 font-mono">
+                                    ETA: {prog.etaSeconds}s
+                                </div>
+                            )}
+                        </>
                     )}
                     <div className="text-xs text-muted-foreground mt-2">
                         {tip}

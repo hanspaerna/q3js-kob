@@ -18,6 +18,7 @@ type Params = {
     rafUpdate: (prog: Prog) => void;
     fsGame: string;
     customPlayerModels?: string[];
+    onNeedPak0?: () => Promise<Uint8Array>;
 }
 
 type FileEntry = {
@@ -29,7 +30,7 @@ const config = {
     baseq3: {
         files: [
             {src: "baseq3/q3key", dst: "/baseq3"},
-            {src: "baseq3/pak0.pk3", dst: "/baseq3"},
+            {src: "api/baseq3/pak0.pk3", dst: "/baseq3"},
             {src: "baseq3/pak1.pk3", dst: "/baseq3"},
             {src: "baseq3/pak2.pk3", dst: "/baseq3"},
             {src: "baseq3/pak3.pk3", dst: "/baseq3"},
@@ -172,7 +173,10 @@ function registerIOQ3Runtime(promise: Promise<IOQ3RuntimeModule>) {
         });
 }
 
-export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = []}: Params) {
+// Protected files that require authentication - if 404, user must provide them
+const PROTECTED_FILES = ["pak0.pk3", "q3key"];
+
+export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = [], onNeedPak0}: Params) {
     // Block browser back/forward navigation (mouse buttons, keyboard shortcuts, etc.)
     // Push a state to history so back button stays on this page
     history.pushState(null, '', window.location.href);
@@ -343,6 +347,38 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
 
                     console.log("pendingEntries: ");
                     console.log(pendingEntries);
+
+                    // Check if pak0.pk3 is needed but returns 404 (user not authenticated)
+                    const pak0Entry = pendingEntries.find(f => f.src.endsWith("pak0.pk3"));
+                    if (pak0Entry && onNeedPak0) {
+                        const pak0Url = new URL(pak0Entry.src, dataURL);
+                        try {
+                            const headResp = await fetch(pak0Url, { method: "HEAD" });
+                            if (headResp.status === 404) {
+                                // pak0.pk3 is not available from server, ask user to provide it
+                                rafUpdate({
+                                    received: 0,
+                                    total: 0,
+                                    pct: 0,
+                                    current: "pak0.pk3 required",
+                                    stage: "needs_pak0"
+                                });
+                                const pak0Data = await onNeedPak0();
+                                // Write the user-provided pak0.pk3 to the filesystem
+                                const pak0Name = pak0Entry.src.split("/").pop() as string;
+                                const pak0DstPath = `${pak0Entry.dst}/${pak0Name}`;
+                                module.FS.mkdirTree(pak0Entry.dst);
+                                module.FS.writeFile(pak0DstPath, pak0Data);
+                                // Remove pak0 from pending entries since we just wrote it
+                                const pak0Index = pendingEntries.indexOf(pak0Entry);
+                                if (pak0Index > -1) {
+                                    pendingEntries.splice(pak0Index, 1);
+                                }
+                            }
+                        } catch {
+                            // Network error, continue and let the download loop handle it
+                        }
+                    }
 
                     const pendingUrls = pendingEntries.map((f: FileEntry) => new URL(f.src, dataURL));
                     const totalBytes = await estimateTotalBytes(pendingUrls);

@@ -1,4 +1,4 @@
-export type LoadStage = "initializing" | "downloading" | "launching" | "ready";
+export type LoadStage = "initializing" | "needs_pak0" | "downloading" | "launching" | "ready";
 
 export type Prog = {
     received: number;
