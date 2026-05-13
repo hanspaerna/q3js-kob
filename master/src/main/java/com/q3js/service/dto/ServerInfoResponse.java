@@ -115,4 +115,16 @@ public class ServerInfoResponse {
 
     @NotNull
     private Integer targetPort;
+
+    @NotNull
+    private Integer scoreRed;
+
+    @NotNull
+    private Integer scoreBlue;
+
+    @NotNull
+    private String serverGameplay;
+
+    @NotNull
+    private String modeCurrent;
 }
