@@ -1,6 +1,6 @@
 import {GAME_TYPES} from "@/lib/q3.ts";
 import {Card, CardContent} from "@/components/ui/card.tsx";
-import {Activity, Globe, Lock, Users} from "lucide-react";
+import {Activity, Globe, Lock, Map, Users} from "lucide-react";
 import {Badge} from "@/components/ui/badge.tsx";
 import {getGameLimits, getPercentage, getPingColor} from "@/lib/utils.ts";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
@@ -45,6 +45,9 @@ export function ServerCard(props: {
                                     </Badge>
                                     <Badge variant="outline" className="font-mono text-xs border-border/50 text-muted-foreground">
                                         Mode: {info.modeCurrent}
+                                    </Badge>
+                                    <Badge variant="outline" className="font-mono text-xs border-border/50 text-muted-foreground">
+                                        {GAME_TYPES[info.g_gametype] || "Unknown"}
                                     </Badge>
                                     <Badge
                                         variant="outline"
@@ -96,7 +99,22 @@ export function ServerCard(props: {
                             />
                         )}
 
-                        <PlayerList users={sortedUsers}/>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <PlayerList users={sortedUsers}/>
+                            </div>
+                            <div className="mt-4 border-t border-border/50 pt-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <Map className="h-4 w-4"/>
+                                        <span className="font-semibold text-foreground">
+                                            Map Queue
+                                        </span>
+                                    </div>
+                                </div>
+                                {/* Map queue content will be populated here */}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </CardContent>
