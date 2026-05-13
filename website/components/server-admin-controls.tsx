@@ -99,6 +99,16 @@ export function ServerAdminControls({ host, port }: Props) {
         });
     };
 
+    const sendRestart = () => {
+        withCooldown(() => {
+            fetch('/api/rcon/restart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ host, port }),
+            }).catch(console.error);
+        });
+    };
+
     const revealRconPassword = async () => {
         if (rconPassword !== null) return;
         try {
@@ -222,6 +232,15 @@ export function ServerAdminControls({ host, port }: Props) {
                     </code>
                 </div>
             )}
+            <Button
+                variant="outline"
+                size="sm"
+                className="h-6 px-2 text-xs"
+                disabled={cooldown}
+                onClick={sendRestart}
+            >
+                Restart map
+            </Button>
         </div>
     );
 }
