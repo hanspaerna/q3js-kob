@@ -23,12 +23,6 @@ public class EventsAuthFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) {
-        // Only apply to /api/events endpoint
-        String path = requestContext.getUriInfo().getPath();
-        if (!path.equals(EVENTS_PATH) && !path.startsWith(EVENTS_PATH + "/")) {
-            return;
-        }
-
         // Only apply to mutating HTTP methods (POST, PUT, DELETE, PATCH)
         // Non-mutating methods (GET, HEAD, OPTIONS) are allowed without auth
         String method = requestContext.getMethod();
@@ -89,7 +83,6 @@ public class EventsAuthFilter implements ContainerRequestFilter {
             return;
         }
 
-        // Token is valid, allow request to proceed
-        LOG.debug("Authorized /api/events request");
+        LOG.debug("Authorized request");
     }
 }
