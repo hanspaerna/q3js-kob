@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { Readable } from 'stream';
 
 // this API route is needed just to avoid restarting the website application every time the new model is added,
 // as direct access to files from "public" would lead to 404
@@ -20,10 +21,16 @@ export async function GET(req: Request, { params }: { params: Promise<{ file: st
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 
-  const fileBuffer = fs.readFileSync(filePath);
-  return new NextResponse(fileBuffer, {
+  const stat = fs.statSync(filePath);
+  const stream = fs.createReadStream(filePath);
+
+  // Convert Node.js stream to Web ReadableStream
+  const webStream = Readable.toWeb(stream) as ReadableStream;
+
+  return new NextResponse(webStream, {
     headers: {
-        'Content-Length': fileBuffer.byteLength.toString(),
-    }
-});
+      'Content-Length': stat.size.toString(),
+      'Content-Type': 'application/octet-stream',
+    },
+  });
 }
