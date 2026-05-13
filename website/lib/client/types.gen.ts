@@ -133,6 +133,10 @@ export type ServerInfoResponse = {
     bot_minplayers: number;
     gamename: string;
     g_maxGameClients: number;
+    scoreRed: number;
+    scoreBlue: number;
+    modeCurrent: string;
+    serverGameplay: string;
     users: Array<ServerUserResponse>;
     proxyPort: number;
     targetPort: number;

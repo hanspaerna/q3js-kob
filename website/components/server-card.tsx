@@ -5,6 +5,7 @@ import {Badge} from "@/components/ui/badge.tsx";
 import {getGameLimits, getPercentage, getPingColor} from "@/lib/utils.ts";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
 import {PlayerList} from "@/components/player-list.tsx";
+import {ServerAdminControls} from "@/components/server-admin-controls.tsx";
 import {ServerResponse} from "@/lib/client";
 
 export function ServerCard(props: {
@@ -40,10 +41,10 @@ export function ServerCard(props: {
                                         variant="outline"
                                         className="font-mono text-xs border-border/50 text-muted-foreground"
                                     >
-                                        {info.mapname.toUpperCase()}
+                                        Map: {info.mapname.toUpperCase()}
                                     </Badge>
-                                    <Badge className="font-mono text-xs bg-accent/20 text-accent border-accent/30">
-                                        {GAME_TYPES[info.g_gametype] || "Unknown"}
+                                    <Badge variant="outline" className="font-mono text-xs border-border/50 text-muted-foreground">
+                                        Mode: {info.modeCurrent}
                                     </Badge>
                                     <Badge
                                         variant="outline"
@@ -87,6 +88,13 @@ export function ServerCard(props: {
                                 </div>
                             )}
                         </div>
+
+                        {props.server.host && props.server.targetPort && (
+                            <ServerAdminControls
+                                host={props.server.host}
+                                port={props.server.targetPort}
+                            />
+                        )}
 
                         <PlayerList users={sortedUsers}/>
                     </div>
