@@ -21,13 +21,6 @@ class EventBatcher {
         this.currentMap = null;
         this.intervalId = null;
         this.filteredCount = 0; // Track how many bot events were filtered
-
-        // Log token status for debugging
-        if (!this.apiToken || this.apiToken.trim() === '') {
-            console.warn('EventBatcher initialized WITHOUT API token - requests will fail!');
-        } else {
-            console.log('EventBatcher initialized with API token');
-        }
     }
 
     /**

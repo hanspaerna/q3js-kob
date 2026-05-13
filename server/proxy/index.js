@@ -71,7 +71,7 @@ async function sendHeartbeat() {
         // Send heartbeat to primary master server
         const primaryPromise = fetch(HEARTBEAT_URL, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_TOKEN}` },
             body: heartbeatBodyJson,
         }).then(res => {
             if (!res.ok) {
@@ -212,7 +212,7 @@ function startServerWithLogParsing() {
     // Check if API_TOKEN is set
     if (!API_TOKEN || API_TOKEN.trim() === '') {
         console.error('ERROR: API_TOKEN environment variable is not set!');
-        console.error('Event submission to master server will fail.');
+        console.error('Event submission and heartbeat to master server will fail.');
         console.error('Please set API_TOKEN to the same value configured on the master server.');
     }
 
