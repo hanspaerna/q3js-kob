@@ -2,27 +2,34 @@
 
 import {Card, CardContent} from "@/components/ui/card";
 import {ServerCard} from "@/components/server-card.tsx";
-import {useMemo, useState, useTransition} from "react";
+import {useMemo, useState} from "react";
 import {Input} from "@/components/ui/input.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import {stripQ3Colors} from "@/lib/utils.ts";
 import Link from "next/link";
 import {Search} from "lucide-react";
 import {ServerResponse} from "@/lib/client";
-import {useRouter} from "next/navigation";
+import {useQuery} from "@tanstack/react-query";
+import {getAllServersOptions} from "@/lib/client/@tanstack/react-query.gen";
 
 interface ServerPickerProps {
   servers: ServerResponse[];
 }
 
+const REFRESH_INTERVAL = 5000;
+
 function formatCount(count: number, singular: string, plural = `${singular}s`) {
     return `${count} ${count === 1 ? singular : plural}`;
 }
 
-export function ServerPicker({servers}: ServerPickerProps) {
+export function ServerPicker({servers: initialServers}: ServerPickerProps) {
     const [searchTerm, setSearchTerm] = useState("");
-    const [isRefreshing, startRefreshTransition] = useTransition();
-    const router = useRouter();
+
+    const { data: servers = initialServers, isRefetching, refetch } = useQuery({
+        ...getAllServersOptions(),
+        initialData: initialServers,
+        refetchInterval: REFRESH_INTERVAL,
+    });
 
     const filteredServers = useMemo(() => {
         const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -53,9 +60,7 @@ export function ServerPicker({servers}: ServerPickerProps) {
     }
 
     function refreshServerList() {
-        startRefreshTransition(() => {
-            router.refresh();
-        });
+        refetch();
     }
 
     return (
@@ -75,8 +80,8 @@ export function ServerPicker({servers}: ServerPickerProps) {
                         <CardContent className="py-10 text-center space-y-3">
                             <p className="text-muted-foreground">No servers are live right now.</p>
                             <div className="flex items-center justify-center gap-2">
-                                <Button variant="outline" onClick={refreshServerList} disabled={isRefreshing}>
-                                    {isRefreshing ? "Refreshing..." : "Refresh list"}
+                                <Button variant="outline" onClick={refreshServerList} disabled={isRefetching}>
+                                    {isRefetching ? "Refreshing..." : "Refresh list"}
                                 </Button>
                             </div>
                         </CardContent>
@@ -94,9 +99,9 @@ export function ServerPicker({servers}: ServerPickerProps) {
                                 <Button
                                     variant="outline"
                                     onClick={refreshServerList}
-                                    disabled={isRefreshing}
+                                    disabled={isRefetching}
                                 >
-                                    {isRefreshing ? "Refreshing..." : "Refresh list"}
+                                    {isRefetching ? "Refreshing..." : "Refresh list"}
                                 </Button>
                             </div>
                         </CardContent>

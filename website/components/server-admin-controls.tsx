@@ -43,11 +43,13 @@ type Props = {
     fraglimit: number;
     timelimit: number;
     gametype: number;
+    defaultExpanded?: boolean;
+    hideToggle?: boolean;
 };
 
-export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype }: Props) {
+export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype, defaultExpanded = false, hideToggle = false }: Props) {
     const { data: session } = useSession();
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(defaultExpanded);
     const [cooldown, setCooldown] = useState(false);
     const [rconPassword, setRconPassword] = useState<string | null>(null);
     const [fraglimitValue, setFraglimitValue] = useState(fraglimit.toString());
@@ -218,14 +220,16 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
 
     return (
         <div className="mt-2">
-            <Button
-                variant="outline"
-                size="sm"
-                className="h-6 px-2 text-xs"
-                onClick={() => setExpanded(!expanded)}
-            >
-                Admin {expanded ? '▲' : '▼'}
-            </Button>
+            {!hideToggle && (
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    onClick={() => setExpanded(!expanded)}
+                >
+                    Admin {expanded ? '▲' : '▼'}
+                </Button>
+            )}
             {expanded && (
                 <div className="flex flex-wrap items-center gap-3 mt-2">
                     <div className="flex items-center gap-1">

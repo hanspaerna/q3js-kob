@@ -9,7 +9,10 @@ import {useFullscreenOnKey} from "@/hooks/use-fullscreen.ts";
 import startGame from "@/game";
 import {useSearchParams} from "next/navigation";
 import {toInt} from "@/lib/utils.ts";
-import {Upload} from "lucide-react";
+import {Upload, X} from "lucide-react";
+import {useQuery} from "@tanstack/react-query";
+import {getAllServersOptions} from "@/lib/client/@tanstack/react-query.gen";
+import {ServerCard} from "@/components/server-card";
 
 const PAK0_EXPECTED_SHA256 = "7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae";
 
@@ -58,6 +61,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     const [pak0Error, setPak0Error] = useState<string | null>(null);
     const pak0AbortRef = useRef<(() => void) | null>(null);
     const [canAbortPak0, setCanAbortPak0] = useState(false);
+    const [showServerOverlay, setShowServerOverlay] = useState(false);
 
     const searchParams = useSearchParams();
     const host = searchParams?.get("host") ?? "";
@@ -66,6 +70,15 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     const fsGame = searchParams?.get("fs_game") ?? "baseq3";
     const canStartGame = Boolean(host && proxyPort);
     const gameStartKey = `${host}|${proxyPort}|${name}|${fsGame}|desktop}`;
+
+    // Fetch servers for the overlay
+    const { data: servers = [] } = useQuery({
+        ...getAllServersOptions(),
+        refetchInterval: 2000,
+        enabled: showServerOverlay,
+    });
+
+    const currentServer = servers.find(s => s.host === host);
 
     const onNeedPak0 = useCallback(() => {
         return new Promise<Uint8Array>((resolve) => {
@@ -149,6 +162,28 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         }[prog.stage]
         : "Preparing downloads";
 
+    const originalExitPointerLockRef = useRef<typeof document.exitPointerLock | null>(null);
+
+    // F2 to toggle server overlay
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'F2') {
+                e.preventDefault();
+                setShowServerOverlay(prev => !prev);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
+    // Release pointer lock when overlay opens
+    useEffect(() => {
+        if (showServerOverlay && originalExitPointerLockRef.current) {
+            originalExitPointerLockRef.current.call(document);
+        }
+    }, [showServerOverlay]);
+
     // fix an issue with mouse pointer not getting captured back by ioquake3 after Alt+Tab or Escape
     useEffect(() => {
         const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -156,12 +191,14 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
 
         // suppress ioquake3 from releasing pointer lock
         const originalExit = document.exitPointerLock.bind(document);
+        originalExitPointerLockRef.current = originalExit;
         document.exitPointerLock = () => {
             console.warn('exitPointerLock suppressed');
         };
 
         // since ioquake3 won't re-request it either, we do it ourselves
         const handleClick = () => {
+            if (showServerOverlay) return; // Don't capture while overlay is open
             if (document.pointerLockElement !== canvas) {
                 canvas.requestPointerLock({ unadjustedMovement: true });
             }
@@ -173,7 +210,26 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             document.exitPointerLock = originalExit;
             canvas.removeEventListener('click', handleClick);
         };
-    }, []);
+    }, [showServerOverlay]);
+
+    // Stop keyboard events from reaching the game while overlay is open
+    useEffect(() => {
+        if (!showServerOverlay) return;
+
+        const stopPropagation = (e: KeyboardEvent) => {
+            if (e.key !== 'F2') {
+                e.stopPropagation();
+            }
+        };
+
+        window.addEventListener('keydown', stopPropagation, true);
+        window.addEventListener('keyup', stopPropagation, true);
+
+        return () => {
+            window.removeEventListener('keydown', stopPropagation, true);
+            window.removeEventListener('keyup', stopPropagation, true);
+        };
+    }, [showServerOverlay]);
 
     return (
         <main ref={gameShellRef} className="relative isolate h-dvh min-h-dvh w-screen overflow-hidden bg-black">
@@ -247,6 +303,31 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                         {tip}
                     </div>
                 </Card>
+            )}
+            {showServerOverlay && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="relative w-full max-w-3xl mx-4">
+                        <button
+                            onClick={() => setShowServerOverlay(false)}
+                            className="absolute -top-10 right-0 text-white/70 hover:text-white transition-colors cursor-pointer"
+                            title="Close (F2)"
+                        >
+                            <X size={24} />
+                        </button>
+                        {currentServer ? (
+                            <ServerCard
+                                server={currentServer}
+                                hideJoinButton
+                                defaultAdminExpanded
+                                hideAdminToggle
+                            />
+                        ) : (
+                            <Card className="p-6 text-center text-muted-foreground">
+                                Loading server info...
+                            </Card>
+                        )}
+                    </div>
+                </div>
             )}
         </main>
     );

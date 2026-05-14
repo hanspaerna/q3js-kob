@@ -16,7 +16,9 @@ export function MapQueue({ host, port, currentMap }: Props) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [cooldown, setCooldown] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const currentMapRef = useRef<HTMLDivElement>(null);
+    const hasScrolledRef = useRef(false);
 
     const switchMap = async (map: string) => {
         if (cooldown) return;
@@ -53,10 +55,14 @@ export function MapQueue({ host, port, currentMap }: Props) {
     }, [host]);
 
     useEffect(() => {
+        if (hasScrolledRef.current) return;
         const currentMapLower = currentMap.toLowerCase();
         const mapExists = maps.some(map => map.toLowerCase() === currentMapLower);
-        if (mapExists && currentMapRef.current) {
-            currentMapRef.current.scrollIntoView({ block: 'start' });
+        if (mapExists && currentMapRef.current && containerRef.current) {
+            const container = containerRef.current;
+            const element = currentMapRef.current;
+            container.scrollTop = element.offsetTop - container.offsetTop - 8;
+            hasScrolledRef.current = true;
         }
     }, [maps, currentMap]);
 
@@ -75,14 +81,13 @@ export function MapQueue({ host, port, currentMap }: Props) {
     const currentMapLower = currentMap.toLowerCase();
 
     return (
-        <div className="flex flex-col gap-1 h-40 overflow-y-scroll rounded-md border border-border/40 bg-background/40 p-2">
+        <div ref={containerRef} className="flex flex-col gap-1 h-40 overflow-y-scroll rounded-md border border-border/40 bg-background/40 p-2">
             {maps.map((map, index) => {
                 const isCurrentMap = map.toLowerCase() === currentMapLower;
                 return (
                     <div
                         key={`${map}-${index}`}
                         ref={isCurrentMap ? currentMapRef : null}
-                        style={isCurrentMap ? { scrollMarginTop: '8px' } : undefined}
                         className={`text-xs font-mono px-2 py-1 rounded flex items-center justify-between ${
                             isCurrentMap
                                 ? 'bg-primary/20 text-primary font-semibold'

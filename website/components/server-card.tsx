@@ -11,6 +11,9 @@ import {ServerResponse} from "@/lib/client";
 
 export function ServerCard(props: {
     server: ServerResponse;
+    hideJoinButton?: boolean;
+    defaultAdminExpanded?: boolean;
+    hideAdminToggle?: boolean;
 }) {
     const info = props.server.info;
 
@@ -60,10 +63,12 @@ export function ServerCard(props: {
                                 </div>
                             </div>
 
-                            <JoinServerButton
-                                server={props.server}
-                                className="sm:self-start"
-                            />
+                            {!props.hideJoinButton && (
+                                <JoinServerButton
+                                    server={props.server}
+                                    className="sm:self-start"
+                                />
+                            )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -101,6 +106,8 @@ export function ServerCard(props: {
                                 fraglimit={20}
                                 timelimit={0}
                                 gametype={info.g_gametype}
+                                defaultExpanded={props.defaultAdminExpanded}
+                                hideToggle={props.hideAdminToggle}
                             />
                         )}
 
