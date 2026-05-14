@@ -6,6 +6,7 @@ import {getPercentage, getPingColor} from "@/lib/utils.ts";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
 import {PlayerList} from "@/components/player-list.tsx";
 import {ServerAdminControls} from "@/components/server-admin-controls.tsx";
+import {MapQueue} from "@/components/map-queue.tsx";
 import {ServerResponse} from "@/lib/client";
 
 export function ServerCard(props: {
@@ -116,7 +117,13 @@ export function ServerCard(props: {
                                         </span>
                                     </div>
                                 </div>
-                                {/* Map queue content will be populated here */}
+                                {props.server.host && props.server.targetPort && (
+                                    <MapQueue
+                                        host={props.server.host}
+                                        port={props.server.targetPort}
+                                        currentMap={info.mapname}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
