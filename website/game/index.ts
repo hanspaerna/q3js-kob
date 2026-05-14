@@ -266,6 +266,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         preRun: [
             async (module: RuntimeModule) => {
                 module.addRunDependency("setup-ioq3-filesystem");
+                let hasError = false;
                 try {
                     rafUpdate({
                         received: 0,
@@ -440,7 +441,18 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                                 });
                                 data = await onNeedPak0();
                             } else {
-                                throw err;
+                                // Halt on missing or failed file (except pak0 special case)
+                                const errorMsg = err instanceof Error ? err.message : String(err);
+                                rafUpdate({
+                                    received: 0,
+                                    total: 0,
+                                    pct: 0,
+                                    current: f.src,
+                                    stage: "error",
+                                    error: `Failed to download ${name}: ${errorMsg}`
+                                });
+                                hasError = true;
+                                return; // Stop the preRun, game won't start
                             }
                         }
 
@@ -467,7 +479,10 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         stage: "launching"
                     });
                 } finally {
-                    module.removeRunDependency("setup-ioq3-filesystem");
+                    if (!hasError) {
+                        module.removeRunDependency("setup-ioq3-filesystem");
+                    }
+                    // If hasError is true, we keep the dependency so the game doesn't start
                 }
             },
         ],

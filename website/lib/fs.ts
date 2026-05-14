@@ -1,4 +1,4 @@
-export type LoadStage = "initializing" | "needs_pak0" | "downloading" | "launching" | "ready";
+export type LoadStage = "initializing" | "needs_pak0" | "downloading" | "launching" | "ready" | "error";
 
 export type Prog = {
     received: number;
@@ -7,6 +7,7 @@ export type Prog = {
     current?: string;
     stage: LoadStage;
     etaSeconds?: number;
+    error?: string;
 };
 
 export const PERSIST_ROOT = "/persist";

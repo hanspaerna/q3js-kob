@@ -25,6 +25,7 @@ const STAGE_LABELS: Record<Prog["stage"], string> = {
     downloading: "Downloading assets",
     launching: "Launching",
     ready: "Ready",
+    error: "Download Failed",
 };
 
 const STAGE_TIPS: Record<Prog["stage"], string> = {
@@ -33,6 +34,7 @@ const STAGE_TIPS: Record<Prog["stage"], string> = {
     downloading: "Tip: Assets are cached after first load.",
     launching: "Tip: Press H in-game to shout.",
     ready: "Tip: If sound is muted, click the page once.",
+    error: "Server error.",
 };
 
 interface GamePageProps {
@@ -188,8 +190,8 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                     {prog.stage === "needs_pak0" ? (
                         <div className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                To play, please provide your legally acquired <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena. 
-                                Only version 1.32c is supported. 
+                                To play, please provide your legally acquired <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena.
+                                Only version 1.32c is supported.
                                 SHA256: 7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae
                             </p>
                             <label className="flex items-center justify-center gap-2 cursor-pointer rounded-md border border-dashed border-muted-foreground/50 p-4 hover:border-foreground hover:bg-muted/50 transition-colors">
@@ -205,6 +207,15 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                             {pak0Error && (
                                 <p className="text-sm text-destructive">{pak0Error}</p>
                             )}
+                        </div>
+                    ) : prog.stage === "error" ? (
+                        <div className="space-y-3">
+                            <p className="text-sm text-destructive">
+                                {prog.error}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                                This is certainly not your fault. Please connect to the server with your desktop game client while we are solving the issue.
+                            </p>
                         </div>
                     ) : (
                         <>
