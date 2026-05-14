@@ -173,18 +173,18 @@ export function makeRafUpdater(setter: (p: Prog) => void) {
 }
 
 // Fetch into a single preallocated Uint8Array using Content-Length
-export async function fetchIntoUint8(url: URL, onChunk: (n: number) => void) {
+export async function fetchIntoUint8(url: URL, onChunk: (n: number) => void, signal?: AbortSignal) {
     // HEAD for length
     let expected: number | undefined;
     try {
-        const h = await fetch(url, {method: "HEAD"});
+        const h = await fetch(url, {method: "HEAD", signal});
         const cl = h.headers.get("content-length");
         if (cl) expected = parseInt(cl, 10);
     } catch {
         // ignore
     }
 
-    const resp = await fetch(url);
+    const resp = await fetch(url, {signal});
     if (!resp.ok) throw new Error(`HTTP ${resp.status} for ${url}`);
 
     if (expected && resp.body) {

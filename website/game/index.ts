@@ -19,6 +19,7 @@ type Params = {
     fsGame: string;
     customPlayerModels?: string[];
     onNeedPak0?: () => Promise<Uint8Array>;
+    onPak0DownloadStart?: (abort: () => void) => void;
 }
 
 type FileEntry = {
@@ -30,7 +31,7 @@ const config = {
     baseq3: {
         files: [
             {src: "baseq3/q3key", dst: "/baseq3"},
-            {src: "api/baseq3/pak0.pk3", dst: "/baseq3"},
+            {src: "baseq3/pak0.pk3", dst: "/baseq3"},
             {src: "baseq3/pak1.pk3", dst: "/baseq3"},
             {src: "baseq3/pak2.pk3", dst: "/baseq3"},
             {src: "baseq3/pak3.pk3", dst: "/baseq3"},
@@ -173,7 +174,7 @@ function registerIOQ3Runtime(promise: Promise<IOQ3RuntimeModule>) {
         });
 }
 
-export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = [], onNeedPak0}: Params) {
+export default async function startGame({host, proxyPort, name, rafUpdate, fsGame, customPlayerModels = [], onNeedPak0, onPak0DownloadStart}: Params) {
     // Block browser back/forward navigation (mouse buttons, keyboard shortcuts, etc.)
     // Push a state to history so back button stays on this page
     history.pushState(null, '', window.location.href);
@@ -345,8 +346,11 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                     console.log("pendingEntries: ");
                     console.log(pendingEntries);
 
-                    // Check if pak0.pk3 is needed but returns 404 (user not authenticated)
+                    // Check if pak0.pk3 is needed
                     const pak0Entry = pendingEntries.find(f => f.src.endsWith("pak0.pk3"));
+                    let pak0Aborted = false;
+                    let pak0AbortController: AbortController | null = null;
+
                     if (pak0Entry && onNeedPak0) {
                         const pak0Url = new URL(pak0Entry.src, dataURL);
                         try {
@@ -371,6 +375,13 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                                 if (pak0Index > -1) {
                                     pendingEntries.splice(pak0Index, 1);
                                 }
+                            } else if (onPak0DownloadStart) {
+                                // pak0.pk3 is available, but give user option to use their own
+                                pak0AbortController = new AbortController();
+                                onPak0DownloadStart(() => {
+                                    pak0Aborted = true;
+                                    pak0AbortController?.abort();
+                                });
                             }
                         } catch {
                             // Network error, continue and let the download loop handle it
@@ -387,6 +398,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         const url = pendingUrls[i];
                         const name = f.src.split("/").pop() as string;
                         const dstPath = `${f.dst}/${name}`;
+                        const isPak0 = f.src.endsWith("pak0.pk3");
 
                         rafUpdate({
                             received: receivedBytes,
@@ -396,7 +408,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                             stage: "downloading"
                         });
 
-                        const data = await fetchIntoUint8(url, (n) => {
+                        const onProgress = (n: number) => {
                             receivedBytes += n;
                             const pct = totalBytes ? Math.min(100, Math.floor((receivedBytes / totalBytes) * 100)) : 0;
                             const elapsedSeconds = Math.max((Date.now() - downloadStart) / 1000, 0.001);
@@ -411,7 +423,26 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                                 stage: "downloading",
                                 etaSeconds
                             });
-                        });
+                        };
+
+                        let data: Uint8Array;
+                        try {
+                            const signal = isPak0 ? pak0AbortController?.signal : undefined;
+                            data = await fetchIntoUint8(url, onProgress, signal);
+                        } catch (err) {
+                            if (isPak0 && pak0Aborted && onNeedPak0) {
+                                rafUpdate({
+                                    received: 0,
+                                    total: 0,
+                                    pct: 0,
+                                    current: "pak0.pk3 required",
+                                    stage: "needs_pak0"
+                                });
+                                data = await onNeedPak0();
+                            } else {
+                                throw err;
+                            }
+                        }
 
                         module.FS.mkdirTree(f.dst);
                         module.FS.writeFile(dstPath, data);

@@ -35,6 +35,7 @@ type Props = {
 
 export function ServerAdminControls({ host, port }: Props) {
     const { data: session } = useSession();
+    const [expanded, setExpanded] = useState(false);
     const [cooldown, setCooldown] = useState(false);
     const [rconPassword, setRconPassword] = useState<string | null>(null);
 
@@ -123,124 +124,136 @@ export function ServerAdminControls({ host, port }: Props) {
     };
 
     return (
-        <div className="flex flex-wrap items-center gap-3 mt-2">
-            <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground mr-1">Mode:</span>
-                {MODES.map(({ value, label }) => (
-                    <Button
-                        key={value}
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        disabled={cooldown}
-                        onClick={() => sendMode(value)}
-                    >
-                        {label}
-                    </Button>
-                ))}
-            </div>
-            <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground mr-1">Gameplay:</span>
-                {GAMEPLAYS.map(({ value, label }) => (
-                    <Button
-                        key={value}
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        disabled={cooldown}
-                        onClick={() => sendGameplay(value)}
-                    >
-                        {label}
-                    </Button>
-                ))}
-            </div>
-            <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground mr-1">Instagib:</span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    disabled={cooldown}
-                    onClick={() => sendInstagib(true)}
-                >
-                    On
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    disabled={cooldown}
-                    onClick={() => sendInstagib(false)}
-                >
-                    Off
-                </Button>
-            </div>
-            <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground mr-1">Thrufloors:</span>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    disabled={cooldown}
-                    onClick={() => sendThrufloors(true)}
-                >
-                    On
-                </Button>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-6 px-2 text-xs"
-                    disabled={cooldown}
-                    onClick={() => sendThrufloors(false)}
-                >
-                    Off
-                </Button>
-            </div>
-            <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground mr-1">Overtime:</span>
-                {OVERTIMES.map(({ value, label }) => (
-                    <Button
-                        key={value}
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-xs"
-                        disabled={cooldown}
-                        onClick={() => sendOvertime(value)}
-                    >
-                        {label}
-                    </Button>
-                ))}
-            </div>
-            {rconPassword === null ? (
-                <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground mr-1">rcon/ref pass:</span>
-                    <span
-                        className="text-xs bg-muted px-2 py-0.5 rounded cursor-pointer select-none"
-                        onClick={revealRconPassword}
-                    >
-                        Click to reveal
-                    </span>
-                </div>
-            ) : (
-                <div className="flex items-center gap-1">
-                    <span className="text-xs text-muted-foreground mr-1">rcon/ref pass:</span>
-                    <code
-                        className="text-xs bg-muted px-2 py-0.5 rounded font-mono cursor-pointer"
-                        onClick={() => setRconPassword(null)}
-                    >
-                        {rconPassword}
-                    </code>
-                </div>
-            )}
+        <div className="mt-2">
             <Button
                 variant="outline"
                 size="sm"
                 className="h-6 px-2 text-xs"
-                disabled={cooldown}
-                onClick={sendRestart}
+                onClick={() => setExpanded(!expanded)}
             >
-                Restart map
+                Admin {expanded ? '▲' : '▼'}
             </Button>
+            {expanded && (
+                <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Mode:</span>
+                        {MODES.map(({ value, label }) => (
+                            <Button
+                                key={value}
+                                variant="outline"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                disabled={cooldown}
+                                onClick={() => sendMode(value)}
+                            >
+                                {label}
+                            </Button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Gameplay:</span>
+                        {GAMEPLAYS.map(({ value, label }) => (
+                            <Button
+                                key={value}
+                                variant="outline"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                disabled={cooldown}
+                                onClick={() => sendGameplay(value)}
+                            >
+                                {label}
+                            </Button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Instagib:</span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendInstagib(true)}
+                        >
+                            On
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendInstagib(false)}
+                        >
+                            Off
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Thrufloors:</span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendThrufloors(true)}
+                        >
+                            On
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendThrufloors(false)}
+                        >
+                            Off
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Overtime:</span>
+                        {OVERTIMES.map(({ value, label }) => (
+                            <Button
+                                key={value}
+                                variant="outline"
+                                size="sm"
+                                className="h-6 px-2 text-xs"
+                                disabled={cooldown}
+                                onClick={() => sendOvertime(value)}
+                            >
+                                {label}
+                            </Button>
+                        ))}
+                    </div>
+                    {rconPassword === null ? (
+                        <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground mr-1">rcon/ref pass:</span>
+                            <span
+                                className="text-xs bg-muted px-2 py-0.5 rounded cursor-pointer select-none"
+                                onClick={revealRconPassword}
+                            >
+                                Click to reveal
+                            </span>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground mr-1">rcon/ref pass:</span>
+                            <code
+                                className="text-xs bg-muted px-2 py-0.5 rounded font-mono cursor-pointer"
+                                onClick={() => setRconPassword(null)}
+                            >
+                                {rconPassword}
+                            </code>
+                        </div>
+                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        disabled={cooldown}
+                        onClick={sendRestart}
+                    >
+                        Restart map
+                    </Button>
+                </div>
+            )}
         </div>
     );
 }

@@ -54,6 +54,8 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     });
     const [rafUpdate] = useState(() => makeRafUpdater(setProg));
     const [pak0Error, setPak0Error] = useState<string | null>(null);
+    const pak0AbortRef = useRef<(() => void) | null>(null);
+    const [canAbortPak0, setCanAbortPak0] = useState(false);
 
     const searchParams = useSearchParams();
     const host = searchParams?.get("host") ?? "";
@@ -67,6 +69,19 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         return new Promise<Uint8Array>((resolve) => {
             pak0ResolverRef.current = resolve;
         });
+    }, []);
+
+    const onPak0DownloadStart = useCallback((abort: () => void) => {
+        pak0AbortRef.current = abort;
+        setCanAbortPak0(true);
+    }, []);
+
+    const handleUseOwnPak0 = useCallback(() => {
+        if (pak0AbortRef.current) {
+            pak0AbortRef.current();
+            pak0AbortRef.current = null;
+            setCanAbortPak0(false);
+        }
     }, []);
 
     const handlePak0Upload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,9 +120,10 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             rafUpdate,
             fsGame,
             customPlayerModels,
-            onNeedPak0
+            onNeedPak0,
+            onPak0DownloadStart
         });
-    }, [canStartGame, fsGame, gameStartKey, host, name, proxyPort, rafUpdate, onNeedPak0, customPlayerModels]);
+    }, [canStartGame, fsGame, gameStartKey, host, name, proxyPort, rafUpdate, onNeedPak0, onPak0DownloadStart, customPlayerModels]);
 
     useEffect(() => {
         document.body.classList.add("game-page-active");
@@ -202,6 +218,17 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                                 <div className="text-xs text-muted-foreground mt-1 font-mono">
                                     ETA: {prog.etaSeconds}s
                                 </div>
+                            )}
+                            {prog.stage === "downloading" && prog.current?.endsWith("pak0.pk3") && canAbortPak0 && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="mt-2"
+                                    onClick={handleUseOwnPak0}
+                                >
+                                    <Upload size={16} className="mr-2" />
+                                    Use my own pak0.pk3
+                                </Button>
                             )}
                         </>
                     )}

@@ -2,6 +2,7 @@ import fs from 'fs';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { Readable } from 'stream';
+import { BASEQ3_DIR } from '@/lib/constants';
 
 // this API route is needed just to avoid restarting the website application every time the new model is added,
 // as direct access to files from "public" would lead to 404
@@ -15,7 +16,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ file: st
     }
   }
 
-  const filePath = `/app/public/baseq3/${file}`;
+  const filePath = `${BASEQ3_DIR}/${file}`;
 
   if (!fs.existsSync(filePath)) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
