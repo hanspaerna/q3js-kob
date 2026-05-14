@@ -1,4 +1,5 @@
 const dgram = require('dgram');
+const fs = require('fs');
 const http = require('http');
 const WebSocket = require('ws');
 const { spawn } = require('child_process');
@@ -138,6 +139,32 @@ const httpServer = http.createServer((req, res) => {
         return;
     }
 
+    if (req.method === 'GET' && path === '/maplist') {
+        if (currentGameType === null) {
+            sendJson(res, 503, { error: 'Game type not yet detected' });
+            return;
+        }
+
+        const maplistFile = GAMETYPE_MAPLIST_FILES[currentGameType];
+        if (!maplistFile) {
+            sendJson(res, 404, { error: `No maplist configured for game type ${currentGameType}` });
+            return;
+        }
+
+        fs.readFile(maplistFile, 'utf8', (err, data) => {
+            if (err) {
+                console.error(`[MAPLIST] Failed to read ${maplistFile}:`, err.message);
+                sendJson(res, 500, { error: 'Failed to read maplist file' });
+                return;
+            }
+
+            setCorsHeaders(res);
+            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
+            res.end(data);
+        });
+        return;
+    }
+
     sendJson(res, 404, { error: 'Not found' });
 });
 
@@ -197,6 +224,15 @@ wss.on('connection', ws => {
 let serverProcess = null;
 let logParser = null;
 let eventBatcher = null;
+let currentGameType = null;
+
+// Map game type to maplist file path
+const GAMETYPE_MAPLIST_FILES = {
+    0: '/cpma/cfg-maps/ffamaps.txt',
+    3: '/cpma/cfg-maps/teammaps.txt',
+    4: '/cpma/cfg-maps/ctfmaps.txt',
+    7: '/cpma/cfg-maps/ctfmaps.txt',
+};
 
 function startServerWithLogParsing() {
     if (!ENABLE_LOG_PARSING) {
@@ -256,6 +292,13 @@ function startServerWithLogParsing() {
                 eventBatcher.setMap(mapName);
             }
 
+            // Try to extract game type from server output
+            const gameType = logParser.extractGameType(line);
+            if (gameType !== null) {
+                currentGameType = gameType;
+                console.log(`[GAMETYPE] Set to ${gameType}`);
+            }
+
             // Parse the line for events
             const event = logParser.parseLine(line);
             if (event && eventBatcher) {
@@ -268,8 +311,21 @@ function startServerWithLogParsing() {
     stderrReader.on('line', (line) => {
         console.log(`[SERVER:ERR] ${line}`);
 
-        // Also check stderr for events
+        // Also check stderr for map, gametype, and events
         if (logParser) {
+            // Try to extract current map from server output
+            const mapName = logParser.extractMapName(line);
+            if (mapName && eventBatcher) {
+                eventBatcher.setMap(mapName);
+            }
+
+            // Try to extract game type from server output
+            const gameType = logParser.extractGameType(line);
+            if (gameType !== null) {
+                currentGameType = gameType;
+                console.log(`[GAMETYPE] Set to ${gameType}`);
+            }
+
             const event = logParser.parseLine(line);
             if (event && eventBatcher) {
                 eventBatcher.addEvent(event);

@@ -168,6 +168,25 @@ class LogParser {
     }
 
     /**
+     * Extract game type from a log line if present
+     * @param {string} line - Log line from server
+     * @returns {number|null} - Game type number or null
+     */
+    extractGameType(line) {
+        // Remove timestamp prefix if present
+        const cleanLine = line.replace(/^\d+:\d+\s+/, '');
+
+        // InitGame: contains g_gametype
+        // Example: InitGame: \sv_maxclients\16\mapname\q3dm6\g_gametype\0\...
+        const initGameMatch = cleanLine.match(/InitGame:.*\\g_gametype\\(\d+)/);
+        if (initGameMatch) {
+            return parseInt(initGameMatch[1], 10);
+        }
+
+        return null;
+    }
+
+    /**
      * Reset the parser state (clear player tracking)
      */
     reset() {
