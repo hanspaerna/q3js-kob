@@ -2,7 +2,7 @@ import {GAME_TYPES} from "@/lib/q3.ts";
 import {Card, CardContent} from "@/components/ui/card.tsx";
 import {Activity, Globe, Lock, Map, Users} from "lucide-react";
 import {Badge} from "@/components/ui/badge.tsx";
-import {getGameLimits, getPercentage, getPingColor} from "@/lib/utils.ts";
+import {getPercentage, getPingColor} from "@/lib/utils.ts";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
 import {PlayerList} from "@/components/player-list.tsx";
 import {ServerAdminControls} from "@/components/server-admin-controls.tsx";
@@ -49,12 +49,13 @@ export function ServerCard(props: {
                                     <Badge variant="outline" className="font-mono text-xs border-border/50 text-muted-foreground">
                                         {GAME_TYPES[info.g_gametype] || "Unknown"}
                                     </Badge>
-                                    <Badge
-                                        variant="outline"
-                                        className="font-mono text-xs border-border/50 text-muted-foreground"
-                                    >
-                                        {getGameLimits(props.server)}
-                                    </Badge>
+                                    {(info.g_gametype === 3 || info.g_gametype === 4) && (
+                                        <Badge variant="outline" className="font-mono text-xs border-border/50">
+                                            <span className="text-red-500">{info.scoreRed}</span>
+                                            <span className="text-muted-foreground mx-1">:</span>
+                                            <span className="text-blue-500">{info.scoreBlue}</span>
+                                        </Badge>
+                                    )}
                                 </div>
                             </div>
 
@@ -96,6 +97,9 @@ export function ServerCard(props: {
                             <ServerAdminControls
                                 host={props.server.host}
                                 port={props.server.targetPort}
+                                fraglimit={20}
+                                timelimit={0}
+                                gametype={info.g_gametype}
                             />
                         )}
 

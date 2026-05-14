@@ -32,17 +32,6 @@ function getGameLimitType(server: ServerResponse) {
     return "none";
 }
 
-export function getGameLimits(server: ServerResponse) {
-    const s = server.info;
-
-    return {
-        capture: `${s.capturelimit} caps`,
-        frag: `${s.fraglimit} frags`,
-        time: `${s.timelimit}min`,
-        none: "No limit",
-    }[getGameLimitType(server)];
-}
-
 export function getPercentage(p: number, m: number) {
     return (p / m) * 100;
 }

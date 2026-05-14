@@ -118,7 +118,7 @@ export default function AdminPage() {
         <div className={s.header}>
           <div className={s.headerTitle}>
             <FolderOpen size={24} color="var(--primary)" />
-            <h1>q3js-kob manager</h1>
+            <h1>Maps / Skins manager</h1>
           </div>
         </div>
 

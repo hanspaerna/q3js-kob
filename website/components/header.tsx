@@ -194,7 +194,7 @@ export function Header() {
         ...(session ? [
             {
                 href: "/admin",
-                label: "Admin",
+                label: "Maps / Skins",
             },
             {
                 label: `Logout (${session.user?.name ?? "user"})`,
