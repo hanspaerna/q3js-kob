@@ -124,7 +124,64 @@ function sendJson(res, statusCode, payload) {
     res.end(JSON.stringify(payload));
 }
 
-const httpServer = http.createServer((req, res) => {
+// Query game server for status via UDP getstatus
+function queryServerStatus(timeout = 3000) {
+    return new Promise((resolve, reject) => {
+        const socket = dgram.createSocket('udp4');
+        const query = Buffer.from([0xff, 0xff, 0xff, 0xff, ...Buffer.from('getstatus xxx\n')]);
+        let responded = false;
+
+        const timer = setTimeout(() => {
+            if (!responded) {
+                responded = true;
+                socket.close();
+                reject(new Error('Server query timed out'));
+            }
+        }, timeout);
+
+        socket.on('message', (msg) => {
+            if (responded) return;
+            responded = true;
+            clearTimeout(timer);
+            socket.close();
+
+            // Response format: \xff\xff\xff\xffstatusResponse\n<infostring>\n<players>
+            const response = msg.toString('latin1');
+            if (!response.startsWith('\xff\xff\xff\xffstatusResponse\n')) {
+                reject(new Error('Invalid response from server'));
+                return;
+            }
+
+            // Parse the info string (key\value\key\value format)
+            const lines = response.slice(4).split('\n');
+            const infoLine = lines[1] || '';
+            const info = {};
+            const parts = infoLine.split('\\');
+            for (let i = 1; i < parts.length - 1; i += 2) {
+                info[parts[i]] = parts[i + 1];
+            }
+
+            resolve(info);
+        });
+
+        socket.on('error', (err) => {
+            if (!responded) {
+                responded = true;
+                clearTimeout(timer);
+                socket.close();
+                reject(err);
+            }
+        });
+
+        // Bind to ephemeral port before sending
+        socket.bind(0, () => {
+            console.log(`[QUERY] Sending getstatus to ${TARGET_HOST}:${TARGET_PORT}`);
+            socket.send(query, TARGET_PORT, TARGET_HOST);
+        });
+    });
+}
+
+const httpServer = http.createServer(async (req, res) => {
     if (req.method === 'OPTIONS') {
         setCorsHeaders(res);
         res.writeHead(204);
@@ -140,28 +197,40 @@ const httpServer = http.createServer((req, res) => {
     }
 
     if (req.method === 'GET' && path === '/maplist') {
-        if (currentGameType === null) {
-            sendJson(res, 503, { error: 'Game type not yet detected' });
-            return;
-        }
+        try {
+            const serverInfo = await queryServerStatus();
+            const gameType = parseInt(serverInfo.g_gametype, 10);
 
-        const maplistFile = GAMETYPE_MAPLIST_FILES[currentGameType];
-        if (!maplistFile) {
-            sendJson(res, 404, { error: `No maplist configured for game type ${currentGameType}` });
-            return;
-        }
-
-        fs.readFile(maplistFile, 'utf8', (err, data) => {
-            if (err) {
-                console.error(`[MAPLIST] Failed to read ${maplistFile}:`, err.message);
-                sendJson(res, 500, { error: 'Failed to read maplist file' });
+            if (isNaN(gameType)) {
+                sendJson(res, 503, { error: 'Could not determine game type from server' });
                 return;
             }
 
-            setCorsHeaders(res);
-            res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-            res.end(data);
-        });
+            const maplistFile = GAMETYPE_MAPLIST_FILES[gameType];
+            if (!maplistFile) {
+                sendJson(res, 404, { error: `No maplist configured for game type ${gameType}` });
+                return;
+            }
+
+            fs.readFile(maplistFile, 'utf8', (err, data) => {
+                if (err) {
+                    console.error(`[MAPLIST] Failed to read ${maplistFile}:`, err.message);
+                    sendJson(res, 500, { error: 'Failed to read maplist file' });
+                    return;
+                }
+
+                // Parse file into array of map names, preserving order
+                const maps = data
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0 && !line.startsWith('//'));
+
+                sendJson(res, 200, maps);
+            });
+        } catch (err) {
+            console.error(`[MAPLIST] Server query failed:`, err.message);
+            sendJson(res, 503, { error: 'Failed to query server status' });
+        }
         return;
     }
 
@@ -228,10 +297,10 @@ let currentGameType = null;
 
 // Map game type to maplist file path
 const GAMETYPE_MAPLIST_FILES = {
-    0: '/cpma/cfg-maps/ffamaps.txt',
-    3: '/cpma/cfg-maps/teammaps.txt',
-    4: '/cpma/cfg-maps/ctfmaps.txt',
-    7: '/cpma/cfg-maps/ctfmaps.txt',
+    0: '/server/cpma/cfg-maps/ffamaps.txt',
+    3: '/server/cpma/cfg-maps/teammaps.txt',
+    4: '/server/cpma/cfg-maps/ctfmaps.txt',
+    7: '/server/cpma/cfg-maps/ctfmaps.txt',
 };
 
 function startServerWithLogParsing() {
