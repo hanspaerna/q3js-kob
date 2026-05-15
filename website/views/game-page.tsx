@@ -367,8 +367,6 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                             <ServerCard
                                 server={currentServer}
                                 hideJoinButton
-                                defaultAdminExpanded
-                                hideAdminToggle
                             />
                         ) : (
                             <Card className="p-6 text-center text-muted-foreground">

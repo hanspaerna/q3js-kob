@@ -12,8 +12,6 @@ import {ServerResponse} from "@/lib/client";
 export function ServerCard(props: {
     server: ServerResponse;
     hideJoinButton?: boolean;
-    defaultAdminExpanded?: boolean;
-    hideAdminToggle?: boolean;
 }) {
     const info = props.server.info;
 
@@ -106,8 +104,6 @@ export function ServerCard(props: {
                                 fraglimit={20}
                                 timelimit={0}
                                 gametype={info.g_gametype}
-                                defaultExpanded={props.defaultAdminExpanded}
-                                hideToggle={props.hideAdminToggle}
                             />
                         )}
 
