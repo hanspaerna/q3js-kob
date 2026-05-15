@@ -19,6 +19,7 @@ import {MenuIcon} from "lucide-react";
 import {cn, getClientEnv} from "@/lib/utils.ts";
 import {PwaInstallControl} from "@/components/pwa-install-control.tsx";
 import {useSession, signIn, signOut} from "next-auth/react";
+import {useState, useEffect} from 'react';
 
 const HEADER_STATUS_STYLES = {
     offline: {
@@ -148,8 +149,13 @@ function HeaderSheetLink(props: HeaderNavItem) {
 }
 
 export function Header() {
+    const [mounted, setMounted] = useState(false);
     const [name] = useLocalStorage("name", "Anonymous");
     const { data: session } = useSession();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const serversResponse = useQuery({
         ...getAllServersOptions()
@@ -170,7 +176,7 @@ export function Header() {
         online: `${serverCount} servers live`,
     }[status];
     const statusStyles = HEADER_STATUS_STYLES[status];
-    const { websiteTitle, appVersion } = getClientEnv();
+    const { websiteTitle, appVersion } = mounted ? getClientEnv() : { websiteTitle: '', appVersion: '' };
 
     const navItems: HeaderNavItem[] = [
         {
@@ -210,9 +216,7 @@ export function Header() {
                     <p className="text-xl font-bold tracking-tight text-foreground">{websiteTitle}</p>
                     <p className="text-xs text-muted-foreground font-mono">
                         Q3JS-KOB{" "}
-                        {session ? (
-                            <span>v{appVersion}</span>
-                        ) : (
+                        {mounted && !session ? (
                             <button
                                 type="button"
                                 onClick={(e) => {
@@ -223,6 +227,8 @@ export function Header() {
                             >
                                 v{appVersion}
                             </button>
+                        ) : (
+                            <span>v{appVersion}</span>
                         )}
                     </p>
                 </div>

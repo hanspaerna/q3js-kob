@@ -46,12 +46,12 @@ function readLocalStorage<T>(key: string, initialValue: T): T {
 }
 
 export function useLocalStorage<T>(key: string, initialValue: T): UseLocalStorageReturn<T> {
-    const [value, setValue] = useState<T>(() => readLocalStorage(key, initialValue));
+    const [value, setValue] = useState<T>(initialValue);
 
+    // Sync from localStorage after hydration to avoid mismatch
     useEffect(() => {
-        if (typeof window === "undefined") {
-            return;
-        }
+        const storedValue = readLocalStorage(key, initialValue);
+        setValue(storedValue);
 
         try {
             if (window.localStorage.getItem(key) === null) {
