@@ -129,6 +129,7 @@ export function ServerCard(props: {
                                         host={props.server.host}
                                         port={props.server.targetPort}
                                         currentMap={info.mapname}
+                                        gamemode={info.g_gametype}
                                     />
                                 )}
                             </div>

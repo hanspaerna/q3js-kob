@@ -8,9 +8,10 @@ type Props = {
     host: string;
     port: number;
     currentMap: string;
+    gamemode?: number;
 };
 
-export function MapQueue({ host, port, currentMap }: Props) {
+export function MapQueue({ host, port, currentMap, gamemode }: Props) {
     const { data: session } = useSession();
     const [maps, setMaps] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
@@ -19,6 +20,23 @@ export function MapQueue({ host, port, currentMap }: Props) {
     const containerRef = useRef<HTMLDivElement>(null);
     const currentMapRef = useRef<HTMLDivElement>(null);
     const hasScrolledRef = useRef(false);
+    const previousGamemodeRef = useRef<number | undefined>(gamemode);
+
+    const fetchMaps = async () => {
+        try {
+            const res = await fetch(`https://${host}/maplist`);
+            if (!res.ok) {
+                throw new Error('Failed to fetch map list');
+            }
+            const data = await res.json();
+            setMaps(Array.isArray(data) ? data : []);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load maps');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const switchMap = async (map: string) => {
         if (cooldown) return;
@@ -35,24 +53,19 @@ export function MapQueue({ host, port, currentMap }: Props) {
         }
     };
 
+    // Initial fetch
     useEffect(() => {
-        const fetchMaps = async () => {
-            try {
-                const res = await fetch(`https://${host}/maplist`);
-                if (!res.ok) {
-                    throw new Error('Failed to fetch map list');
-                }
-                const data = await res.json();
-                setMaps(Array.isArray(data) ? data : []);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Failed to load maps');
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchMaps();
     }, [host]);
+
+    // Re-fetch with 2 second delay when gamemode changes
+    useEffect(() => {
+        if (previousGamemodeRef.current !== undefined && previousGamemodeRef.current !== gamemode) {
+            const timeout = setTimeout(fetchMaps, 2000);
+            return () => clearTimeout(timeout);
+        }
+        previousGamemodeRef.current = gamemode;
+    }, [gamemode]);
 
     useEffect(() => {
         if (hasScrolledRef.current) return;

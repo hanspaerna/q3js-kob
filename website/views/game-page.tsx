@@ -164,6 +164,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         : "Preparing downloads";
 
     const originalExitPointerLockRef = useRef<typeof document.exitPointerLock | null>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
 
     // F2 to toggle server overlay
     useEffect(() => {
@@ -178,10 +179,16 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Release pointer lock when overlay opens
+    // Release pointer lock and focus overlay when it opens
     useEffect(() => {
-        if (showServerOverlay && originalExitPointerLockRef.current) {
-            originalExitPointerLockRef.current.call(document);
+        if (showServerOverlay) {
+            if (originalExitPointerLockRef.current) {
+                originalExitPointerLockRef.current.call(document);
+            }
+            // Focus overlay after a brief delay to ensure it's mounted
+            setTimeout(() => {
+                overlayRef.current?.focus();
+            }, 0);
         }
     }, [showServerOverlay]);
 
@@ -217,18 +224,63 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     useEffect(() => {
         if (!showServerOverlay) return;
 
-        const stopPropagation = (e: KeyboardEvent) => {
-            if (e.key !== 'F2') {
-                e.stopPropagation();
+        // Blur canvas to remove focus from game
+        const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+        if (canvas) {
+            canvas.blur();
+        }
+
+        const handleKeyCapture = (e: KeyboardEvent) => {
+            // Always allow F2 to toggle overlay
+            if (e.key === 'F2') return;
+
+            // Check if targeting a form element
+            const target = e.target as HTMLElement;
+            const tagName = target?.tagName?.toLowerCase();
+            const isFormElement = tagName === 'input' || tagName === 'select' || tagName === 'textarea' || tagName === 'button';
+
+            if (isFormElement) {
+                // Let form elements receive the event naturally
+                // The bubble-phase handler on the overlay will stop it from reaching the game
+                return;
             }
+
+            // Block all other events from reaching the game
+            e.stopImmediatePropagation();
+            e.preventDefault();
         };
 
-        window.addEventListener('keydown', stopPropagation, true);
-        window.addEventListener('keyup', stopPropagation, true);
+        window.addEventListener('keydown', handleKeyCapture, true);
+        window.addEventListener('keyup', handleKeyCapture, true);
+        window.addEventListener('keypress', handleKeyCapture, true);
 
         return () => {
-            window.removeEventListener('keydown', stopPropagation, true);
-            window.removeEventListener('keyup', stopPropagation, true);
+            window.removeEventListener('keydown', handleKeyCapture, true);
+            window.removeEventListener('keyup', handleKeyCapture, true);
+            window.removeEventListener('keypress', handleKeyCapture, true);
+        };
+    }, [showServerOverlay]);
+
+    // Bubble-phase handler to stop events from reaching game after overlay handles them
+    useEffect(() => {
+        if (!showServerOverlay) return;
+        const overlay = overlayRef.current;
+        if (!overlay) return;
+
+        const stopBubble = (e: Event) => {
+            // Allow F2 to bubble up to toggle handler
+            if (e instanceof KeyboardEvent && e.key === 'F2') return;
+            e.stopPropagation();
+        };
+
+        overlay.addEventListener('keydown', stopBubble);
+        overlay.addEventListener('keyup', stopBubble);
+        overlay.addEventListener('keypress', stopBubble);
+
+        return () => {
+            overlay.removeEventListener('keydown', stopBubble);
+            overlay.removeEventListener('keyup', stopBubble);
+            overlay.removeEventListener('keypress', stopBubble);
         };
     }, [showServerOverlay]);
 
@@ -306,7 +358,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                 </Card>
             )}
             {showServerOverlay && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                <div ref={overlayRef} tabIndex={-1} className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="relative w-full max-w-3xl mx-4">
                         <div className="absolute -top-10 right-0 text-white/70">
                             <small>Press F2 to close</small>
