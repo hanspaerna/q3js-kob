@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
 
@@ -9,21 +9,22 @@ const REDIRECT_DELAY = 3;
 export default function LogoutPage() {
     const router = useRouter();
     const [countdown, setCountdown] = useState(REDIRECT_DELAY);
+    const hasRedirected = useRef(false);
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCountdown((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    router.push('/');
-                    return 0;
-                }
-                return prev - 1;
-            });
+            setCountdown((prev) => (prev <= 1 ? 0 : prev - 1));
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [router]);
+    }, []);
+
+    useEffect(() => {
+        if (countdown === 0 && !hasRedirected.current) {
+            hasRedirected.current = true;
+            router.push('/');
+        }
+    }, [countdown, router]);
 
     return (
         <div className="flex min-h-screen items-center justify-center">

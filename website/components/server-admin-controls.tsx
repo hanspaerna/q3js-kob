@@ -59,6 +59,7 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
     const [botTeam, setBotTeam] = useState<'red' | 'blue'>('red');
     const [kickClientId, setKickClientId] = useState('');
     const [mapValue, setMapValue] = useState('');
+    const [chatMessage, setChatMessage] = useState('');
 
     const withCooldown = useCallback((fn: () => void) => {
         if (cooldown) return;
@@ -203,6 +204,18 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
                 body: JSON.stringify({ host, port, map: mapValue.trim() }),
             }).catch(console.error);
         });
+    };
+
+    const sendChat = () => {
+        if (!chatMessage.trim()) return;
+        withCooldown(() => {
+            fetch('/api/rcon/say', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ host, port, message: chatMessage.trim() }),
+            }).catch(console.error);
+        });
+        setChatMessage('');
     };
 
     const revealRconPassword = async () => {
@@ -468,6 +481,27 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
                             onClick={sendRestart}
                         >
                             Restart
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Chat:</span>
+                        <Input
+                            type="text"
+                            placeholder="Message..."
+                            className="h-6 w-48 px-2 text-xs"
+                            value={chatMessage}
+                            onChange={(e) => setChatMessage(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && sendChat()}
+                            disabled={cooldown}
+                        />
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown || !chatMessage.trim()}
+                            onClick={sendChat}
+                        >
+                            Send
                         </Button>
                     </div>
                     {rconPassword === null ? (
