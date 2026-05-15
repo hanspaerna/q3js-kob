@@ -113,7 +113,11 @@ export function ServerCard(props: {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <PlayerList users={sortedUsers}/>
+                                <PlayerList
+                                    users={sortedUsers}
+                                    host={props.server.host}
+                                    port={props.server.targetPort}
+                                />
                             </div>
                             <div className="mt-4 border-t border-border/50 pt-4">
                                 <div className="flex items-center justify-between mb-2">

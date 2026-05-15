@@ -5,7 +5,7 @@ import { sendRconCommand, isRconConfigured } from '@/lib/rcon';
 type KickRequest = {
     host: string;
     port: number;
-    name: string;
+    clientId: number;
 };
 
 export async function POST(req: Request) {
@@ -20,13 +20,13 @@ export async function POST(req: Request) {
 
     try {
         const body: KickRequest = await req.json();
-        const { host, port, name } = body;
+        const { host, port, clientId } = body;
 
-        if (!host || !port || !name) {
+        if (!host || !port || typeof clientId !== 'number') {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const response = await sendRconCommand(host, port, `kick ${name}`);
+        const response = await sendRconCommand(host, port, `clientkick ${clientId}`);
         return NextResponse.json({ success: true, response });
     } catch (error) {
         console.error('RCON kick error:', error);

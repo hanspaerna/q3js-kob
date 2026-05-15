@@ -13,6 +13,9 @@ import java.util.regex.Pattern;
 public final class ServerStatusParser {
     private static final Pattern PLAYER_LINE_PATTERN = Pattern.compile("^\\s*(-?\\d+)\\s+(\\d+)\\s+\"(.*)\"\\s*$");
     private static final Pattern Q3_COLOR_PATTERN = Pattern.compile("\\^\\d");
+    // Rcon status format: "cl score ping name            address                                 rate"
+    // Fixed-width columns: cl(2) score(5) ping(4) name(15) address(39) rate(5+)
+    private static final Pattern RCON_PLAYER_LINE_PATTERN = Pattern.compile("^\\s*(\\d+)\\s+(-?\\d+)\\s+(\\d+)\\s+(.{15}).*$");
 
     private ServerStatusParser() {
     }
@@ -104,9 +107,30 @@ public final class ServerStatusParser {
             }
 
             users.add(ServerUserResponse.builder()
+                    .clientId(users.size())
                     .score(Integer.parseInt(matcher.group(1)))
                     .ping(Integer.parseInt(matcher.group(2)))
                     .name(stripQ3Colors(matcher.group(3)))
+                    .build());
+        }
+        return users;
+    }
+
+    static List<ServerUserResponse> parseRconUsers(String rconStatus) {
+        List<ServerUserResponse> users = new ArrayList<>();
+        var lines = rconStatus.replace("\r", "").split("\n");
+
+        for (var line : lines) {
+            var matcher = RCON_PLAYER_LINE_PATTERN.matcher(line);
+            if (!matcher.matches()) {
+                continue;
+            }
+
+            users.add(ServerUserResponse.builder()
+                    .clientId(Integer.parseInt(matcher.group(1)))
+                    .score(Integer.parseInt(matcher.group(2)))
+                    .ping(Integer.parseInt(matcher.group(3)))
+                    .name(stripQ3Colors(matcher.group(4).trim()))
                     .build());
         }
         return users;

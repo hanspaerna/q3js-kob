@@ -8,24 +8,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         {
             id: "authelia",
             name: "Authelia",
-            type: "oidc",
-            issuer: process.env.AUTH_ISSUER,
+            type: "oauth",
             clientId: process.env.AUTH_CLIENT_ID,
             clientSecret: process.env.AUTH_CLIENT_SECRET,
-            authorization: { params: { scope: "openid profile email groups offline_access" } },
-            client: { token_endpoint_auth_method: "client_secret_post" },
+            authorization: {
+                url: `${process.env.AUTH_ISSUER}/api/oidc/authorization`,
+                params: { scope: "openid profile email groups offline_access" },
+            },
+            token: {
+                url: `${process.env.AUTH_ISSUER}/api/oidc/token`,
+                params: { client_secret: process.env.AUTH_CLIENT_SECRET },
+            },
+            userinfo: `${process.env.AUTH_ISSUER}/api/oidc/userinfo`,
             checks: ["state"],
-            async profile(profile, tokens) {
-                // Fetch userinfo to get groups
-                const res = await fetch(`${process.env.AUTH_ISSUER}/api/oidc/userinfo`, {
-                    headers: { Authorization: `Bearer ${tokens.access_token}` },
-                });
-                const userinfo = await res.json();
+            profile(profile) {
                 return {
                     id: profile.sub,
-                    name: userinfo.preferred_username ?? userinfo.name,
-                    email: userinfo.email,
-                    groups: userinfo.groups ?? [],
+                    name: profile.preferred_username ?? profile.name,
+                    email: profile.email,
+                    groups: profile.groups ?? [],
                 };
             },
         },

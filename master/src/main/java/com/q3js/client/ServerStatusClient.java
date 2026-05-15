@@ -25,14 +25,21 @@ public class ServerStatusClient {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             'g', 'e', 't', 's', 't', 'a', 't', 'u', 's', ' ', 'x', 'x', 'x', '\n'
     };
+    private static final byte[] RCON_PREFIX = new byte[]{
+            (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
+            'r', 'c', 'o', 'n', ' '
+    };
 
     private final HttpClient httpClient;
     private final long timeoutMs;
+    private final Optional<String> rconPassword;
 
     public ServerStatusClient(
-            @ConfigProperty(name = "q3js.server-info.timeout-ms", defaultValue = "3000") long timeoutMs
+            @ConfigProperty(name = "q3js.server-info.timeout-ms", defaultValue = "3000") long timeoutMs,
+            @ConfigProperty(name = "q3js.rcon.password") Optional<String> rconPassword
     ) {
         this.timeoutMs = timeoutMs;
+        this.rconPassword = rconPassword;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofMillis(timeoutMs))
                 .build();
@@ -41,7 +48,24 @@ public class ServerStatusClient {
     public Optional<ServerInfoResponse> query(Server server) {
         try {
             var status = queryStatus(server);
-            return Optional.ofNullable(ServerStatusParser.parse(status.rawStatus(), server, status.ping()));
+            var serverInfo = ServerStatusParser.parse(status.rawStatus(), server, status.ping());
+            if (serverInfo == null) {
+                return Optional.empty();
+            }
+
+            // Query rcon status for user data with clientId
+            if (rconPassword.isPresent()) {
+                try {
+                    var rconStatus = queryRconStatus(server, rconPassword.get());
+                    var users = ServerStatusParser.parseRconUsers(rconStatus);
+                    serverInfo.setUsers(users);
+                    serverInfo.setPlayers(users.size());
+                } catch (Exception e) {
+                    LOG.debugf(e, "Failed to query rcon status for %s:%d, using getstatus users", server.getHost(), server.getProxyPort());
+                }
+            }
+
+            return Optional.of(serverInfo);
         } catch (Exception e) {
             LOG.debugf(e, "Failed to query server status via websocket for %s:%d", server.getHost(), server.getProxyPort());
             return Optional.empty();
@@ -76,6 +100,41 @@ public class ServerStatusClient {
             webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
                     .exceptionally(ignored -> null);
         }
+    }
+
+    private String queryRconStatus(Server server, String password) {
+        var responseFuture = new CompletableFuture<byte[]>();
+        var listener = new StatusWebSocketListener(responseFuture);
+
+        var webSocket = httpClient.newWebSocketBuilder()
+                .connectTimeout(Duration.ofMillis(timeoutMs))
+                .buildAsync(URI.create(buildWebSocketUrl(server)), listener)
+                .orTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+                .join();
+
+        try {
+            var rconPayload = buildRconPayload(password, "status");
+            webSocket.sendBinary(ByteBuffer.wrap(rconPayload), true)
+                    .orTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+                    .join();
+
+            byte[] rawResponse = responseFuture
+                    .orTimeout(timeoutMs, TimeUnit.MILLISECONDS)
+                    .join();
+
+            return new String(rawResponse, StandardCharsets.UTF_8);
+        } finally {
+            webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
+                    .exceptionally(ignored -> null);
+        }
+    }
+
+    private byte[] buildRconPayload(String password, String command) {
+        var commandBytes = (password + " " + command + "\n").getBytes(StandardCharsets.UTF_8);
+        var payload = new byte[RCON_PREFIX.length + commandBytes.length];
+        System.arraycopy(RCON_PREFIX, 0, payload, 0, RCON_PREFIX.length);
+        System.arraycopy(commandBytes, 0, payload, RCON_PREFIX.length, commandBytes.length);
+        return payload;
     }
 
     private String buildWebSocketUrl(Server server) {

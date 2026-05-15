@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 public class ServerUserResponse {
 
     @NotNull
+    private Integer clientId;
+
+    @NotNull
     private Integer score;
 
     @NotNull

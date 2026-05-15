@@ -154,6 +154,7 @@ export type ServerUserResponse = {
     score: number;
     ping: number;
     name: string;
+    clientId: number;
 };
 
 export type IngestEventData = {

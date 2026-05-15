@@ -57,7 +57,7 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
     const [botLevel, setBotLevel] = useState<typeof BOT_LEVELS[number]>(3);
     const [botModel, setBotModel] = useState<typeof BOT_MODELS[number]>('crash');
     const [botTeam, setBotTeam] = useState<'red' | 'blue'>('red');
-    const [kickName, setKickName] = useState('');
+    const [kickClientId, setKickClientId] = useState('');
     const [mapValue, setMapValue] = useState('');
 
     const withCooldown = useCallback((fn: () => void) => {
@@ -173,15 +173,15 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
     };
 
     const sendKick = () => {
-        if (!kickName.trim()) return;
+        if (!kickClientId.trim()) return;
         withCooldown(() => {
             fetch('/api/rcon/kick', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, name: kickName.trim() }),
+                body: JSON.stringify({ host, port, clientId: kickClientId.trim() }),
             }).catch(console.error);
         });
-        setKickName('');
+        setKickClientId('');
     };
 
     const sendKickBots = () => {
@@ -423,10 +423,10 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
                         <span className="text-xs text-muted-foreground mr-1">Kick:</span>
                         <Input
                             type="text"
-                            placeholder="..."
+                            placeholder="id..."
                             className="h-6 w-24 px-2 text-xs"
-                            value={kickName}
-                            onChange={(e) => setKickName(e.target.value)}
+                            value={kickClientId}
+                            onChange={(e) => setKickClientId(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && sendKick()}
                             disabled={cooldown}
                         />
@@ -434,7 +434,7 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
                             variant="outline"
                             size="sm"
                             className="h-6 px-2 text-xs"
-                            disabled={cooldown || !kickName.trim()}
+                            disabled={cooldown || !kickClientId.trim()}
                             onClick={sendKick}
                         >
                             Kick

@@ -6,6 +6,7 @@ import {ServiceWorkerRegistration} from "@/components/service-worker-registratio
 import {SessionProvider} from "@/components/session-provider";
 import type { Metadata } from "next";
 import { env } from "@/env";
+import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -23,11 +24,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
                                        children,
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const session = await auth();
     return (
         <html lang="en-US">
             <head>
@@ -40,7 +42,7 @@ export default function RootLayout({
                 `}} />
             </head>
             <body className="antialiased">
-                <SessionProvider>
+                <SessionProvider session={session}>
                     <QueryClientProviderWrapper>
                         <ServiceWorkerRegistration/>
                         <TimeZoneSync/>
