@@ -12,6 +12,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog.tsx";
 import {Input} from "@/components/ui/input.tsx";
+import {Textarea} from "@/components/ui/textarea.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
 import {ServerResponse} from "@/lib/client";
@@ -26,6 +27,7 @@ export function JoinServerButton(props: {
     const ctaLabel = props.ctaLabel ?? "Join now";
 
     const [name, setName] = useLocalStorage("name", "Anonymous");
+    const [customConfig, setCustomConfig] = useLocalStorage("q3config", "");
 
     const handleJoin = () => {
         if (!name) return;
@@ -76,16 +78,33 @@ export function JoinServerButton(props: {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-2 w-full">
-                    <Label htmlFor="player-name">Player name</Label>
-                    <div className="flex flex-row items-center">
-                        <Input
-                            id="player-name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value.replace(/\s/g, ''))}
-                            placeholder="Enter your player name"
-                            maxLength={16}
+                <div className="space-y-4 w-full">
+                    <div className="space-y-2">
+                        <Label htmlFor="player-name">Player name</Label>
+                        <div className="flex flex-row items-center">
+                            <Input
+                                id="player-name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value.replace(/\s/g, ''))}
+                                placeholder="Enter your player name"
+                                maxLength={16}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="custom-config">Custom config (optional)</Label>
+                        <Textarea
+                            id="custom-config"
+                            value={customConfig}
+                            onChange={(e) => setCustomConfig(e.target.value)}
+                            placeholder={"seta cg_fov 110\nseta sensitivity 3"}
+                            rows={4}
+                            className="resize-y text-xs"
                         />
+                        <p className="text-xs text-muted-foreground">
+                            Override default settings with Quake 3 console commands. One command per line.
+                        </p>
                     </div>
                 </div>
 

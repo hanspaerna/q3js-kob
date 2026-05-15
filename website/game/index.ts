@@ -227,7 +227,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
     `;
 
 
-    // load custom bindings via exec to avoid issues with auto-connect (more than one +bind command listed directly in generatedArguments breaks it)
+    // load custom bindings and user config via exec to avoid issues with auto-connect (more than one +bind command listed directly in generatedArguments breaks it)
     generatedArguments += ` +exec autoexec_binds.cfg `;
 
     // Spearmint's Very High Quality Graphics settings by zturtleman, compatible with ioquake3 (r_flares excluded due to OpenGL error)
@@ -461,12 +461,38 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                     }
 
                     // Write custom bindings to a config file
-                    const bindsConfig = [
+                    const bindsConfigLines = [
                         'bind h "+button3"',
                         'bind c "+movedown"',
                         'bind F1 "togglemenu"',
-                    ].join('\n');
-                    module.FS.writeFile(`/${fs_game}/autoexec_binds.cfg`, bindsConfig);
+                    ];
+
+                    // Append user's custom config commands directly
+                    const userConfig = localStorage.getItem('q3config');
+                    console.log('Raw q3config from localStorage:', userConfig);
+                    if (userConfig && userConfig.trim()) {
+                        // Try to parse as JSON first (useLocalStorage stores as JSON), fall back to raw string
+                        let configString: string;
+                        try {
+                            const parsed = JSON.parse(userConfig);
+                            configString = typeof parsed === 'string' ? parsed : userConfig;
+                        } catch {
+                            configString = userConfig;
+                        }
+
+                        console.log('Config string:', configString);
+                        if (configString.trim()) {
+                            bindsConfigLines.push('');
+                            bindsConfigLines.push('// User custom config');
+                            const userLines = configString.trim().split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('//'));
+                            bindsConfigLines.push(...userLines);
+                            console.log('User config lines:', userLines);
+                        }
+                    }
+
+                    console.log('Final autoexec_binds.cfg content:', bindsConfigLines.join('\n'));
+
+                    module.FS.writeFile(`/${fs_game}/autoexec_binds.cfg`, bindsConfigLines.join('\n'));
 
                     if (persist) {
                         await syncfs(module, false);
