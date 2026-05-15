@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, HardDrive, RefreshCw, File, Upload, Folder, ChevronRight, FolderPlus } from 'lucide-react';
+import { Trash2, HardDrive, RefreshCw, File, Upload, Folder, ChevronRight, FolderPlus, Download } from 'lucide-react';
 import s from '../admin/admin.module.css';
 
 type StorageEntry = {
@@ -295,6 +295,59 @@ async function deleteFile(dbName: string, fileName: string): Promise<boolean> {
                         resolve(deleted);
                     }
                 }
+            }
+        };
+    });
+}
+
+async function downloadFile(dbName: string, filePath: string): Promise<void> {
+    return new Promise((resolve) => {
+        const request = indexedDB.open(dbName);
+
+        request.onerror = () => resolve();
+
+        request.onsuccess = () => {
+            const db = request.result;
+            const storeNames = Array.from(db.objectStoreNames);
+
+            if (storeNames.length === 0) {
+                db.close();
+                resolve();
+                return;
+            }
+
+            const storeName = storeNames[0];
+
+            try {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const getReq = store.get(filePath);
+
+                getReq.onsuccess = () => {
+                    const value = getReq.result;
+                    db.close();
+
+                    if (value && value.contents) {
+                        const blob = new Blob([value.contents], { type: 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = filePath.split('/').pop() || 'file';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }
+                    resolve();
+                };
+
+                getReq.onerror = () => {
+                    db.close();
+                    resolve();
+                };
+            } catch {
+                db.close();
+                resolve();
             }
         };
     });
@@ -743,6 +796,13 @@ export default function StoragePage() {
                                                 </div>
                                                 <div className={s.fileItemMeta}>
                                                     <span className={s.fileSize}>{formatBytes(entry.size)}</span>
+                                                    <button
+                                                        className={s.btnIcon}
+                                                        onClick={() => downloadFile(entry.dbName, entry.path)}
+                                                        title="Download file"
+                                                    >
+                                                        <Download size={14} />
+                                                    </button>
                                                     <button
                                                         className={s.btnIcon}
                                                         onClick={() => handleDeleteFile(entry.dbName, entry.path)}
