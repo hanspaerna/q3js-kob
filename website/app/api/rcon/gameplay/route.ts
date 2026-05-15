@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { authWithManagerGroup } from '@/lib/auth';
 import { sendRconCommand, isRconConfigured } from '@/lib/rcon';
 
 const ALLOWED_GAMEPLAYS = [0, 1, 2, 3] as const;
@@ -12,7 +12,7 @@ type GameplayRequest = {
 };
 
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await authWithManagerGroup();
     if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

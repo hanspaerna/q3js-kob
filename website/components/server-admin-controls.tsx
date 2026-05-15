@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSession } from 'next-auth/react';
+import { hasManagerAccess } from '@/lib/auth';
 
 type Mode = 'KOB_CPMDM' | 'KOB_CPMTDM' | 'KOB_CPMCTF';
 type Gameplay = 0 | 1 | 2 | 3;
@@ -68,7 +69,9 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
         setTimeout(() => setCooldown(false), COOLDOWN_MS);
     }, [cooldown]);
 
-    if (!session) {
+    const hasAccess = hasManagerAccess(session?.user?.groups);
+
+    if (!session || !hasAccess) {
         return null;
     }
 

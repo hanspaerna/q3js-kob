@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { Play } from 'lucide-react';
+import { hasManagerAccess } from '@/lib/auth';
 
 type Props = {
     host: string;
@@ -13,6 +14,7 @@ type Props = {
 
 export function MapQueue({ host, port, currentMap, gamemode }: Props) {
     const { data: session } = useSession();
+    const canSwitchMap = hasManagerAccess(session?.user?.groups);
     const [maps, setMaps] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -108,7 +110,7 @@ export function MapQueue({ host, port, currentMap, gamemode }: Props) {
                         }`}
                     >
                         <span>{map}</span>
-                        {session && !isCurrentMap && (
+                        {canSwitchMap && !isCurrentMap && (
                             <button
                                 onClick={() => switchMap(map)}
                                 disabled={cooldown}

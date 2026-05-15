@@ -20,6 +20,7 @@ import {cn, getClientEnv} from "@/lib/utils.ts";
 import {PwaInstallControl} from "@/components/pwa-install-control.tsx";
 import {useSession, signIn, signOut} from "next-auth/react";
 import {useState, useEffect} from 'react';
+import {hasManagerAccess} from "@/lib/auth";
 
 const HEADER_STATUS_STYLES = {
     offline: {
@@ -198,10 +199,10 @@ export function Header() {
             label: "Storage",
         },
         ...(session ? [
-            {
-                href: "/admin",
+            ...(hasManagerAccess(session.user?.groups) ? [{
+                href: "/serverfs",
                 label: "Maps / Skins",
-            },
+            }] : []),
             {
                 label: `Logout (${session.user?.name ?? "user"})`,
                 onClick: () => signOut({ redirectTo: "/logout" }),

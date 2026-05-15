@@ -6,6 +6,7 @@ import { Trash2, Upload, FolderOpen, File, AlertTriangle, X } from 'lucide-react
 import s from './admin.module.css';
 import { Button } from '@/components/ui/button';
 import { ADMIN_UPLOAD_LIMIT_MB } from '@/lib/constants';
+import { hasManagerAccess } from '@/lib/auth';
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -35,13 +36,15 @@ export default function AdminPage() {
     }
   }
 
+  const hasAccess = hasManagerAccess(session?.user?.groups);
+
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && hasAccess) {
       loadFiles();
-    } else if (status === 'unauthenticated') {
+    } else if (status === 'unauthenticated' || (status === 'authenticated' && !hasAccess)) {
       router.push('/');
     }
-  }, [status, router]);
+  }, [status, router, hasAccess]);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -107,7 +110,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!session) {
+  if (!session || !hasAccess) {
     return null;
   }
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, HardDrive, RefreshCw, File, Upload, Folder, ChevronRight, FolderPlus, Download } from 'lucide-react';
-import s from '../admin/admin.module.css';
+import s from '../serverfs/admin.module.css';
 
 type StorageEntry = {
     name: string;

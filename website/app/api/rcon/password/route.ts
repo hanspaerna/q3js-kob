@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { authWithManagerGroup } from '@/lib/auth';
 import { isRconConfigured } from '@/lib/rcon';
 
 export async function GET() {
-    const session = await auth();
+    const session = await authWithManagerGroup();
     if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

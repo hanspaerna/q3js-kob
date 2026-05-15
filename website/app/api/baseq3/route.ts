@@ -1,11 +1,11 @@
 // app/api/baseq3/route.ts — list files
 import { BASEQ3_DIR } from '@/lib/constants';
-import { auth } from '@/lib/auth';
+import { authWithManagerGroup } from '@/lib/auth';
 import fs from 'fs';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const session = await auth();
+  const session = await authWithManagerGroup();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

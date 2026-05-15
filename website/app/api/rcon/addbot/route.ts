@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { authWithManagerGroup } from '@/lib/auth';
 import { sendRconCommand, isRconConfigured } from '@/lib/rcon';
 
 type AddBotRequest = {
@@ -11,7 +11,7 @@ type AddBotRequest = {
 };
 
 export async function POST(req: Request) {
-    const session = await auth();
+    const session = await authWithManagerGroup();
     if (!session) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

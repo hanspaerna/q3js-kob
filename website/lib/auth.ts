@@ -1,6 +1,8 @@
 import NextAuth from "next-auth";
 
-const ALLOWED_GROUPS = ["quakers", "admins"];
+const ALLOWED_GROUPS = ["quakers", "admins", "quakemanagers"];
+
+export const MANAGER_GROUPS = ["quakemanagers", "admins"];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     trustHost: true,
@@ -88,3 +90,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
     },
 });
+
+export async function authWithManagerGroup() {
+    const session = await auth();
+    if (!session) return null;
+    const groups = session.user?.groups ?? [];
+    if (!MANAGER_GROUPS.some(g => groups.includes(g))) return null;
+    return session;
+}
+
+export function hasManagerAccess(groups: string[] | undefined): boolean {
+    if (!groups) return false;
+    return MANAGER_GROUPS.some(g => groups.includes(g));
+}
