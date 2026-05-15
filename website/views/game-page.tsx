@@ -159,6 +159,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             needs_pak0: prog.current,
             launching: prog.current,
             ready: prog.current,
+            error: prog.current,
         }[prog.stage]
         : "Preparing downloads";
 
