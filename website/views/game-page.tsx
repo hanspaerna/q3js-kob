@@ -308,13 +308,9 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             {showServerOverlay && (
                 <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/50 backdrop-blur-sm">
                     <div className="relative w-full max-w-3xl mx-4">
-                        <button
-                            onClick={() => setShowServerOverlay(false)}
-                            className="absolute -top-10 right-0 text-white/70 hover:text-white transition-colors cursor-pointer"
-                            title="Close (F2)"
-                        >
-                            <X size={24} />
-                        </button>
+                        <div className="absolute -top-10 right-0 text-white/70">
+                            <small>Press F2 to close</small>
+                        </div>
                         {currentServer ? (
                             <ServerCard
                                 server={currentServer}
