@@ -63,6 +63,12 @@ export function Hero(props: {
                                     </DialogHeader>
                                     <div className="space-y-4 text-base py-4">
                                         <p>
+                                            You can play on our server directly from this page, but we recommend you to use your own pak0.pk3 from legally acquired Quake 3 Arena.
+                                            We are not allowed to share it, and the file you upload remains on your machine. 
+                                            pak0.pk3 from demo files is possible to use but not recommended, as you will see missing textures here and there even on 3rd party maps we're mostly playing with. 
+                                            And would you ever want to play Q3A without Bones anyway?
+                                        </p>
+                                        <p>
                                             Use <strong>F1</strong> instead of Esc to open game menu while staying in fullscreen mode.
                                         </p>
                                         <p>
@@ -75,10 +81,16 @@ export function Hero(props: {
                                             Press <strong>C</strong> to crouch.
                                         </p>
                                         <p>
-                                            Feel free to update any key bindings or client settings in the custom config editor before joining the game.
+                                            Feel free to specify your own quake3 cfg in the custom field before joining the game.
                                         </p>
                                         <p>
-                                            You can visit Storage page to manage your local client installation.
+                                            You can visit <Link href="/storage" className="text-primary hover:underline"><strong>Storage</strong></Link> page to manage your local client installation.
+                                        </p>
+                                        <p>
+                                            Still not convinced that it's a good idea to play from browser? Then join us directly over UDP (port 27960) from your own CPMA client. But you'll miss our cool custom skins like a huge black spider, or a pig-faced Marilyn Manson that makes an unforgettable sound when drowning. 
+                                        </p>
+                                        <p>
+                                            Respectfully yours...
                                         </p>
                                     </div>
                                 </DialogContent>
