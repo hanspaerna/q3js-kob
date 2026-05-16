@@ -1,6 +1,6 @@
 import {GAME_TYPES} from "@/lib/q3.ts";
 import {Card, CardContent} from "@/components/ui/card.tsx";
-import {Activity, Globe, Lock, Map, Users} from "lucide-react";
+import {Activity, Globe, Lock, Map, Server, Users} from "lucide-react";
 import {Badge} from "@/components/ui/badge.tsx";
 import {getPercentage, getPingColor} from "@/lib/utils.ts";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
@@ -33,6 +33,12 @@ export function ServerCard(props: {
                                     )}
                                 </div>
                                 <div className="flex flex-wrap items-center gap-2 text-sm">
+                                    <Badge
+                                        variant="outline"
+                                        className="font-mono text-xs border-border/50 text-muted-foreground"
+                                    >
+                                        <Server className="h-3 w-3 mr-1"/> {props.server.host}:{props.server.targetPort}
+                                    </Badge>
                                     <Badge
                                         variant="outline"
                                         className="font-mono text-xs border-border/50 text-muted-foreground"
