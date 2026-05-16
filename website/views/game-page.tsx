@@ -179,9 +179,13 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Release pointer lock and focus overlay when it opens
+    // Track if overlay was previously open
+    const wasOverlayOpenRef = useRef(false);
+
+    // Release pointer lock and focus overlay when it opens, request pointer lock when it closes
     useEffect(() => {
         if (showServerOverlay) {
+            wasOverlayOpenRef.current = true;
             if (originalExitPointerLockRef.current) {
                 originalExitPointerLockRef.current.call(document);
             }
@@ -189,6 +193,13 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             setTimeout(() => {
                 overlayRef.current?.focus();
             }, 0);
+        } else if (wasOverlayOpenRef.current) {
+            // Request pointer lock when overlay closes (but not on initial mount)
+            wasOverlayOpenRef.current = false;
+            const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+            if (canvas) {
+                canvas.requestPointerLock({ unadjustedMovement: true });
+            }
         }
     }, [showServerOverlay]);
 

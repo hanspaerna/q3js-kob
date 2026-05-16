@@ -465,6 +465,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         'bind h "+button3"',
                         'bind c "+movedown"',
                         'bind F1 "togglemenu"',
+                        'unbind F2', // we reserve it for the server card overlay
                     ];
 
                     // Append user's custom config commands directly
