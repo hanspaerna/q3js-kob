@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { Play } from 'lucide-react';
 import { hasManagerAccess } from '@/lib/auth';
+import { useToast, ToastMessage } from '@/components/toast';
 
 type Props = {
     host: string;
@@ -14,6 +15,7 @@ type Props = {
 
 export function MapQueue({ host, port, currentMap, gamemode }: Props) {
     const { data: session } = useSession();
+    const { showToast } = useToast();
     const canSwitchMap = hasManagerAccess(session?.user?.groups);
     const [maps, setMaps] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
@@ -45,11 +47,16 @@ export function MapQueue({ host, port, currentMap, gamemode }: Props) {
         setCooldown(true);
         setTimeout(() => setCooldown(false), 2000);
         try {
-            await fetch('/api/rcon/map', {
+            const res = await fetch('/api/rcon/map', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ host, port, map }),
             });
+            if (res.ok) {
+                showToast(ToastMessage.COMMAND_SENT);
+            } else if (res.status === 401) {
+                showToast(ToastMessage.SESSION_EXPIRED);
+            }
         } catch (err) {
             console.error('Failed to switch map:', err);
         }

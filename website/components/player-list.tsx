@@ -8,6 +8,8 @@ import {ServerUserResponse} from "@/lib/client";
 import {useSession} from "next-auth/react";
 import {useState, useCallback} from "react";
 import {Button} from "@/components/ui/button.tsx";
+import {hasManagerAccess} from "@/lib/auth";
+import {useToast, ToastMessage} from "@/components/toast";
 
 type Props = {
     users: ServerUserResponse[];
@@ -19,22 +21,31 @@ const COOLDOWN_MS = 2000;
 
 export function PlayerList({users, host, port}: Props) {
     const {data: session} = useSession();
+    const {showToast} = useToast();
     const [cooldown, setCooldown] = useState(false);
 
-    const kickPlayer = useCallback((clientId: number) => {
+    const kickPlayer = useCallback(async (clientId: number) => {
         if (cooldown || !host || !port) return;
 
         setCooldown(true);
-        fetch('/api/rcon/kick', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({host, port, clientId}),
-        }).catch(console.error);
-
         setTimeout(() => setCooldown(false), COOLDOWN_MS);
-    }, [cooldown, host, port]);
+        try {
+            const res = await fetch('/api/rcon/kick', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({host, port, clientId}),
+            });
+            if (res.ok) {
+                showToast(ToastMessage.COMMAND_SENT);
+            } else if (res.status === 401) {
+                showToast(ToastMessage.SESSION_EXPIRED);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }, [cooldown, host, port, showToast]);
 
-    const canKick = !!session && !!host && !!port;
+    const canKick = hasManagerAccess(session?.user?.groups) && !!host && !!port;
 
     return <div className="mt-4 border-t border-border/50 pt-4">
         <div className="flex items-center justify-between mb-2">

@@ -40,11 +40,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async jwt({ token, user, account }) {
             // Initial sign in
             if (account && user) {
-                console.log("[AUTH] Initial sign in", {
-                    expiresAt: account.expires_at,
-                    expiresIn: account.expires_in,
-                    hasRefreshToken: !!account.refresh_token,
-                });
                 token.groups = (user as any).groups;
                 token.accessToken = account.access_token;
                 token.refreshToken = account.refresh_token;
@@ -101,7 +96,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 };
             } catch (error) {
                 console.log("[AUTH] Token refresh error", { error });
-                return { ...token, error: "RefreshTokenError" };
+                // Clear sensitive data - user must re-login
+                return {
+                    error: "RefreshTokenError",
+                };
             }
         },
         session({ session, token }) {

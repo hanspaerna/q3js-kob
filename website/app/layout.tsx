@@ -4,6 +4,10 @@ import QueryClientProviderWrapper from "@/lib/query-client-provider-wrapper.tsx"
 import {TimeZoneSync} from "@/components/time-zone-sync";
 import {ServiceWorkerRegistration} from "@/components/service-worker-registration.tsx";
 import {SessionProvider} from "@/components/session-provider";
+import {SessionExpiredOverlay} from "@/components/session-expired-overlay";
+import {SessionRefetchOnNavigate} from "@/components/session-refetch-on-navigate";
+import {SessionRefetchOnFocus} from "@/components/session-refetch-on-focus";
+import {ToastProvider} from "@/components/toast";
 import type { Metadata } from "next";
 import { env } from "@/env";
 import { auth } from "@/lib/auth";
@@ -43,11 +47,16 @@ export default async function RootLayout({
             </head>
             <body className="antialiased">
                 <SessionProvider session={session}>
-                    <QueryClientProviderWrapper>
-                        <ServiceWorkerRegistration/>
-                        <TimeZoneSync/>
-                        <div className="font-mono">{children}</div>
-                    </QueryClientProviderWrapper>
+                    <SessionRefetchOnNavigate />
+                    <SessionRefetchOnFocus />
+                    <SessionExpiredOverlay />
+                    <ToastProvider>
+                        <QueryClientProviderWrapper>
+                            <ServiceWorkerRegistration/>
+                            <TimeZoneSync/>
+                            <div className="font-mono">{children}</div>
+                        </QueryClientProviderWrapper>
+                    </ToastProvider>
                 </SessionProvider>
             </body>
         </html>

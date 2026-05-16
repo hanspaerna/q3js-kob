@@ -23,7 +23,7 @@ export function Hero(props: {
     firstServer?: ServerResponse;
 }) {
     return (
-        <section className="border-b border-border/60 bg-background">
+        <section className="border-border/60 bg-background">
             <div className="container mx-auto px-4 py-14 md:py-14">
                 <div className="mx-auto max-w-4xl text-center">
                     <div className="mt-8 flex flex-col items-center gap-3">
@@ -76,9 +76,6 @@ export function Hero(props: {
                             <div className="mt-2 text-2xl font-bold leading-none text-foreground">
                                 {formatNumber(props.currentPlayerCount)}
                             </div>
-                            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                                Across {formatCount(props.serverCount, "live server")}
-                            </p>
                         </div>
 
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
@@ -99,11 +96,6 @@ export function Hero(props: {
                                     "No frags yet"
                                 )}
                             </div>
-                            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                                {props.topDailyPlayer
-                                    ? `${formatNumber(props.topDailyPlayer.kills)} frags in the last 24 hours`
-                                    : "Last 24 hours scoreboard is empty"}
-                            </p>
                         </div>
 
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
@@ -115,9 +107,6 @@ export function Hero(props: {
                             <div className="mt-2 text-2xl font-bold leading-none text-foreground">
                                 {formatNumber(props.totalKillCount)}
                             </div>
-                            <p className="mt-2 text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                                Global scoreboard total
-                            </p>
                         </div>
                     </div>
                 </div>

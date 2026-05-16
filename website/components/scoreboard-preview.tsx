@@ -38,12 +38,7 @@ export function ScoreboardPreview(props: {
                     <CardContent className="p-4 md:p-6">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                             <div>
-                                <h2 className="text-2xl font-bold">Top Fraggers <span
-                                    className="text-sm font-normal text-muted-foreground">(click to see profile)</span>
-                                </h2>
-                                <p className="text-xs text-muted-foreground md:text-sm">
-                                    Global {periodLabel} frag leaders.
-                                </p>
+                                <h2 className="text-2xl font-bold">Top Fraggers</h2>
                             </div>
                             <div className="flex flex-col items-start gap-2 md:items-end">
                                 <ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>

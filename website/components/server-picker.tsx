@@ -64,7 +64,7 @@ export function ServerPicker({servers: initialServers}: ServerPickerProps) {
     }
 
     return (
-        <section id="server-browser" className="container mx-auto px-4 pb-24 scroll-mt-24">
+        <section id="server-browser" className="container mx-auto px-4 scroll-mt-24">
             <div className="max-w-5xl mx-auto space-y-6">
                 <div className="grid gap-4">
                     {filteredServers.map((server) => (

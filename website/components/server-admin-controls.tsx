@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useSession } from 'next-auth/react';
 import { hasManagerAccess } from '@/lib/auth';
+import { useToast, ToastMessage } from '@/components/toast';
 
 type Mode = 'KOB_CPMDM' | 'KOB_CPMTDM' | 'KOB_CPMCTF';
 type Gameplay = 0 | 1 | 2 | 3;
@@ -48,6 +49,7 @@ type Props = {
 
 export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype }: Props) {
     const { data: session } = useSession();
+    const { showToast } = useToast();
     const [cooldown, setCooldown] = useState(false);
     const [rconPassword, setRconPassword] = useState<string | null>(null);
     const [fraglimitValue, setFraglimitValue] = useState(fraglimit.toString());
@@ -59,162 +61,143 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
     const [mapValue, setMapValue] = useState('');
     const [chatMessage, setChatMessage] = useState('');
 
-    const withCooldown = useCallback((fn: () => void) => {
+    const withCooldown = useCallback(async (fn: () => Promise<Response>) => {
         if (cooldown) return;
-        fn();
         setCooldown(true);
         setTimeout(() => setCooldown(false), COOLDOWN_MS);
-    }, [cooldown]);
+        try {
+            const res = await fn();
+            if (res.ok) {
+                showToast(ToastMessage.COMMAND_SENT);
+            } else if (res.status === 401) {
+                showToast(ToastMessage.SESSION_EXPIRED);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }, [cooldown, showToast]);
 
-    const hasAccess = hasManagerAccess(session?.user?.groups);
-
-    if (!session || !hasAccess) {
+    if (!hasManagerAccess(session?.user?.groups)) {
         return null;
     }
 
     const sendMode = (mode: Mode) => {
-        withCooldown(() => {
-            fetch('/api/rcon/mode', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, mode }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/mode', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, mode }),
+        }));
     };
 
     const sendInstagib = (enabled: boolean) => {
-        withCooldown(() => {
-            fetch('/api/rcon/instagib', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, enabled }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/instagib', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, enabled }),
+        }));
     };
 
     const sendGameplay = (gameplay: Gameplay) => {
-        withCooldown(() => {
-            fetch('/api/rcon/gameplay', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, gameplay }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/gameplay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, gameplay }),
+        }));
     };
 
     const sendThrufloors = (enabled: boolean) => {
-        withCooldown(() => {
-            fetch('/api/rcon/thrufloors', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, enabled }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/thrufloors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, enabled }),
+        }));
     };
 
     const sendOvertime = (overtime: number) => {
-        withCooldown(() => {
-            fetch('/api/rcon/overtime', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, overtime }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/overtime', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, overtime }),
+        }));
     };
 
     const sendRestart = () => {
-        withCooldown(() => {
-            fetch('/api/rcon/restart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/restart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port }),
+        }));
     };
 
     const sendFraglimit = () => {
         const value = parseInt(fraglimitValue, 10);
         if (isNaN(value) || value < 0) return;
-        withCooldown(() => {
-            fetch('/api/rcon/fraglimit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, fraglimit: value }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/fraglimit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, fraglimit: value }),
+        }));
     };
 
     const sendTimelimit = () => {
         const value = parseInt(timelimitValue, 10);
         if (isNaN(value) || value < 0) return;
-        withCooldown(() => {
-            fetch('/api/rcon/timelimit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, timelimit: value }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/timelimit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, timelimit: value }),
+        }));
     };
 
     const sendAddBot = () => {
         const isTeamGame = gametype === 3 || gametype === 4;
-        withCooldown(() => {
-            fetch('/api/rcon/addbot', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    host,
-                    port,
-                    model: botModel,
-                    level: botLevel,
-                    ...(isTeamGame && { team: botTeam }),
-                }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/addbot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                host,
+                port,
+                model: botModel,
+                level: botLevel,
+                ...(isTeamGame && { team: botTeam }),
+            }),
+        }));
     };
 
     const sendKick = () => {
         if (!kickClientId.trim()) return;
-        withCooldown(() => {
-            fetch('/api/rcon/kick', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, clientId: kickClientId.trim() }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/kick', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, clientId: parseInt(kickClientId.trim(), 10) }),
+        }));
         setKickClientId('');
     };
 
     const sendKickBots = () => {
-        withCooldown(() => {
-            fetch('/api/rcon/kickbots', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/kickbots', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port }),
+        }));
     };
 
     const sendMap = () => {
         if (!mapValue.trim()) return;
-        withCooldown(() => {
-            fetch('/api/rcon/map', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, map: mapValue.trim() }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/map', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, map: mapValue.trim() }),
+        }));
     };
 
     const sendChat = () => {
         if (!chatMessage.trim()) return;
-        withCooldown(() => {
-            fetch('/api/rcon/say', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ host, port, message: chatMessage.trim() }),
-            }).catch(console.error);
-        });
+        withCooldown(() => fetch('/api/rcon/say', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, message: chatMessage.trim() }),
+        }));
         setChatMessage('');
     };
 
