@@ -611,7 +611,7 @@ public class EventService {
             case 20 -> "Suicide";
             case 21 -> "Target Laser";
             case 22 -> "Trigger Hurt";
-            case 23 -> "Nailgun";
+            case 23 -> "Grappling Hook";
             case 24 -> "Chaingun";
             case 25 -> "Proximity Mine";
             case 26 -> "Kamikaze";

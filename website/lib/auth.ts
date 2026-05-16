@@ -40,6 +40,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async jwt({ token, user, account }) {
             // Initial sign in
             if (account && user) {
+                console.log("[AUTH] Initial sign in", {
+                    expiresAt: account.expires_at,
+                    expiresIn: account.expires_in,
+                    hasRefreshToken: !!account.refresh_token,
+                });
                 token.groups = (user as any).groups;
                 token.accessToken = account.access_token;
                 token.refreshToken = account.refresh_token;
@@ -48,11 +53,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             // Return token if not expired
-            if (Date.now() < (token.expiresAt as number) * 1000) {
+            const now = Date.now();
+            const expiresAtMs = (token.expiresAt as number) * 1000;
+            if (now < expiresAtMs) {
                 return token;
             }
 
             // Refresh the token
+            console.log("[AUTH] Token refresh triggered", {
+                now: new Date(now).toISOString(),
+                expiresAt: token.expiresAt,
+                expiresAtDate: new Date(expiresAtMs).toISOString(),
+                diff: (expiresAtMs - now) / 1000,
+            });
             try {
                 const response = await fetch(`${process.env.AUTH_ISSUER}/api/oidc/token`, {
                     method: "POST",
@@ -67,7 +80,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 const tokens = await response.json();
 
-                if (!response.ok) throw new Error("Token refresh failed");
+                if (!response.ok) {
+                    console.log("[AUTH] Token refresh failed", {
+                        status: response.status,
+                        error: tokens,
+                    });
+                    throw new Error("Token refresh failed");
+                }
+
+                console.log("[AUTH] Token refresh succeeded", {
+                    newExpiresIn: tokens.expires_in,
+                    newExpiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
+                });
 
                 return {
                     ...token,
@@ -75,7 +99,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     refreshToken: tokens.refresh_token ?? token.refreshToken,
                     expiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
                 };
-            } catch {
+            } catch (error) {
+                console.log("[AUTH] Token refresh error", { error });
                 return { ...token, error: "RefreshTokenError" };
             }
         },
