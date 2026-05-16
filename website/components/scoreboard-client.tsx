@@ -94,6 +94,9 @@ export function ScoreboardClient(props: {
                 <ScoreboardToolbar
                     description={
                         <>
+                            <div className="mb-2">
+                                <ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>
+                            </div>
                             <p className="text-sm text-muted-foreground">
                                 {hasSearch
                                     ? (props.scoreboard.totalEntries === 0
@@ -122,7 +125,7 @@ export function ScoreboardClient(props: {
                             </Button>
                         </>
                     }
-                    periodControls={<ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>}
+                    periodControls={null}
                     search={
                         <form className="flex w-full flex-col gap-2 sm:flex-row" onSubmit={submitSearch}>
                             <Input
@@ -201,7 +204,7 @@ export function ScoreboardClient(props: {
 
                         {props.scoreboard.totalPages > 1 && (
                             <div
-                                className="flex flex-col gap-3 border-t border-border/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                className="flex flex-col gap-3 border-t border-border/60 bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
                                 <p className="text-xs text-muted-foreground">
                                     {`Page ${props.scoreboard.page} of ${props.scoreboard.totalPages}`}
                                 </p>

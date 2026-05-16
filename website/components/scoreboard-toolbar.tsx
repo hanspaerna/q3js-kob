@@ -9,7 +9,7 @@ export function ScoreboardToolbar(props: {
     search?: ReactNode;
 }) {
     return (
-        <div className="border-b border-border/60 p-4">
+        <div className="border-y border-border/60 bg-card p-4">
             <div className="space-y-4">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                     <div className="min-w-0 flex-1 space-y-1">
@@ -20,12 +20,11 @@ export function ScoreboardToolbar(props: {
                         <div className="flex flex-wrap items-center gap-2 xl:justify-end">
                             {props.actions}
                         </div>
-                        <div className="space-y-2 xl:w-full">
-                            <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                                Period Filter
-                            </p>
-                            {props.periodControls}
-                        </div>
+                        {props.periodControls && (
+                            <div className="space-y-2 xl:w-full">
+                                {props.periodControls}
+                            </div>
+                        )}
                     </div>
                 </div>
 

@@ -46,8 +46,9 @@ export function ScoreboardDistributionClient(props: {
             <CardContent className="p-0">
                 <ScoreboardToolbar
                     description={
-                        <>
-                        </>
+                        <div className="space-b-2">
+                            <ScoreboardPeriodToggle period={props.period} onChange={selectPeriod}/>
+                        </div>
                     }
                     actions={
                         <>
@@ -66,7 +67,7 @@ export function ScoreboardDistributionClient(props: {
                             </Button>
                         </>
                     }
-                    periodControls={<ScoreboardPeriodToggle period={props.period} onChange={selectPeriod}/>}
+                    periodControls={null}
                 />
 
                 <KillDistributionChart
