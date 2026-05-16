@@ -187,8 +187,8 @@ export function Header() {
         },
         {
             href: "/scoreboard",
-            label: "Global Scoreboard",
-            mobileLabel: "Global Scoreboard",
+            label: "Scoreboard",
+            mobileLabel: "Scoreboard",
         },
         {
             href: profileHref ?? undefined,

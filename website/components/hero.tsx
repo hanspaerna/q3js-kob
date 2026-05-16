@@ -1,10 +1,17 @@
 import Link from "next/link";
 import {Button} from "@/components/ui/button.tsx";
-import {Checkbox} from "@/components/ui/checkbox.tsx";
-import {Skull, Target, Users} from "lucide-react";
+import {BookOpen, Trophy} from "lucide-react";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
 import {Q3ColoredText} from "@/components/q3-colored-text.tsx";
 import {ScoreboardEntryResponse, ServerResponse} from "@/lib/client";
+import {
+    Dialog,
+    DialogContent,
+    DialogTrigger,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog.tsx";
 
 
 function formatCount(count: number, singular: string, plural = `${singular}s`) {
@@ -41,36 +48,52 @@ export function Hero(props: {
                         </i>
                     </div>
 
-                    <div className="mt-6 mx-auto grid max-w-md grid-cols-2 gap-3">
+                    <div className="mt-6 mx-auto flex max-w-md flex-col gap-3">
+                        <div className="grid grid-cols-2 gap-3">
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="secondary" size="lg" className="w-full">
+                                        <BookOpen className="h-4 w-4 mr-2" />
+                                        Guide
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-lg p-8">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-xl">Quick Guide</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="space-y-4 text-base py-4">
+                                        <p>
+                                            Press <strong>Shift+F</strong> in-game to enable fullscreen mode.
+                                        </p>
+                                        <p>
+                                            Press <strong>H</strong> in-game to shout after killing (or being killed by) someone.
+                                        </p>
+                                        <p>
+                                            Press <strong>C</strong> to crouch.
+                                        </p>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                            <Button variant="secondary" size="lg" className="w-full" asChild>
+                                <Link href="/scoreboard">
+                                    <Trophy className="h-4 w-4 mr-2" />
+                                    Scoreboard
+                                </Link>
+                            </Button>
+                        </div>
                         {props.firstServer ? (
-                            <JoinServerButton server={props.firstServer} ctaLabel={"Play"}/>
+                            <JoinServerButton server={props.firstServer} ctaLabel={"Play"} className="w-full" />
                         ) : (
                             <Button size="lg" className="w-full" asChild>
                                 <Link href="#server-browser">Play</Link>
                             </Button>
                         )}
-                        <Button variant="secondary" size="lg" className="w-full" asChild>
-                            <Link href="/scoreboard">Scoreboard</Link>
-                        </Button>
-                    </div>
-
-                    <div className="mt-8 flex flex-col items-center gap-3 text-center">
-                        <p>
-                            Press <strong>Shift+F</strong> in-game to enable fullscreen mode.
-                        </p>
-                        <p>
-                            Press <strong>H</strong> in-game to shout after killing (or being killed by) someone.
-                        </p>
-                        <p>
-                            Press <strong>C</strong> to crouch.
-                        </p>
                     </div>
 
                     <div className="mt-8 grid gap-3 text-left md:grid-cols-3">
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
                             <div
                                 className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                                <Users className="h-4 w-4 text-primary"/>
                                 Players Online
                             </div>
                             <div className="mt-2 text-2xl font-bold leading-none text-foreground">
@@ -81,7 +104,6 @@ export function Hero(props: {
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
                             <div
                                 className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                                <Target className="h-4 w-4 text-primary"/>
                                 Most Frags Last 24 Hours
                             </div>
                             <div className="mt-2 text-xl font-bold leading-none text-foreground">
@@ -101,7 +123,6 @@ export function Hero(props: {
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
                             <div
                                 className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                                <Skull className="h-4 w-4 text-primary"/>
                                 Total Frags Ever
                             </div>
                             <div className="mt-2 text-2xl font-bold leading-none text-foreground">

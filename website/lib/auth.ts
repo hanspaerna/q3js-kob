@@ -43,23 +43,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.groups = (user as any).groups;
                 token.accessToken = account.access_token;
                 token.refreshToken = account.refresh_token;
-                token.expiresAt = account.expires_at;
+                // Use expires_at if available, otherwise calculate from expires_in
+                token.expiresAt = account.expires_at ??
+                    (account.expires_in ? Math.floor(Date.now() / 1000) + account.expires_in : undefined);
                 return token;
             }
 
             // Return token if not expired
             const now = Date.now();
-            const expiresAtMs = (token.expiresAt as number) * 1000;
-            if (now < expiresAtMs) {
+            const expiresAt = token.expiresAt as number | undefined;
+            if (expiresAt && now < expiresAt * 1000) {
                 return token;
             }
 
             // Refresh the token
             console.log("[AUTH] Token refresh triggered", {
-                now: new Date(now).toISOString(),
-                expiresAt: token.expiresAt,
-                expiresAtDate: new Date(expiresAtMs).toISOString(),
-                diff: (expiresAtMs - now) / 1000,
+                expiresAt,
             });
             try {
                 const response = await fetch(`${process.env.AUTH_ISSUER}/api/oidc/token`, {

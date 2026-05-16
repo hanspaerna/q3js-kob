@@ -1,7 +1,6 @@
 "use client";
 
 import {Button} from "@/components/ui/button.tsx";
-import {Dice6Icon, Zap} from "lucide-react";
 import {
     Dialog,
     DialogContent,
@@ -16,7 +15,6 @@ import {Textarea} from "@/components/ui/textarea.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useLocalStorage} from "@/hooks/use-local-storage.ts";
 import {ServerResponse} from "@/lib/client";
-import {useState} from "react";
 
 export function JoinServerButton(props: {
     server: ServerResponse;
@@ -61,7 +59,6 @@ export function JoinServerButton(props: {
                         props.className ?? ""
                     }`.trim()}
                 >
-                    <Zap className="h-4 w-4 mr-2"/>
                     {ctaLabel}
                 </Button>
             </DialogTrigger>

@@ -103,11 +103,6 @@ export function ScoreboardClient(props: {
                                         ? "0 players ranked"
                                         : `Showing ${startRank}-${endRank} of ${props.scoreboard.totalEntries} players ranked`)}
                             </p>
-                            <p className="text-xs text-muted-foreground">
-                                {hasSearch
-                                    ? `${formatKills(props.scoreboard.totalKills)} ${periodLabel.toLowerCase()} frags from matched players.`
-                                    : `${formatKills(props.scoreboard.totalKills)} total ${periodLabel.toLowerCase()} frags across reported servers.`}
-                            </p>
                         </>
                     }
                     actions={

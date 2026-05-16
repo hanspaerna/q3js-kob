@@ -7,7 +7,7 @@ function ScoreboardPageSkeleton() {
         <main className="container mx-auto px-4 py-12 md:py-16">
             <section className="mx-auto max-w-5xl space-y-6">
                 <div className="space-y-2">
-                    <h1 className="text-4xl font-bold tracking-tight">Global Scoreboard</h1>
+                    <h1 className="text-4xl font-bold tracking-tight">Scoreboard</h1>
                 </div>
 
                 <Card className="border-border/60 bg-card/60">
