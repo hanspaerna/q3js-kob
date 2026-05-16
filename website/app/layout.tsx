@@ -10,8 +10,6 @@ import {SessionRefetchOnFocus} from "@/components/session-refetch-on-focus";
 import {ToastProvider} from "@/components/toast";
 import type { Metadata } from "next";
 import { env } from "@/env";
-import { auth } from "@/lib/auth";
-
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
 export const revalidate = 0;
@@ -28,12 +26,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
                                        children,
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const session = await auth();
     return (
         <html lang="en-US">
             <head>
@@ -46,7 +43,7 @@ export default async function RootLayout({
                 `}} />
             </head>
             <body className="antialiased">
-                <SessionProvider session={session}>
+                <SessionProvider>
                     <SessionRefetchOnNavigate />
                     <SessionRefetchOnFocus />
                     <SessionExpiredOverlay />

@@ -37,15 +37,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             const groups = ((user as any).groups as string[]) ?? [];
             return groups.some((g) => ALLOWED_GROUPS.includes(g));
         },
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account, trigger }) {
+            const incomingRefreshToken = token.refreshToken as string | undefined;
+            console.log("[AUTH] JWT callback", {
+                trigger,
+                hasAccount: !!account,
+                hasUser: !!user,
+                hasError: !!token.error,
+                expiresAt: token.expiresAt,
+                incomingRefreshToken: incomingRefreshToken ? `${incomingRefreshToken.slice(0, 10)}...${incomingRefreshToken.slice(-10)}` : 'none',
+            });
+
             // Initial sign in
             if (account && user) {
                 token.groups = (user as any).groups;
                 token.accessToken = account.access_token;
                 token.refreshToken = account.refresh_token;
-                // Use expires_at if available, otherwise calculate from expires_in
                 token.expiresAt = account.expires_at ??
                     (account.expires_in ? Math.floor(Date.now() / 1000) + account.expires_in : undefined);
+                return token;
+            }
+
+            // Skip refresh if already in error state
+            if (token.error) {
                 return token;
             }
 
@@ -57,8 +71,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
 
             // Refresh the token
+            const refreshToken = token.refreshToken as string | undefined;
+            const requestId = Math.random().toString(36).slice(2, 8);
             console.log("[AUTH] Token refresh triggered", {
+                requestId,
+                timestamp: new Date().toISOString(),
                 expiresAt,
+                hasRefreshToken: !!refreshToken,
+                refreshTokenPreview: refreshToken ? `${refreshToken.slice(0, 10)}...${refreshToken.slice(-10)}` : 'none',
             });
             try {
                 const response = await fetch(`${process.env.AUTH_ISSUER}/api/oidc/token`, {
@@ -76,15 +96,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 if (!response.ok) {
                     console.log("[AUTH] Token refresh failed", {
+                        requestId,
                         status: response.status,
                         error: tokens,
                     });
                     throw new Error("Token refresh failed");
                 }
 
+                const newRefreshToken = tokens.refresh_token ?? refreshToken;
                 console.log("[AUTH] Token refresh succeeded", {
+                    requestId,
                     newExpiresIn: tokens.expires_in,
                     newExpiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
+                    hasNewRefreshToken: !!tokens.refresh_token,
+                    newRefreshTokenPreview: newRefreshToken ? `${newRefreshToken.slice(0, 10)}...${newRefreshToken.slice(-10)}` : 'none',
                 });
 
                 return {
@@ -94,9 +119,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     expiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
                 };
             } catch (error) {
-                console.log("[AUTH] Token refresh error", { error });
-                // Clear sensitive data - user must re-login
+                console.log("[AUTH] Token refresh error", { requestId, error });
+                // Mark error but preserve token data to avoid cascading failures
+                // User will see session expired overlay and need to re-login
                 return {
+                    ...token,
                     error: "RefreshTokenError",
                 };
             }
