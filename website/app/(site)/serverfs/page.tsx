@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Trash2, Upload, FolderOpen, File, AlertTriangle, X } from 'lucide-react';
+import { Trash2, Upload, FolderOpen, File, AlertTriangle, X, Download } from 'lucide-react';
 import s from './admin.module.css';
 import { Button } from '@/components/ui/button';
 import { ADMIN_UPLOAD_LIMIT_MB } from '@/lib/constants';
@@ -17,6 +17,7 @@ export default function AdminPage() {
   const [confirmFile, setConfirmFile] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadType, setUploadType] = useState<'skin' | 'map'>('skin');
 
   const modelFiles = files.filter(f => f.name.startsWith('model-'));
   const mapFiles = files.filter(f => !f.name.startsWith('model-'));
@@ -61,8 +62,15 @@ export default function AdminPage() {
     setUploading(true);
     setUploadProgress(0);
 
+    // Add "model-" prefix for skins if not already present
+    let uploadFile: File = file;
+    if (uploadType === 'skin' && !file.name.startsWith('model-')) {
+      const newName = `model-${file.name}`;
+      uploadFile = new globalThis.File([file], newName, { type: file.type });
+    }
+
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', uploadFile);
 
     await new Promise<void>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -128,8 +136,24 @@ export default function AdminPage() {
         {error && <p className={s.error}>{error}</p>}
 
         <div>
-          <p><small>NB! All custom model filenames must match the format "model-$NAME.pk3".</small></p>
           <p><small>Max file size: {ADMIN_UPLOAD_LIMIT_MB} MB.</small></p>
+        </div>
+
+        <div className={s.uploadTypeSwitch}>
+          <button
+            type="button"
+            className={`${s.uploadTypeTab} ${uploadType === 'skin' ? s.active : ''}`}
+            onClick={() => setUploadType('skin')}
+          >
+            Skin
+          </button>
+          <button
+            type="button"
+            className={`${s.uploadTypeTab} ${uploadType === 'map' ? s.active : ''}`}
+            onClick={() => setUploadType('map')}
+          >
+            Map
+          </button>
         </div>
 
         <label className={`${s.uploadLabel} ${uploading ? s.disabled : ''}`}>
@@ -160,6 +184,9 @@ export default function AdminPage() {
                       </div>
                       <div className={s.fileItemMeta}>
                         <span className={s.fileSize}>{formatBytes(f.size)}</span>
+                        <a href={`/api/baseq3/${f.name}`} download className={s.btnIcon}>
+                          <Download size={15} />
+                        </a>
                         <button className={s.btnIcon} onClick={() => setConfirmFile(f.name)}>
                           <Trash2 size={15} />
                         </button>
@@ -183,6 +210,9 @@ export default function AdminPage() {
                       </div>
                       <div className={s.fileItemMeta}>
                         <span className={s.fileSize}>{formatBytes(f.size)}</span>
+                        <a href={`/api/baseq3/${f.name}`} download className={s.btnIcon}>
+                          <Download size={15} />
+                        </a>
                         <button className={s.btnIcon} onClick={() => setConfirmFile(f.name)}>
                           <Trash2 size={15} />
                         </button>
