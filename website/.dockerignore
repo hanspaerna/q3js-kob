@@ -9,3 +9,5 @@ README.md
 .idea
 .env*
 !.env.example
+public/baseq3
+public/cpma

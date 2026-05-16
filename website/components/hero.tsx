@@ -63,13 +63,22 @@ export function Hero(props: {
                                     </DialogHeader>
                                     <div className="space-y-4 text-base py-4">
                                         <p>
-                                            Press <strong>Shift+F</strong> in-game to enable fullscreen mode.
+                                            Use <strong>F1</strong> instead of Esc to open game menu while staying in fullscreen mode.
+                                        </p>
+                                        <p>
+                                            Press <strong>F2</strong> to open an in-game server overlay (useful for admins).
                                         </p>
                                         <p>
                                             Press <strong>H</strong> in-game to shout after killing (or being killed by) someone.
                                         </p>
                                         <p>
                                             Press <strong>C</strong> to crouch.
+                                        </p>
+                                        <p>
+                                            Feel free to update any key bindings or client settings in the custom config editor before joining the game.
+                                        </p>
+                                        <p>
+                                            You can visit Storage page to manage your local client installation.
                                         </p>
                                     </div>
                                 </DialogContent>

@@ -207,16 +207,34 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         // since ioquake3 won't re-request it either, we do it ourselves
         const handleClick = () => {
             if (showServerOverlay) return; // Don't capture while overlay is open
-            if (document.pointerLockElement !== canvas) {
+
+            // If not fullscreen, request fullscreen first (pointer lock will be requested after)
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {
+                    // Fullscreen failed, just request pointer lock
+                    if (document.pointerLockElement !== canvas) {
+                        canvas.requestPointerLock({ unadjustedMovement: true });
+                    }
+                });
+            } else if (document.pointerLockElement !== canvas) {
+                canvas.requestPointerLock({ unadjustedMovement: true });
+            }
+        };
+
+        // Force pointer lock after fullscreen is activated
+        const handleFullscreenChange = () => {
+            if (document.fullscreenElement) {
                 canvas.requestPointerLock({ unadjustedMovement: true });
             }
         };
 
         canvas.addEventListener('click', handleClick);
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
 
         return () => {
             document.exitPointerLock = originalExit;
             canvas.removeEventListener('click', handleClick);
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
         };
     }, [showServerOverlay]);
 
