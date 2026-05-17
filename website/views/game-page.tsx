@@ -319,6 +319,11 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
     return (
         <main ref={gameShellRef} className="relative isolate h-dvh min-h-dvh w-screen overflow-hidden bg-black">
             <canvas id="canvas" className="absolute inset-0 z-0 h-full w-full"/>
+            {prog.isDemo && (
+                <div className="absolute top-4 right-4 z-10 bg-red-600 px-2 py-1 text-xs font-bold text-white">
+                    Q3A DEMO. SOME TEXTURES ARE MISSING, ALL PLAYERS HAVE THE SAME MODEL. PLEASE BUY THE FULL GAME.
+                </div>
+            )}
             {prog.stage !== "ready" && (
                 <Card
                     className="absolute bottom-4 left-4 right-4 z-10 border border-border bg-background/80 p-4 backdrop-blur">

@@ -8,6 +8,7 @@ export type Prog = {
     stage: LoadStage;
     etaSeconds?: number;
     error?: string;
+    isDemo?: boolean;
 };
 
 export const PERSIST_ROOT = "/persist";

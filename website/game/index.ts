@@ -250,6 +250,8 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
 
     console.log("generatedArguments: " + generatedArguments.trim().split(/\s+/));
 
+    let isDemo = false;
+
     const runtimePromise = ioquake3({
         websocket: {
             url: `${getWsProtocol()}//${host}:${proxyPort}`,
@@ -258,7 +260,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
         canvas,
         arguments: generatedArguments.trim().split(/\s+/),
         onRuntimeInitialized: () => {
-            rafUpdate({received: 0, total: 0, pct: 100, current: "ready", stage: "ready"});
+            rafUpdate({received: 0, total: 0, pct: 100, current: "ready", stage: "ready", isDemo});
         },
         locateFile: (path: string) => {
             if (path.endsWith(".wasm")) return "/ioquake3.wasm";
@@ -377,7 +379,7 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                                     pendingEntries.splice(pak0Index, 1);
                                 }
                             } else if (onPak0DownloadStart) {
-                                // pak0.pk3 is available, but give user option to use their own
+                                // pak0.pk3 is available (demo), but give user option to use their own
                                 pak0AbortController = new AbortController();
                                 onPak0DownloadStart(() => {
                                     pak0Aborted = true;
@@ -491,7 +493,33 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         }
                     }
 
-                    console.log('Final autoexec_binds.cfg content:', bindsConfigLines.join('\n'));
+                    // Check if user has demo pak0.pk3 (smaller than 400MB)
+                    try {
+                        const pak0Stat = module.FS.stat('/baseq3/pak0.pk3');
+                        const pak0Size = pak0Stat?.size ?? 0;
+                        const pak0SizeMB = pak0Size / (1024 * 1024);
+                        console.log(`pak0.pk3 size: ${pak0SizeMB.toFixed(2)} MB`);
+                        isDemo = pak0Size > 0 && pak0SizeMB < 400;
+                    } catch {
+                        // pak0.pk3 not found or can't stat
+                    }
+
+                    // If demo pak0.pk3, add exec for demo config and write the demo config file
+                    if (isDemo) {
+                        console.log('Demo pak0.pk3 detected, applying demo-specific config');
+                        bindsConfigLines.push('');
+                        bindsConfigLines.push('exec autoexec_demo.cfg');
+
+                        // without forcing all players to use one of the models available in the demo, most of the games will crash on join
+                        const demoConfigLines = [
+                            'set model "sarge/corp"',
+                            'set cg_enemymodel "sarge/corp"',
+                            'set cg_enemycolors "0333"',
+                            'set cg_forcemodel 1',
+                            'set cg_forcecolors 1',
+                        ];
+                        module.FS.writeFile(`/${fs_game}/autoexec_demo.cfg`, demoConfigLines.join('\n'));
+                    }
 
                     module.FS.writeFile(`/${fs_game}/autoexec_binds.cfg`, bindsConfigLines.join('\n'));
 
@@ -503,7 +531,8 @@ export default async function startGame({host, proxyPort, name, rafUpdate, fsGam
                         total: totalBytes,
                         pct: 100,
                         current: "Launching engine",
-                        stage: "launching"
+                        stage: "launching",
+                        isDemo
                     });
                 } finally {
                     if (!hasError) {
