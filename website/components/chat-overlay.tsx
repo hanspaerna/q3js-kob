@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageSquare, X, Send } from "lucide-react";
 import { Q3ColoredText } from "@/components/q3-colored-text";
+import Link from "next/link";
 
 interface ChatMessage {
     timestamp: string;
@@ -155,10 +156,20 @@ function ChatOverlay({ serverHost, serverPort, onClose }: ChatOverlayProps) {
                             return (
                                 <div key={index} className="break-words">
                                     <span className="text-muted-foreground">
-                                        {new Date(msg.timestamp).toLocaleTimeString()}
+                                        {new Date(msg.timestamp).toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).replace(/\//g, ".")}{" "}
+                                        {new Date(msg.timestamp).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })}
                                     </span>{" "}
                                     <span className="font-semibold">
-                                        <Q3ColoredText text={player} />
+                                        {player ? (
+                                            <Link
+                                                href={`/players/${encodeURIComponent(player)}`}
+                                                className="hover:underline"
+                                            >
+                                                <Q3ColoredText text={player} />
+                                            </Link>
+                                        ) : (
+                                            <Q3ColoredText text="Console" />
+                                        )}
                                     </span>
                                     <span className="text-muted-foreground">: </span>
                                     <span>{message}</span>
