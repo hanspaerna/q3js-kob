@@ -4,6 +4,7 @@ import {Activity, Globe, Lock, Map, Server, Users} from "lucide-react";
 import {Badge} from "@/components/ui/badge.tsx";
 import {getPercentage, getPingColor} from "@/lib/utils.ts";
 import {JoinServerButton} from "@/components/join-server-button.tsx";
+import {ChatButton} from "@/components/chat-overlay.tsx";
 import {PlayerList} from "@/components/player-list.tsx";
 import {ServerAdminControls} from "@/components/server-admin-controls.tsx";
 import {MapQueue} from "@/components/map-queue.tsx";
@@ -68,10 +69,17 @@ export function ServerCard(props: {
                             </div>
 
                             {!props.hideJoinButton && (
-                                <JoinServerButton
-                                    server={props.server}
-                                    className="sm:self-start"
-                                />
+                                <div className="flex items-center gap-2 sm:self-start">
+                                    {props.server.host && props.server.targetPort && (
+                                        <ChatButton
+                                            serverHost={props.server.host}
+                                            serverPort={props.server.targetPort}
+                                        />
+                                    )}
+                                    <JoinServerButton
+                                        server={props.server}
+                                    />
+                                </div>
                             )}
                         </div>
 

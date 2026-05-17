@@ -7,6 +7,9 @@ const readline = require('readline');
 const { env } = require('./env');
 const LogParser = require('./logParser');
 const EventBatcher = require('./eventBatcher');
+const ChatHandler = require('./chatHandler');
+
+const chatHandler = new ChatHandler();
 
 const MASTER_SERVER_BASE = env.MASTER_SERVER_BASE;
 const SECONDARY_MASTER_SERVER_BASE = env.SECONDARY_MASTER_SERVER_BASE;
@@ -196,6 +199,13 @@ const httpServer = http.createServer(async (req, res) => {
         return;
     }
 
+    if (req.method === 'GET' && path.startsWith('/chat')) {
+        const url = new URL(req.url, `http://${req.headers.host}`);
+        const limit = 100;
+        sendJson(res, 200, chatHandler.getHistory(limit));
+        return;
+    }
+
     if (req.method === 'GET' && path === '/maplist') {
         try {
             const serverInfo = await queryServerStatus();
@@ -237,17 +247,37 @@ const httpServer = http.createServer(async (req, res) => {
     sendJson(res, 404, { error: 'Not found' });
 });
 
-const wss = new WebSocket.Server({
-    server: httpServer,
-    perMessageDeflate: false,
+// WebSocket server for game UDP proxy
+const wssGame = new WebSocket.Server({ noServer: true, perMessageDeflate: false });
+
+// WebSocket server for chat
+const wssChat = new WebSocket.Server({ noServer: true, perMessageDeflate: false });
+
+httpServer.on('upgrade', (req, socket, head) => {
+    const pathname = req.url || '/';
+
+    if (pathname === '/chat' || pathname.startsWith('/chat?')) {
+        wssChat.handleUpgrade(req, socket, head, (ws) => {
+            wssChat.emit('connection', ws, req);
+        });
+    } else {
+        wssGame.handleUpgrade(req, socket, head, (ws) => {
+            wssGame.emit('connection', ws, req);
+        });
+    }
 });
 
 httpServer.listen(PROXY_PORT, () => {
     console.log(`WS<->UDP proxy on ws://0.0.0.0:${PROXY_PORT}/`);
+    console.log(`Chat WebSocket on ws://0.0.0.0:${PROXY_PORT}/chat`);
     console.log(`Default target: ${TARGET_HOST}:${TARGET_PORT}`);
 });
 
-wss.on('connection', ws => {
+wssChat.on('connection', (ws) => {
+    chatHandler.handleConnection(ws);
+});
+
+wssGame.on('connection', ws => {
     const udp = dgram.createSocket('udp4');
     udp.connect(TARGET_PORT, TARGET_HOST);
 
@@ -354,6 +384,9 @@ function startServerWithLogParsing() {
         // Echo server output for debugging
         console.log(`[SERVER] ${line}`);
 
+        // Process chat messages
+        chatHandler.processLine(line);
+
         if (logParser) {
             // Try to extract current map from server output
             const mapName = logParser.extractMapName(line);
@@ -379,6 +412,9 @@ function startServerWithLogParsing() {
     // Parse log lines from stderr (some messages might go here)
     stderrReader.on('line', (line) => {
         console.log(`[SERVER:ERR] ${line}`);
+
+        // Process chat messages
+        chatHandler.processLine(line);
 
         // Also check stderr for map, gametype, and events
         if (logParser) {
