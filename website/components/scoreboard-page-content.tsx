@@ -1,11 +1,13 @@
 import ScoreboardPage from "@/views/scoreboard-page";
-import {getInitialScoreboard} from "@/lib/initial-data";
+import {getInitialScoreboard, getInitialKdScoreboard} from "@/lib/initial-data";
 import {
     DEFAULT_SCOREBOARD_PAGE,
     DEFAULT_SCOREBOARD_PERIOD,
+    DEFAULT_SCOREBOARD_MODE,
     parseScoreboardPage,
     parseScoreboardPeriod,
     parseScoreboardSearch,
+    parseScoreboardMode,
     SCOREBOARD_PAGE_SIZE,
 } from "@/lib/scoreboard";
 
@@ -16,7 +18,11 @@ export async function ScoreboardPageContent(props: {searchParams: ScoreboardSear
     const period = parseScoreboardPeriod(searchParams.period, DEFAULT_SCOREBOARD_PERIOD);
     const page = parseScoreboardPage(searchParams.page, DEFAULT_SCOREBOARD_PAGE);
     const search = parseScoreboardSearch(searchParams.search);
-    const scoreboard = await getInitialScoreboard(period, {page, pageSize: SCOREBOARD_PAGE_SIZE, search});
+    const mode = parseScoreboardMode(searchParams.mode, DEFAULT_SCOREBOARD_MODE);
 
-    return <ScoreboardPage scoreboard={scoreboard} search={search}/>;
+    const scoreboard = mode === "kd"
+        ? await getInitialKdScoreboard(period, {page, pageSize: SCOREBOARD_PAGE_SIZE, search})
+        : await getInitialScoreboard(period, {page, pageSize: SCOREBOARD_PAGE_SIZE, search});
+
+    return <ScoreboardPage scoreboard={scoreboard} search={search} mode={mode}/>;
 }

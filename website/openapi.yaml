@@ -1,0 +1,698 @@
+---
+openapi: 3.1.0
+components:
+  schemas:
+    CreateEventRequest:
+      type: object
+      properties:
+        event:
+          type: string
+        player:
+          $ref: "#/components/schemas/EventPlayer"
+        killer:
+          $ref: "#/components/schemas/EventPlayer"
+        victim:
+          $ref: "#/components/schemas/EventPlayer"
+        meansOfDeath:
+          type: integer
+          format: int32
+        gameTime:
+          type: integer
+          format: int32
+        serverTime:
+          type: integer
+          format: int32
+        map:
+          type: string
+    EventPlayer:
+      type: object
+      properties:
+        clientNum:
+          type: integer
+          format: int32
+        name:
+          type: string
+    HeartbeatRequest:
+      type: object
+      properties:
+        proxyPort:
+          type: integer
+          format: int32
+        targetHost:
+          type: string
+        targetPort:
+          type: integer
+          format: int32
+        secure:
+          type: boolean
+        location:
+          type: string
+    KdScoreboardEntryResponse:
+      type: object
+      required:
+      - playerName
+      - kills
+      - deaths
+      properties:
+        playerName:
+          type: string
+        kills:
+          type: integer
+          format: int32
+        deaths:
+          type: integer
+          format: int32
+        killDeathRatio:
+          type: number
+          format: double
+        lastOnline:
+          type: string
+    KdScoreboardPageResponse:
+      type: object
+      required:
+      - period
+      - page
+      - pageSize
+      - totalEntries
+      - totalPages
+      - hasPreviousPage
+      - hasNextPage
+      - entries
+      properties:
+        period:
+          $ref: "#/components/schemas/ScoreboardPeriod"
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalEntries:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        hasPreviousPage:
+          type: boolean
+        hasNextPage:
+          type: boolean
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/KdScoreboardEntryResponse"
+    KillDistributionPointResponse:
+      type: object
+      required:
+      - bucketStart
+      - kills
+      properties:
+        bucketStart:
+          type: string
+        kills:
+          type: integer
+          format: int32
+    PlayerFavoriteMapResponse:
+      type: object
+      required:
+      - mapName
+      - kills
+      properties:
+        mapName:
+          type: string
+        kills:
+          type: integer
+          format: int32
+    PlayerFavoriteWeaponResponse:
+      type: object
+      required:
+      - meansOfDeath
+      - weaponName
+      - kills
+      properties:
+        meansOfDeath:
+          type: integer
+          format: int32
+        weaponName:
+          type: string
+        kills:
+          type: integer
+          format: int32
+    PlayerResponse:
+      type: object
+      required:
+      - playerName
+      properties:
+        playerName:
+          type: string
+    PlayerStatsResponse:
+      type: object
+      required:
+      - playerName
+      - period
+      - playtimeSeconds
+      - rank
+      - kills
+      - deaths
+      - killDeathRatio
+      - favoriteMap
+      - favoriteWeapon
+      - weaponBreakdown
+      - topVictims
+      - topNemeses
+      properties:
+        playerName:
+          type: string
+        period:
+          $ref: "#/components/schemas/ScoreboardPeriod"
+        playtimeSeconds:
+          type: integer
+          format: int64
+        lastOnline:
+          type:
+          - string
+          - "null"
+        rank:
+          type:
+          - integer
+          - "null"
+          format: int32
+        kills:
+          type: integer
+          format: int32
+        deaths:
+          type: integer
+          format: int32
+        killDeathRatio:
+          type:
+          - number
+          - "null"
+          format: double
+        favoriteMap:
+          anyOf:
+          - $ref: "#/components/schemas/PlayerFavoriteMapResponse"
+          - type: "null"
+        favoriteWeapon:
+          anyOf:
+          - $ref: "#/components/schemas/PlayerFavoriteWeaponResponse"
+          - type: "null"
+        weaponBreakdown:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerWeaponBreakdownResponse"
+        topVictims:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerVersusStatResponse"
+        topNemeses:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerVersusStatResponse"
+    PlayerVersusStatResponse:
+      type: object
+      required:
+      - playerName
+      - kills
+      properties:
+        playerName:
+          type: string
+        kills:
+          type: integer
+          format: int32
+    PlayerWeaponBreakdownResponse:
+      type: object
+      required:
+      - meansOfDeath
+      - weaponName
+      - kills
+      properties:
+        meansOfDeath:
+          type: integer
+          format: int32
+        weaponName:
+          type: string
+        kills:
+          type: integer
+          format: int32
+    ScoreboardEntryResponse:
+      type: object
+      required:
+      - playerName
+      - kills
+      properties:
+        playerName:
+          type: string
+        kills:
+          type: integer
+          format: int32
+        lastOnline:
+          type: string
+    ScoreboardPageResponse:
+      type: object
+      required:
+      - period
+      - page
+      - pageSize
+      - totalEntries
+      - totalPages
+      - totalKills
+      - hasPreviousPage
+      - hasNextPage
+      - entries
+      properties:
+        period:
+          $ref: "#/components/schemas/ScoreboardPeriod"
+        page:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+        totalEntries:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        totalKills:
+          type: integer
+          format: int32
+        hasPreviousPage:
+          type: boolean
+        hasNextPage:
+          type: boolean
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScoreboardEntryResponse"
+    ScoreboardPeriod:
+      type: string
+      enum:
+      - DAILY
+      - WEEKLY
+      - MONTHLY
+      - ALL_TIME
+    ServerInfoResponse:
+      type: object
+      required:
+      - id
+      - sv_hostname
+      - mapname
+      - g_gametype
+      - fraglimit
+      - timelimit
+      - sv_maxclients
+      - g_needpass
+      - fsGame
+      - capturelimit
+      - version
+      - location
+      - players
+      - ping
+      - host
+      - port
+      - challenge
+      - sv_maxPing
+      - sv_minPing
+      - com_gamename
+      - com_protocol
+      - dmflags
+      - sv_privateClients
+      - sv_minRate
+      - sv_maxRate
+      - sv_dlRate
+      - sv_floodProtect
+      - sv_allowDownload
+      - bot_minplayers
+      - gamename
+      - g_maxGameClients
+      - users
+      - proxyPort
+      - targetPort
+      - scoreRed
+      - scoreBlue
+      - serverGameplay
+      - modeCurrent
+      properties:
+        id:
+          type: string
+        sv_hostname:
+          type: string
+        mapname:
+          type: string
+        g_gametype:
+          type: integer
+          format: int32
+        fraglimit:
+          type: integer
+          format: int32
+        timelimit:
+          type: integer
+          format: int32
+        sv_maxclients:
+          type: integer
+          format: int32
+        g_needpass:
+          type: integer
+          format: int32
+        fsGame:
+          type: string
+        capturelimit:
+          type: integer
+          format: int32
+        version:
+          type: string
+        location:
+          type: string
+        players:
+          type: integer
+          format: int32
+        ping:
+          type: integer
+          format: int32
+        host:
+          type: string
+        port:
+          type: integer
+          format: int32
+        challenge:
+          type: string
+        sv_maxPing:
+          type: integer
+          format: int32
+        sv_minPing:
+          type: integer
+          format: int32
+        com_gamename:
+          type: string
+        com_protocol:
+          type: integer
+          format: int32
+        dmflags:
+          type: integer
+          format: int32
+        sv_privateClients:
+          type: integer
+          format: int32
+        sv_minRate:
+          type: integer
+          format: int32
+        sv_maxRate:
+          type: integer
+          format: int32
+        sv_dlRate:
+          type: integer
+          format: int32
+        sv_floodProtect:
+          type: integer
+          format: int32
+        sv_allowDownload:
+          type: integer
+          format: int32
+        bot_minplayers:
+          type: integer
+          format: int32
+        gamename:
+          type: string
+        g_maxGameClients:
+          type: integer
+          format: int32
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServerUserResponse"
+        proxyPort:
+          type: integer
+          format: int32
+        targetPort:
+          type: integer
+          format: int32
+        scoreRed:
+          type: integer
+          format: int32
+        scoreBlue:
+          type: integer
+          format: int32
+        serverGameplay:
+          type: string
+        modeCurrent:
+          type: string
+    ServerResponse:
+      type: object
+      required:
+      - secure
+      - info
+      properties:
+        host:
+          type: string
+        proxyPort:
+          type: integer
+          format: int32
+        targetPort:
+          type: integer
+          format: int32
+        secure:
+          type: boolean
+        info:
+          $ref: "#/components/schemas/ServerInfoResponse"
+        location:
+          type: string
+    ServerUserResponse:
+      type: object
+      required:
+      - clientId
+      - score
+      - ping
+      - name
+      properties:
+        clientId:
+          type: integer
+          format: int32
+        score:
+          type: integer
+          format: int32
+        ping:
+          type: integer
+          format: int32
+        name:
+          type: string
+paths:
+  /api/events:
+    post:
+      operationId: ingestEvent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventRequest"
+        required: true
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+      summary: Ingest Event
+      tags:
+      - Event Controller
+  /api/players:
+    get:
+      operationId: getAllPlayers
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          format: int32
+      - name: search
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerResponse"
+      summary: Get All Players
+      tags:
+      - Player Controller
+  /api/players/scoreboard:
+    get:
+      operationId: getPlayerScoreboard
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+      - name: period
+        in: query
+        schema:
+          type: string
+      - name: search
+        in: query
+        schema:
+          type: string
+      - name: timeZone
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScoreboardPageResponse"
+      summary: Get Player Scoreboard
+      tags:
+      - Player Controller
+  /api/players/scoreboard/distribution:
+    get:
+      operationId: getPlayerScoreboardDistribution
+      parameters:
+      - name: period
+        in: query
+        schema:
+          type: string
+      - name: timeZone
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KillDistributionPointResponse"
+      summary: Get Player Scoreboard Distribution
+      tags:
+      - Player Controller
+  /api/players/scoreboard/kd:
+    get:
+      operationId: getKdScoreboard
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          format: int32
+      - name: pageSize
+        in: query
+        schema:
+          type: integer
+          format: int32
+      - name: period
+        in: query
+        schema:
+          type: string
+      - name: search
+        in: query
+        schema:
+          type: string
+      - name: timeZone
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KdScoreboardPageResponse"
+      summary: Get Kd Scoreboard
+      tags:
+      - Player Controller
+  /api/players/{playerName}:
+    get:
+      operationId: getPlayerStats
+      parameters:
+      - name: playerName
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: period
+        in: query
+        schema:
+          type: string
+      - name: timeZone
+        in: query
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerStatsResponse"
+      summary: Get Player Stats
+      tags:
+      - Player Controller
+  /api/servers:
+    get:
+      operationId: getAllServers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServerResponse"
+      summary: Get All Servers
+      tags:
+      - Server Controller
+  /api/servers/heartbeat:
+    put:
+      operationId: refreshServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HeartbeatRequest"
+        required: true
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+      summary: Refresh Server
+      tags:
+      - Server Controller
+  /api/servers/{id}/info:
+    get:
+      operationId: getServerInfo
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerInfoResponse"
+      summary: Get Server Info
+      tags:
+      - Server Controller
+info:
+  title: master API
+  version: 1.0-SNAPSHOT

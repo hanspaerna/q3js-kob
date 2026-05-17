@@ -232,6 +232,117 @@ public class EventService {
                 .build();
     }
 
+    public KdScoreboardPageResponse getKdScoreboard(
+            ScoreboardPeriod period,
+            ZoneId timeZone,
+            int page,
+            int pageSize,
+            String search
+    ) {
+        OffsetDateTime now = currentTime();
+        Condition killCondition = killCondition(period, now, timeZone);
+        String normalizedSearch = normalizePlayerSearch(search);
+
+        // Subquery for kills per player
+        Field<Integer> killCount = DSL.count().as("kills");
+        Table<?> killsTable = dsl.select(
+                        EVENTS.KILLER_NAME.as("player_name"),
+                        killCount)
+                .from(EVENTS)
+                .where(killCondition)
+                .groupBy(EVENTS.KILLER_NAME)
+                .asTable("kills_table");
+
+        // Subquery for deaths per player
+        Field<Integer> deathCount = DSL.count().as("deaths");
+        Table<?> deathsTable = dsl.select(
+                        EVENTS.VICTIM_NAME.as("player_name"),
+                        deathCount)
+                .from(EVENTS)
+                .where(killCondition)
+                .groupBy(EVENTS.VICTIM_NAME)
+                .asTable("deaths_table");
+
+        // Join kills and deaths
+        Field<String> killsPlayer = DSL.field(DSL.name("kills_table", "player_name"), String.class);
+        Field<Integer> kills = DSL.field(DSL.name("kills_table", "kills"), Integer.class);
+        Field<String> deathsPlayer = DSL.field(DSL.name("deaths_table", "player_name"), String.class);
+        Field<Integer> deaths = DSL.field(DSL.name("deaths_table", "deaths"), Integer.class);
+
+        // Combined scoreboard with K/D ratio calculation
+        Field<String> playerName = DSL.coalesce(killsPlayer, deathsPlayer).as("player_name");
+        Field<Integer> playerKills = DSL.coalesce(kills, DSL.inline(0)).as("kills");
+        Field<Integer> playerDeaths = DSL.coalesce(deaths, DSL.inline(0)).as("deaths");
+        Field<Double> kdRatio = DSL.case_()
+                .when(DSL.coalesce(deaths, DSL.inline(0)).eq(0), DSL.castNull(Double.class))
+                .otherwise(DSL.round(
+                        DSL.cast(DSL.coalesce(kills, DSL.inline(0)), SQLDataType.DOUBLE)
+                                .div(DSL.cast(deaths, SQLDataType.DOUBLE)),
+                        2))
+                .as("kd_ratio");
+
+        Table<?> kdScoreboard = dsl.select(playerName, playerKills, playerDeaths, kdRatio)
+                .from(killsTable)
+                .fullOuterJoin(deathsTable)
+                .on(killsPlayer.eq(deathsPlayer))
+                .asTable("kd_scoreboard");
+
+        Table<?> lastOnlineByPlayer = lastOnlineByPlayerTable();
+        Field<String> scoreboardPlayer = DSL.field(DSL.name("kd_scoreboard", "player_name"), String.class);
+        Field<Integer> scoreboardKills = DSL.field(DSL.name("kd_scoreboard", "kills"), Integer.class);
+        Field<Integer> scoreboardDeaths = DSL.field(DSL.name("kd_scoreboard", "deaths"), Integer.class);
+        Field<Double> scoreboardKdRatio = DSL.field(DSL.name("kd_scoreboard", "kd_ratio"), Double.class);
+        Field<String> normalizedScoreboardPlayer = normalizedPlayerName(scoreboardPlayer);
+        Field<String> lastOnlinePlayer = DSL.field(DSL.name("last_online_by_player", "player_name"), String.class);
+        Field<OffsetDateTime> lastOnline = DSL.field(DSL.name("last_online_by_player", "last_online"), OffsetDateTime.class);
+
+        Condition scoreboardCondition = !normalizedSearch.isBlank()
+                ? normalizedScoreboardPlayer.contains(normalizedSearch)
+                : DSL.noCondition();
+
+        Integer totalEntriesValue = dsl.selectCount()
+                .from(kdScoreboard)
+                .where(scoreboardCondition)
+                .fetchOne(0, Integer.class);
+
+        int totalEntries = valueOrZero(totalEntriesValue);
+        int totalPages = Math.max(1, (int) Math.ceil(totalEntries / (double) pageSize));
+        int safePage = Math.min(page, totalPages);
+        int offset = (safePage - 1) * pageSize;
+
+        // Sort by K/D ratio descending (nulls last for infinite K/D), then by kills descending
+        List<KdScoreboardEntryResponse> entries = dsl.select(
+                        scoreboardPlayer, scoreboardKills, scoreboardDeaths, scoreboardKdRatio, lastOnline)
+                .from(kdScoreboard)
+                .leftJoin(lastOnlineByPlayer)
+                .on(scoreboardPlayer.eq(lastOnlinePlayer))
+                .where(scoreboardCondition)
+                .orderBy(
+                        scoreboardKdRatio.desc().nullsLast(),
+                        scoreboardKills.desc(),
+                        scoreboardPlayer.asc())
+                .limit(pageSize)
+                .offset(offset)
+                .fetch(record -> KdScoreboardEntryResponse.builder()
+                        .playerName(record.get(scoreboardPlayer))
+                        .kills(record.get(scoreboardKills))
+                        .deaths(record.get(scoreboardDeaths))
+                        .killDeathRatio(record.get(scoreboardKdRatio))
+                        .lastOnline(record.get(lastOnline) != null ? record.get(lastOnline).toString() : null)
+                        .build());
+
+        return KdScoreboardPageResponse.builder()
+                .period(period)
+                .page(safePage)
+                .pageSize(pageSize)
+                .totalEntries(totalEntries)
+                .totalPages(totalPages)
+                .hasPreviousPage(safePage > 1)
+                .hasNextPage(safePage < totalPages)
+                .entries(entries)
+                .build();
+    }
+
     public List<KillDistributionPointResponse> getPlayerScoreboardDistribution(ScoreboardPeriod period, ZoneId timeZone) {
         OffsetDateTime now = currentTime();
         Field<Integer> kills = DSL.count().as("kills");

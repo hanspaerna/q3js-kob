@@ -3,7 +3,7 @@
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
 import { getPlayerStatsResponseTransformer } from './transformers.gen';
-import type { GetAllPlayersData, GetAllPlayersResponses, GetAllServersData, GetAllServersResponses, GetPlayerScoreboardData, GetPlayerScoreboardDistributionData, GetPlayerScoreboardDistributionResponses, GetPlayerScoreboardResponses, GetPlayerStatsData, GetPlayerStatsResponses, GetServerInfoData, GetServerInfoResponses, IngestEventData, IngestEventErrors, IngestEventResponses, RefreshServerData, RefreshServerErrors, RefreshServerResponses } from './types.gen';
+import type { GetAllPlayersData, GetAllPlayersResponses, GetAllServersData, GetAllServersResponses, GetKdScoreboardData, GetKdScoreboardResponses, GetPlayerScoreboardData, GetPlayerScoreboardDistributionData, GetPlayerScoreboardDistributionResponses, GetPlayerScoreboardResponses, GetPlayerStatsData, GetPlayerStatsResponses, GetServerInfoData, GetServerInfoResponses, IngestEventData, IngestEventErrors, IngestEventResponses, RefreshServerData, RefreshServerErrors, RefreshServerResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -45,6 +45,11 @@ export const getPlayerScoreboard = <ThrowOnError extends boolean = false>(option
  * Get Player Scoreboard Distribution
  */
 export const getPlayerScoreboardDistribution = <ThrowOnError extends boolean = false>(options?: Options<GetPlayerScoreboardDistributionData, ThrowOnError>) => (options?.client ?? client).get<GetPlayerScoreboardDistributionResponses, unknown, ThrowOnError>({ url: '/api/players/scoreboard/distribution', ...options });
+
+/**
+ * Get Kd Scoreboard
+ */
+export const getKdScoreboard = <ThrowOnError extends boolean = false>(options?: Options<GetKdScoreboardData, ThrowOnError>) => (options?.client ?? client).get<GetKdScoreboardResponses, unknown, ThrowOnError>({ url: '/api/players/scoreboard/kd', ...options });
 
 /**
  * Get Player Stats

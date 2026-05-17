@@ -71,6 +71,25 @@ public class PlayerController {
     }
 
     @GET
+    @Path("/scoreboard/kd")
+    public KdScoreboardPageResponse getKdScoreboard(
+            @QueryParam("period") String period,
+            @QueryParam("timeZone") String timeZone,
+            @QueryParam("page") Integer page,
+            @QueryParam("pageSize") Integer pageSize,
+            @QueryParam("search") String search
+    ) {
+        ZoneId requestedTimeZone = RequestedTimeZone.fromQueryParam(timeZone);
+        return eventService.getKdScoreboard(
+                ScoreboardPeriod.fromQueryParam(period),
+                requestedTimeZone,
+                validatePage(page),
+                validatePageSize(pageSize),
+                search
+        );
+    }
+
+    @GET
     @Path("/scoreboard/distribution")
     public List<KillDistributionPointResponse> getPlayerScoreboardDistribution(
             @QueryParam("period") String period,

@@ -1,9 +1,11 @@
 import {ScoreboardClient} from "@/components/scoreboard-client";
 import {ScoreboardPageResponse} from "@/lib/client";
+import {KdScoreboardPageResponse, ScoreboardMode} from "@/lib/scoreboard";
 
 export default function ScoreboardPage(props: {
-    scoreboard: ScoreboardPageResponse;
+    scoreboard: ScoreboardPageResponse | KdScoreboardPageResponse;
     search: string;
+    mode: ScoreboardMode;
 }) {
     return (
         <main className="container mx-auto px-4 py-12 md:py-16">
@@ -15,6 +17,7 @@ export default function ScoreboardPage(props: {
                 <ScoreboardClient
                     search={props.search}
                     scoreboard={props.scoreboard}
+                    mode={props.mode}
                 />
             </section>
         </main>

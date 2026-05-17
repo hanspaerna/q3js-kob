@@ -4,11 +4,18 @@ import {Card, CardContent} from "@/components/ui/card.tsx";
 import {Button} from "@/components/ui/button.tsx";
 import Link from "next/link";
 import {
-    SCOREBOARD_PERIOD_LABELS
+    buildScoreboardHref,
+    DEFAULT_SCOREBOARD_PAGE,
+    DEFAULT_SCOREBOARD_MODE,
+    KdScoreboardEntryResponse,
+    KdScoreboardPageResponse,
+    SCOREBOARD_PERIOD_LABELS,
+    ScoreboardMode,
 } from "@/lib/scoreboard.ts";
 import {useState} from "react";
 import {Q3ColoredText} from "@/components/q3-colored-text.tsx";
 import {ScoreboardPeriodToggle} from "@/components/scoreboard-period-toggle.tsx";
+import {ScoreboardModeToggle} from "@/components/scoreboard-mode-toggle.tsx";
 import {ScoreboardPageResponse, ScoreboardPeriod} from "@/lib/client";
 import {formatCompactLastOnline} from "@/lib/last-online";
 
@@ -16,17 +23,34 @@ function formatKills(kills: number) {
     return new Intl.NumberFormat().format(kills);
 }
 
+function formatKdRatio(ratio: number | null | undefined) {
+    if (ratio == null) return "—";
+    return ratio.toFixed(2);
+}
+
 export function ScoreboardPreview(props: {
     scoreboards: Record<ScoreboardPeriod, ScoreboardPageResponse>;
+    kdScoreboards: Record<ScoreboardPeriod, KdScoreboardPageResponse>;
     initialPeriod?: ScoreboardPeriod;
+    initialMode?: ScoreboardMode;
 }) {
-    const initialPeriod = props.initialPeriod ?? "DAILY";
+    const initialPeriod = props.initialPeriod ?? "ALL_TIME";
+    const initialMode = props.initialMode ?? DEFAULT_SCOREBOARD_MODE;
     const [period, setPeriod] = useState<ScoreboardPeriod>(initialPeriod);
-    const topFraggers = props.scoreboards[period]?.entries ?? [];
+    const [mode, setMode] = useState<ScoreboardMode>(initialMode);
+
+    const topFraggers = mode === "kd"
+        ? props.kdScoreboards[period]?.entries ?? []
+        : props.scoreboards[period]?.entries ?? [];
 
     function selectPeriod(nextPeriod: ScoreboardPeriod) {
         if (nextPeriod === period) return;
         setPeriod(nextPeriod);
+    }
+
+    function selectMode(nextMode: ScoreboardMode) {
+        if (nextMode === mode) return;
+        setMode(nextMode);
     }
 
     const periodLabel = SCOREBOARD_PERIOD_LABELS[period].toLowerCase();
@@ -38,9 +62,12 @@ export function ScoreboardPreview(props: {
                     <CardContent className="p-4 md:p-6">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                             <div>
-                                <h2 className="text-2xl font-bold">Top Fraggers</h2>
+                                <h2 className="text-2xl font-bold">
+                                    {mode === "kd" ? "Best K/D Ratios" : "Top Fraggers"}
+                                </h2>
                             </div>
-                            <div className="flex flex-col items-start gap-2 md:items-end">
+                            <div className="flex flex-wrap items-start gap-2 md:items-end">
+                                <ScoreboardModeToggle mode={mode} onChange={selectMode}/>
                                 <ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>
                             </div>
                         </div>
@@ -72,7 +99,9 @@ export function ScoreboardPreview(props: {
                                                 </p>
                                             </div>
                                             <span className="text-right tabular-nums">
-                                                {formatKills(entry.kills)}
+                                                {mode === "kd"
+                                                    ? formatKdRatio((entry as KdScoreboardEntryResponse).killDeathRatio)
+                                                    : formatKills(entry.kills)}
                                             </span>
                                         </div>
                                     ))}
@@ -82,7 +111,7 @@ export function ScoreboardPreview(props: {
 
                         <div className="mt-4 flex justify-start border-t border-border/50 pt-4 md:justify-end">
                             <Button variant="outline" asChild>
-                                <Link href="/scoreboard">
+                                <Link href={buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE, undefined, mode)}>
                                     View full scoreboard
                                 </Link>
                             </Button>

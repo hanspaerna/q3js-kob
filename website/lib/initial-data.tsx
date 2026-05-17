@@ -1,5 +1,8 @@
 import {
-    getPlayerScoreboard, getPlayerScoreboardDistribution,
+    getKdScoreboard,
+    getPlayerScoreboard,
+    getPlayerScoreboardDistribution,
+    KdScoreboardPageResponse,
     KillDistributionPointResponse,
     ScoreboardPageResponse,
     ScoreboardPeriod,
@@ -99,4 +102,48 @@ export async function getInitialKillDistribution(
         throwOnError: true
     })
     return data;
+}
+
+export async function getInitialKdScoreboard(
+    period: ScoreboardPeriod = "DAILY",
+    options: ScoreboardRequestOptions = {},
+): Promise<KdScoreboardPageResponse> {
+    const {page = DEFAULT_SCOREBOARD_PAGE, pageSize = SCOREBOARD_PAGE_SIZE, search} = options;
+    const timeZone = await getRequestTimeZone();
+    const {data} = await getKdScoreboard({
+        query: {
+            period,
+            timeZone,
+            page,
+            pageSize,
+            search,
+        },
+        throwOnError: true,
+    });
+    return data;
+}
+
+export async function getInitialKdScoreboards(
+    periods: readonly ScoreboardPeriod[],
+    options: ScoreboardRequestOptions = {},
+): Promise<Record<ScoreboardPeriod, KdScoreboardPageResponse>> {
+    const {page = DEFAULT_SCOREBOARD_PAGE, pageSize = SCOREBOARD_PAGE_SIZE} = options;
+    const timeZone = await getRequestTimeZone();
+    const entries = await Promise.all(
+        periods.map(async (period) => {
+            const {data} = await getKdScoreboard({
+                query: {
+                    period,
+                    timeZone,
+                    page,
+                    pageSize,
+                },
+                throwOnError: true,
+            });
+
+            return [period, data] as const;
+        }),
+    );
+
+    return Object.fromEntries(entries) as Record<ScoreboardPeriod, KdScoreboardPageResponse>;
 }

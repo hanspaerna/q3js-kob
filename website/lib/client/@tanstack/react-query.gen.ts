@@ -3,8 +3,8 @@
 import { type DefaultError, type InfiniteData, infiniteQueryOptions, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { getAllPlayers, getAllServers, getPlayerScoreboard, getPlayerScoreboardDistribution, getPlayerStats, getServerInfo, ingestEvent, type Options, refreshServer } from '../sdk.gen';
-import type { GetAllPlayersData, GetAllPlayersResponse, GetAllServersData, GetAllServersResponse, GetPlayerScoreboardData, GetPlayerScoreboardDistributionData, GetPlayerScoreboardDistributionResponse, GetPlayerScoreboardResponse, GetPlayerStatsData, GetPlayerStatsResponse, GetServerInfoData, GetServerInfoResponse, IngestEventData, RefreshServerData, RefreshServerResponse } from '../types.gen';
+import { getAllPlayers, getAllServers, getKdScoreboard, getPlayerScoreboard, getPlayerScoreboardDistribution, getPlayerStats, getServerInfo, ingestEvent, type Options, refreshServer } from '../sdk.gen';
+import type { GetAllPlayersData, GetAllPlayersResponse, GetAllServersData, GetAllServersResponse, GetKdScoreboardData, GetKdScoreboardResponse, GetPlayerScoreboardData, GetPlayerScoreboardDistributionData, GetPlayerScoreboardDistributionResponse, GetPlayerScoreboardResponse, GetPlayerStatsData, GetPlayerStatsResponse, GetServerInfoData, GetServerInfoResponse, IngestEventData, RefreshServerData, RefreshServerResponse } from '../types.gen';
 
 /**
  * Ingest Event
@@ -164,6 +164,51 @@ export const getPlayerScoreboardDistributionOptions = (options?: Options<GetPlay
         return data;
     },
     queryKey: getPlayerScoreboardDistributionQueryKey(options)
+});
+
+export const getKdScoreboardQueryKey = (options?: Options<GetKdScoreboardData>) => createQueryKey('getKdScoreboard', options);
+
+/**
+ * Get Kd Scoreboard
+ */
+export const getKdScoreboardOptions = (options?: Options<GetKdScoreboardData>) => queryOptions<GetKdScoreboardResponse, DefaultError, GetKdScoreboardResponse, ReturnType<typeof getKdScoreboardQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getKdScoreboard({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getKdScoreboardQueryKey(options)
+});
+
+export const getKdScoreboardInfiniteQueryKey = (options?: Options<GetKdScoreboardData>): QueryKey<Options<GetKdScoreboardData>> => createQueryKey('getKdScoreboard', options, true);
+
+/**
+ * Get Kd Scoreboard
+ */
+export const getKdScoreboardInfiniteOptions = (options?: Options<GetKdScoreboardData>) => infiniteQueryOptions<GetKdScoreboardResponse, DefaultError, InfiniteData<GetKdScoreboardResponse>, QueryKey<Options<GetKdScoreboardData>>, number | Pick<QueryKey<Options<GetKdScoreboardData>>[0], 'body' | 'headers' | 'path' | 'query'>>(
+// @ts-ignore
+{
+    queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<QueryKey<Options<GetKdScoreboardData>>[0], 'body' | 'headers' | 'path' | 'query'> = typeof pageParam === 'object' ? pageParam : {
+            query: {
+                page: pageParam
+            }
+        };
+        const params = createInfiniteParams(queryKey, page);
+        const { data } = await getKdScoreboard({
+            ...options,
+            ...params,
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getKdScoreboardInfiniteQueryKey(options)
 });
 
 export const getPlayerStatsQueryKey = (options: Options<GetPlayerStatsData>) => createQueryKey('getPlayerStats', options);

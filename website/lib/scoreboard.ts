@@ -1,11 +1,29 @@
-import {ScoreboardEntryResponse, ScoreboardPeriod} from "@/lib/client";
+import {
+    KdScoreboardEntryResponse,
+    KdScoreboardPageResponse,
+    ScoreboardEntryResponse,
+    ScoreboardPeriod,
+} from "@/lib/client";
 import {stripQ3Colors} from "@/lib/utils";
 
+// Re-export types from generated client
+export type {KdScoreboardEntryResponse, KdScoreboardPageResponse};
+
 export const SCOREBOARD_PERIODS = Object.values(ScoreboardPeriod) as ScoreboardPeriod[];
-export const DEFAULT_SCOREBOARD_PERIOD: ScoreboardPeriod = "DAILY";
+export const DEFAULT_SCOREBOARD_PERIOD: ScoreboardPeriod = "ALL_TIME";
 export const DEFAULT_SCOREBOARD_PAGE = 1;
 export const SCOREBOARD_PAGE_SIZE = 25;
 export const SCOREBOARD_PREVIEW_PAGE_SIZE = 5;
+
+// Scoreboard mode: kills or K/D ratio
+export type ScoreboardMode = "kills" | "kd";
+export const SCOREBOARD_MODES: ScoreboardMode[] = ["kd", "kills"];
+export const DEFAULT_SCOREBOARD_MODE: ScoreboardMode = "kd";
+
+export const SCOREBOARD_MODE_LABELS: Record<ScoreboardMode, string> = {
+    kills: "Frags",
+    kd: "K/D Ratio",
+};
 
 export const SCOREBOARD_PERIOD_LABELS: Record<ScoreboardPeriod, string> = {
     DAILY: "Last 24 Hours",
@@ -50,10 +68,24 @@ export function parseScoreboardSearch(value: string | string[] | undefined) {
     return candidate ?? "";
 }
 
+export function parseScoreboardMode(
+    value: string | string[] | undefined,
+    fallback: ScoreboardMode = DEFAULT_SCOREBOARD_MODE,
+): ScoreboardMode {
+    const candidate = firstQueryValue(value);
+
+    if (candidate && SCOREBOARD_MODES.includes(candidate as ScoreboardMode)) {
+        return candidate as ScoreboardMode;
+    }
+
+    return fallback;
+}
+
 export function buildScoreboardHref(
     period: ScoreboardPeriod,
     page: number = DEFAULT_SCOREBOARD_PAGE,
     search?: string,
+    mode: ScoreboardMode = DEFAULT_SCOREBOARD_MODE,
 ) {
     const params = new URLSearchParams({period});
     const normalizedSearch = search?.trim() ?? "";
@@ -64,6 +96,10 @@ export function buildScoreboardHref(
 
     if (normalizedSearch.length > 0) {
         params.set("search", normalizedSearch);
+    }
+
+    if (mode !== DEFAULT_SCOREBOARD_MODE) {
+        params.set("mode", mode);
     }
 
     return `/scoreboard?${params.toString()}`;

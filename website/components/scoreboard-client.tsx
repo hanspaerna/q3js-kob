@@ -8,11 +8,15 @@ import {
     buildScoreboardDistributionHref,
     buildScoreboardHref,
     DEFAULT_SCOREBOARD_PAGE,
+    DEFAULT_SCOREBOARD_MODE,
     SCOREBOARD_PERIOD_LABELS,
+    KdScoreboardPageResponse,
+    ScoreboardMode,
 } from "@/lib/scoreboard.ts";
 import {FormEvent, useTransition} from "react";
 import {Q3ColoredText} from "@/components/q3-colored-text.tsx";
 import {ScoreboardPeriodToggle} from "@/components/scoreboard-period-toggle.tsx";
+import {ScoreboardModeToggle} from "@/components/scoreboard-mode-toggle.tsx";
 import {ScoreboardPageResponse, ScoreboardPeriod} from "@/lib/client";
 import {useRouter} from "next/navigation";
 import {formatCompactLastOnline} from "@/lib/last-online";
@@ -30,11 +34,18 @@ function formatKills(kills: number) {
     return new Intl.NumberFormat().format(kills);
 }
 
+function formatKdRatio(ratio: number | null | undefined) {
+    if (ratio == null) return "—";
+    return ratio.toFixed(2);
+}
+
 export function ScoreboardClient(props: {
     search: string;
-    scoreboard: ScoreboardPageResponse;
+    scoreboard: ScoreboardPageResponse | KdScoreboardPageResponse;
+    mode: ScoreboardMode;
 }) {
     const period = props.scoreboard.period;
+    const mode = props.mode;
     const [isNavigating, startNavigationTransition] = useTransition();
     const [isRefreshing, startRefreshTransition] = useTransition();
     const router = useRouter();
@@ -53,7 +64,14 @@ export function ScoreboardClient(props: {
     function selectPeriod(nextPeriod: ScoreboardPeriod) {
         if (nextPeriod === period) return;
         startNavigationTransition(() => {
-            router.push(buildScoreboardHref(nextPeriod, DEFAULT_SCOREBOARD_PAGE, props.search), {scroll: false});
+            router.push(buildScoreboardHref(nextPeriod, DEFAULT_SCOREBOARD_PAGE, props.search, mode), {scroll: false});
+        });
+    }
+
+    function selectMode(nextMode: ScoreboardMode) {
+        if (nextMode === mode) return;
+        startNavigationTransition(() => {
+            router.push(buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE, props.search, nextMode), {scroll: false});
         });
     }
 
@@ -63,7 +81,7 @@ export function ScoreboardClient(props: {
         }
 
         startNavigationTransition(() => {
-            router.push(buildScoreboardHref(period, nextPage, props.search), {scroll: false});
+            router.push(buildScoreboardHref(period, nextPage, props.search, mode), {scroll: false});
         });
     }
 
@@ -72,7 +90,7 @@ export function ScoreboardClient(props: {
         const formData = new FormData(event.currentTarget);
         const nextSearch = formData.get("search")?.toString() ?? "";
         startNavigationTransition(() => {
-            router.push(buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE, nextSearch), {scroll: false});
+            router.push(buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE, nextSearch, mode), {scroll: false});
         });
     }
 
@@ -82,7 +100,7 @@ export function ScoreboardClient(props: {
         }
 
         startNavigationTransition(() => {
-            router.push(buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE), {scroll: false});
+            router.push(buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE, undefined, mode), {scroll: false});
         });
     }
 
@@ -94,7 +112,8 @@ export function ScoreboardClient(props: {
                 <ScoreboardToolbar
                     description={
                         <>
-                            <div className="mb-2">
+                            <div className="mb-2 flex flex-wrap items-center gap-2">
+                                <ScoreboardModeToggle mode={mode} onChange={selectMode}/>
                                 <ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>
                             </div>
                             <p className="text-sm text-muted-foreground">
@@ -168,7 +187,15 @@ export function ScoreboardClient(props: {
                             <tr className="border-b border-border/60 text-muted-foreground">
                                 <th className="px-4 py-3 text-left font-semibold">Rank</th>
                                 <th className="px-4 py-3 text-left font-semibold">Player</th>
-                                <th className="px-4 py-3 text-right font-semibold">Frags</th>
+                                {mode === "kd" ? (
+                                    <>
+                                        <th className="px-4 py-3 text-right font-semibold">Frags</th>
+                                        <th className="px-4 py-3 text-right font-semibold">Deaths</th>
+                                        <th className="px-4 py-3 text-right font-semibold">K/D</th>
+                                    </>
+                                ) : (
+                                    <th className="px-4 py-3 text-right font-semibold">Frags</th>
+                                )}
                             </tr>
                             </thead>
                             <tbody>
@@ -192,9 +219,23 @@ export function ScoreboardClient(props: {
                                                 </p>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-3 text-right tabular-nums">
-                                            {formatKills(entry.kills)}
-                                        </td>
+                                        {mode === "kd" ? (
+                                            <>
+                                                <td className="px-4 py-3 text-right tabular-nums">
+                                                    {formatKills(entry.kills)}
+                                                </td>
+                                                <td className="px-4 py-3 text-right tabular-nums">
+                                                    {formatKills("deaths" in entry ? entry.deaths : 0)}
+                                                </td>
+                                                <td className="px-4 py-3 text-right tabular-nums font-semibold">
+                                                    {formatKdRatio("killDeathRatio" in entry ? entry.killDeathRatio : null)}
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <td className="px-4 py-3 text-right tabular-nums">
+                                                {formatKills(entry.kills)}
+                                            </td>
+                                        )}
                                     </tr>
                                 );
                             })}
