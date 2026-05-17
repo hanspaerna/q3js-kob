@@ -1,12 +1,24 @@
+"use client";
+
 import {ScoreboardClient} from "@/components/scoreboard-client";
 import {ScoreboardPageResponse} from "@/lib/client";
 import {KdScoreboardPageResponse, ScoreboardMode} from "@/lib/scoreboard";
+import {useEffect, useRef} from "react";
 
 export default function ScoreboardPage(props: {
     scoreboard: ScoreboardPageResponse | KdScoreboardPageResponse;
     search: string;
     mode: ScoreboardMode;
 }) {
+    const hasScrolledRef = useRef(false);
+
+    useEffect(() => {
+        if (!hasScrolledRef.current) {
+            window.scrollTo(0, 0);
+            hasScrolledRef.current = true;
+        }
+    }, []);
+
     return (
         <main className="container mx-auto px-4 py-12 md:py-16">
             <section className="mx-auto max-w-5xl space-y-6">
