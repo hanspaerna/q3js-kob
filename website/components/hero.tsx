@@ -147,10 +147,10 @@ export function Hero(props: {
                         </div>
                     </div>
 
-                    <div className="mt-8 grid gap-3 text-left md:grid-cols-3">
+                    <div className="mt-8 grid gap-3 text-center md:grid-cols-3">
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
                             <div
-                                className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                                className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                                 Players Online
                             </div>
                             <div className="mt-2 text-2xl font-bold leading-none text-foreground">
@@ -160,7 +160,7 @@ export function Hero(props: {
 
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
                             <div
-                                className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                                className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                                 Most Frags Last 24 Hours
                             </div>
                             <div className="mt-2 text-xl font-bold leading-none text-foreground">
@@ -179,7 +179,7 @@ export function Hero(props: {
 
                         <div className="border border-border/70 bg-card/40 px-4 py-4">
                             <div
-                                className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                                className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                                 Total Frags Ever
                             </div>
                             <div className="mt-2 text-2xl font-bold leading-none text-foreground">

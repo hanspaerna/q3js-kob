@@ -14,7 +14,10 @@ import {useQuery} from "@tanstack/react-query";
 import {getAllServersOptions} from "@/lib/client/@tanstack/react-query.gen";
 import {ServerCard} from "@/components/server-card";
 
-const PAK0_EXPECTED_SHA256 = "7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae";
+const PAK0_ALLOWED_SHA256 = [
+    "7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae", // Full version 1.32c
+    "e77abad2466f45a0a7ea018445528f9b95a0fe7789fa1abc1a7718bbf0754b08", // Demo version
+];
 
 async function sha256(data: ArrayBuffer): Promise<string> {
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -107,8 +110,8 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
         const buffer = await file.arrayBuffer();
 
         const hash = await sha256(buffer);
-        if (hash !== PAK0_EXPECTED_SHA256) {
-            setPak0Error(`Invalid file. Expected SHA256: ${PAK0_EXPECTED_SHA256}, got: ${hash}`);
+        if (!PAK0_ALLOWED_SHA256.includes(hash)) {
+            setPak0Error(`Invalid file. Got SHA256: ${hash}`);
             e.target.value = "";
             return;
         }
@@ -328,9 +331,7 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                     {prog.stage === "needs_pak0" ? (
                         <div className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                To play, please provide your legally acquired <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena.
-                                Only version 1.32c is supported.
-                                SHA256: 7ce8b3910620cd50a09e4f1100f426e8c6180f68895d589f80e6bd95af54bcae
+                                To play, please provide your <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena (full version 1.32c or demo).
                             </p>
                             <label className="flex items-center justify-center gap-2 cursor-pointer rounded-md border border-dashed border-muted-foreground/50 p-4 hover:border-foreground hover:bg-muted/50 transition-colors">
                                 <Upload size={18} />

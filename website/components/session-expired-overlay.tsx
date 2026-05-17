@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -31,6 +31,9 @@ export function SessionExpiredOverlay() {
                             STFU, I'm still fraggin'!
                         </Button>
                     )}
+                    <Button variant="outline" onClick={() => signOut()}>
+                        Log Out
+                    </Button>
                     <Button onClick={() => signIn("authelia")}>
                         Sign In
                     </Button>
