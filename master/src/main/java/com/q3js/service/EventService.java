@@ -296,9 +296,12 @@ public class EventService {
         Field<String> lastOnlinePlayer = DSL.field(DSL.name("last_online_by_player", "player_name"), String.class);
         Field<OffsetDateTime> lastOnline = DSL.field(DSL.name("last_online_by_player", "last_online"), OffsetDateTime.class);
 
-        Condition scoreboardCondition = !normalizedSearch.isBlank()
+        // Minimum 200 kills required for K/D ranking
+        Condition minKillsCondition = scoreboardKills.ge(200);
+        Condition searchCondition = !normalizedSearch.isBlank()
                 ? normalizedScoreboardPlayer.contains(normalizedSearch)
                 : DSL.noCondition();
+        Condition scoreboardCondition = minKillsCondition.and(searchCondition);
 
         Integer totalEntriesValue = dsl.selectCount()
                 .from(kdScoreboard)
