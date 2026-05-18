@@ -32,9 +32,9 @@ const OVERTIMES: { value: number; label: string }[] = [
 const BOT_LEVELS = [1, 2, 3, 4, 5] as const;
 
 const BOT_MODELS = [
-    'anarki', 'angel', 'biker', 'bitterman', 'bones', 'crash', 'doom',
-    'grunt', 'hunter', 'keel', 'klesk', 'lucy', 'major', 'mynx', 'orbb',
-    'ranger', 'razor', 'sarge', 'slash', 'sorlag', 'tankjr', 'uriel', 'visor', 'xaero',
+    'anarki', 'angel', 'biker', 'bitterman', 'bones', 'cadaver', 'crash', 'daemia', 'doom',
+    'gorre', 'grunt', 'hossman', 'hunter', 'keel', 'klesk', 'lucy', 'major', 'mynx', 'orbb',
+    'patriot', 'phobos', 'ranger', 'razor', 'sarge', 'slash', 'sorlag', 'tankjr', 'uriel', 'visor', 'xaero',
 ] as const;
 
 const COOLDOWN_MS = 2000;

@@ -9,7 +9,7 @@ import {useFullscreenOnKey} from "@/hooks/use-fullscreen.ts";
 import startGame from "@/game";
 import {useSearchParams} from "next/navigation";
 import {toInt} from "@/lib/utils.ts";
-import {Upload, X} from "lucide-react";
+import {Upload} from "lucide-react";
 import {useQuery} from "@tanstack/react-query";
 import {getAllServersOptions} from "@/lib/client/@tanstack/react-query.gen";
 import {ServerCard} from "@/components/server-card";
