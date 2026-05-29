@@ -1,17 +1,22 @@
 # Q3JS-KOB (a fork of Q3JS)
 
-This fork has a few differences:
-  - primarily CPMA-oriented
-  - automatic download of custom player models
-  - admin page to upload/delete custom maps and models from/to baseq3 folder on server
-  - uses the official ioq3 engine's repo instead of a fork
-  - player statistics are collected server-side (by proxy) and don't require any modifications of the client
-  - intended for a small private environment
-  - no Google Analytics or SEO
-  - mobile controls support is removed
-  - home page is simplified (no server search)
-  - check of integrity of the client files and removal of those that are no longer on server
-  - usernames are limited to 16 chars according to CPMA requirements and cannot have spaces
+This fork includes many changes and new features:
+  - Server's admin UI that can be opened right in the game by pressing F2!
+  - Integrated in-game chat that streams messages from Q3 server and allows sending them via website
+  - Automatic downloading of custom player models to web clients
+  - Server file manager for uploading player models and maps, if you are authenticated
+  - Local file manager to manually modify the game client's IndexedDB!
+  - OIDC auth for trusted players and admins (two groups: 'quakers' for players, 'admins' or 'quakemanagers' for admins)
+  - Primarily CPMA-oriented
+  - Enforced hassle-free fullscreen mode that eliminates mouse pointer lock issues
+  - Player statistics are collected server-side (by proxy) and don't require any modifications of the client
+  - Best suited for a single server, or multiple that share the same files
+  - No Google Analytics or SEO
+  - Mobile controls support is removed
+  - Home page is simplified (no server search)
+  - Check of integrity of the client files and removal of those that are no longer on server
+  - Usernames are limited to 16 chars according to CPMA requirements and cannot have spaces
+  - I've probably missed something...
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
 traffic through a WebSocket proxy, and keeps server metadata in a Quarkus backend.
