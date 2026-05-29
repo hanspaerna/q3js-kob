@@ -9,6 +9,7 @@ import { useToast, ToastMessage } from '@/components/toast';
 
 type Mode = 'KOB_CPMDM' | 'KOB_CPMTDM' | 'KOB_CPMCTF';
 type Gameplay = 0 | 1 | 2 | 3;
+type HookMode = 0 | 1 | 2;
 
 const MODES: { value: Mode; label: string }[] = [
     { value: 'KOB_CPMDM', label: 'DM' },
@@ -94,6 +95,14 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ host, port, enabled }),
+        }));
+    };
+
+    const sendHook = (value: HookMode) => {
+        withCooldown(() => fetch('/api/rcon/hook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ host, port, value }),
         }));
     };
 
@@ -266,6 +275,36 @@ export function ServerAdminControls({ host, port, fraglimit, timelimit, gametype
                             onClick={() => sendInstagib(false)}
                         >
                             Off
+                        </Button>
+                    </div>
+                    <div className="flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground mr-1">Hook:</span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendHook(0)}
+                        >
+                            Off
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendHook(1)}
+                        >
+                            Noob
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-6 px-2 text-xs"
+                            disabled={cooldown}
+                            onClick={() => sendHook(2)}
+                        >
+                            Pro
                         </Button>
                     </div>
                     <div className="flex items-center gap-1">
