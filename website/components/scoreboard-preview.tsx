@@ -50,6 +50,8 @@ export function ScoreboardPreview(props: {
 
     function selectMode(nextMode: ScoreboardMode) {
         if (nextMode === mode) return;
+        if (nextMode === "kd" && period === "DAILY") setPeriod("ALL_TIME");
+        else if (nextMode === "kills") setPeriod("DAILY");
         setMode(nextMode);
     }
 
@@ -68,7 +70,7 @@ export function ScoreboardPreview(props: {
                             </div>
                             <div className="flex flex-wrap items-start gap-2 md:items-end">
                                 <ScoreboardModeToggle mode={mode} onChange={selectMode}/>
-                                <ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>
+                                <ScoreboardPeriodToggle period={period} onChange={selectPeriod} mode={mode}/>
                             </div>
                         </div>
 

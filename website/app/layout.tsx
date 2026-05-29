@@ -1,5 +1,13 @@
 import "./globals.css";
 import type {Viewport} from "next";
+import {Rajdhani} from "next/font/google";
+
+const rajdhani = Rajdhani({
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700"],
+    variable: "--font-rajdhani",
+    display: "swap",
+});
 import QueryClientProviderWrapper from "@/lib/query-client-provider-wrapper.tsx";
 import {TimeZoneSync} from "@/components/time-zone-sync";
 import {ServiceWorkerRegistration} from "@/components/service-worker-registration.tsx";
@@ -32,7 +40,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en-US">
+        <html lang="en-US" className={rajdhani.variable}>
             <head>
                 <script dangerouslySetInnerHTML={{ __html: `
                     window.__ENV__ = {
@@ -51,7 +59,7 @@ export default function RootLayout({
                         <QueryClientProviderWrapper>
                             <ServiceWorkerRegistration/>
                             <TimeZoneSync/>
-                            <div className="font-mono">{children}</div>
+                            <div>{children}</div>
                         </QueryClientProviderWrapper>
                     </ToastProvider>
                 </SessionProvider>

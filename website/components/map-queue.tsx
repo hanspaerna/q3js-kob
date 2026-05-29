@@ -110,7 +110,7 @@ export function MapQueue({ host, port, currentMap, gamemode }: Props) {
                     <div
                         key={`${map}-${index}`}
                         ref={isCurrentMap ? currentMapRef : null}
-                        className={`text-xs font-mono px-2 py-1 rounded flex items-center justify-between ${
+                        className={`text-xs px-2 py-1 rounded flex items-center justify-between ${
                             isCurrentMap
                                 ? 'bg-primary/20 text-primary font-semibold'
                                 : 'text-muted-foreground'

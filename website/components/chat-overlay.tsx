@@ -150,7 +150,7 @@ function ChatOverlay({ serverHost, serverPort, onClose }: ChatOverlayProps) {
                     {messages.length === 0 && !error && (
                         <p className="text-sm text-muted-foreground">No messages yet.</p>
                     )}
-                    <div className="space-y-2 font-mono text-sm">
+                    <div className="space-y-2 text-sm">
                         {messages.map((msg, index) => {
                             const { player, message } = parseMessage(msg.text);
                             return (

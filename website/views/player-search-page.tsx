@@ -80,7 +80,7 @@ export default function PlayerSearchPage(props: {
                                 <Card key={player.playerName} className="border-border/60 bg-card/60">
                                     <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                         <div className="min-w-0 space-y-1">
-                                            <CardTitle className="truncate text-2xl">
+                                            <CardTitle className="truncate text-2xl normal-case">
                                                 <Q3ColoredText text={player.playerName}/>
                                             </CardTitle>
                                             {showPlainName && (

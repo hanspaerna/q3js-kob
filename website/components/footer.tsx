@@ -23,7 +23,7 @@ export function Footer() {
             </p>
 
             <div className="mt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-                <p className="font-mono">Built by <a href="https://github.com/lklacar/" target="_blank"><span className="text-red-500">L</span><span
+                <p>Built by <a href="https://github.com/lklacar/" target="_blank"><span className="text-red-500">L</span><span
                     className="text-green-500">K</span></a>. Customized by Sul-Matuul.</p>
             </div>
         </div>

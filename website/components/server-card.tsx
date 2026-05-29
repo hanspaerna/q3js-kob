@@ -36,30 +36,30 @@ export function ServerCard(props: {
                                 <div className="flex flex-wrap items-center gap-2 text-sm">
                                     <Badge
                                         variant="outline"
-                                        className="font-mono text-xs border-border/50 text-muted-foreground"
+                                        className="text-xs border-border/50 text-muted-foreground"
                                     >
                                         <Server className="h-3 w-3 mr-1"/> {props.server.host}:{props.server.targetPort}
                                     </Badge>
                                     <Badge
                                         variant="outline"
-                                        className="font-mono text-xs border-border/50 text-muted-foreground"
+                                        className="text-xs border-border/50 text-muted-foreground"
                                     >
                                         <Globe className="h-3 w-3 mr-1"/> {info.location ?? "Unknown"}
                                     </Badge>
                                     <Badge
                                         variant="outline"
-                                        className="font-mono text-xs border-border/50 text-muted-foreground"
+                                        className="text-xs border-border/50 text-muted-foreground"
                                     >
                                         Map: {info.mapname.toUpperCase()}
                                     </Badge>
-                                    <Badge variant="outline" className="font-mono text-xs border-border/50 text-muted-foreground">
+                                    <Badge variant="outline" className="text-xs border-border/50 text-muted-foreground">
                                         Mode: {info.modeCurrent}
                                     </Badge>
-                                    <Badge variant="outline" className="font-mono text-xs border-border/50 text-muted-foreground">
+                                    <Badge variant="outline" className="text-xs border-border/50 text-muted-foreground">
                                         {GAME_TYPES[info.g_gametype] || "Unknown"}
                                     </Badge>
                                     {(info.g_gametype === 3 || info.g_gametype === 4) && (
-                                        <Badge variant="outline" className="font-mono text-xs border-border/50">
+                                        <Badge variant="outline" className="text-xs border-border/50">
                                             <span className="text-red-500">{info.scoreRed}</span>
                                             <span className="text-muted-foreground mx-1">:</span>
                                             <span className="text-blue-500">{info.scoreBlue}</span>
@@ -86,7 +86,7 @@ export function ServerCard(props: {
                         <div className="flex flex-wrap items-center gap-4 text-sm">
                             <div className="flex items-center gap-2">
                                 <Users className="h-4 w-4 text-muted-foreground"/>
-                                <span className="text-foreground font-mono">
+                                <span className="text-foreground">
                                     {info.players}/{info.sv_maxclients}
                                 </span>
                                 <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
@@ -104,7 +104,7 @@ export function ServerCard(props: {
                             {info.ping !== undefined && (
                                 <div className="flex items-center gap-2">
                                     <Activity className={`h-4 w-4 ${getPingColor(info.ping)}`}/>
-                                    <span className={`font-mono ${getPingColor(info.ping)}`}>
+                                    <span className={`${getPingColor(info.ping)}`}>
                                         {info.ping}ms
                                     </span>
                                 </div>

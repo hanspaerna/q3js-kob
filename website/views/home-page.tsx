@@ -24,7 +24,6 @@ export function HomePage({ initialServers, scoreboards, kdScoreboards, currentPl
         serverCount={initialServers.length}
         totalKillCount={totalKillCount}
         topDailyPlayer={topDailyPlayer}
-        firstServer={firstServer}
       />
       <ScoreboardPreview initialPeriod="ALL_TIME" scoreboards={scoreboards} kdScoreboards={kdScoreboards} />
       <ServerPicker servers={initialServers} />

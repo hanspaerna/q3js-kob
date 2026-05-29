@@ -18,7 +18,7 @@ export function ScoreboardModeToggle({mode, onChange}: ScoreboardModeToggleProps
                     key={m}
                     type="button"
                     size="sm"
-                    variant={mode === m ? "secondary" : "ghost"}
+                    variant={mode === m ? "default" : "ghost"}
                     className={cn("min-w-20", mode === m && "shadow-none")}
                     aria-pressed={mode === m}
                     onClick={() => onChange(m)}

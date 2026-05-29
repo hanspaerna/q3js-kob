@@ -131,7 +131,7 @@ export default function PlayerProfilePage(props: {
                             </Badge>
                         </div>
                         <div className="space-y-2">
-                            <h1 className="text-4xl font-bold tracking-tight">
+                            <h1 className="text-4xl font-bold tracking-tight normal-case">
                                 <Q3ColoredText text={props.playerName}/>
                             </h1>
                         </div>

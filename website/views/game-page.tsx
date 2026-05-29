@@ -327,16 +327,16 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
             {prog.stage !== "ready" && (
                 <Card
                     className="absolute bottom-4 left-4 right-4 z-10 border border-border bg-background/80 p-4 backdrop-blur">
-                    <div className="text-sm font-semibold mb-1">
+                    <div className="text-xl font-semibold mb-2 text-secondary-foreground">
                         {stageLabel}
                     </div>
-                    <div className="text-xs text-muted-foreground mb-2 font-mono">
+                    <div className="text-sm text-secondary-foreground/80 mb-3">
                         {currentLabel}
                     </div>
                     {prog.stage === "needs_pak0" ? (
                         <div className="space-y-3">
                             <p className="text-sm text-muted-foreground">
-                                To play, please provide your <code className="text-foreground">pak0.pk3</code> file from Quake 3 Arena (full version 1.32c or demo).
+                                To play, please provide your <strong className="text-foreground">pak0.pk3</strong> file from Quake 3 Arena (full version 1.32c or demo).
                             </p>
                             <label className="flex items-center justify-center gap-2 cursor-pointer rounded-md border border-dashed border-muted-foreground/50 p-4 hover:border-foreground hover:bg-muted/50 transition-colors">
                                 <Upload size={18} />
@@ -364,13 +364,13 @@ export default function GamePage({ customPlayerModels }: GamePageProps) {
                     ) : (
                         <>
                             <Progress value={prog.pct} className="h-2 bg-secondary"/>
-                            <div className="text-xs text-muted-foreground mt-2 font-mono">
+                            <div className="text-sm text-secondary-foreground/80 mt-2">
                                 {prog.total
                                     ? `${(prog.received / (1024 * 1024)).toFixed(1)} MB / ${(prog.total / (1024 * 1024)).toFixed(1)} MB`
                                     : `${prog.pct}%`}
                             </div>
                             {prog.etaSeconds !== undefined && prog.stage === "downloading" && (
-                                <div className="text-xs text-muted-foreground mt-1 font-mono">
+                                <div className="text-sm text-secondary-foreground/80 mt-1">
                                     ETA: {prog.etaSeconds}s
                                 </div>
                             )}

@@ -70,8 +70,9 @@ export function ScoreboardClient(props: {
 
     function selectMode(nextMode: ScoreboardMode) {
         if (nextMode === mode) return;
+        const nextPeriod = nextMode === "kd" && period === "DAILY" ? "ALL_TIME" : nextMode === "kills" ? "DAILY" : period;
         startNavigationTransition(() => {
-            router.push(buildScoreboardHref(period, DEFAULT_SCOREBOARD_PAGE, props.search, nextMode), {scroll: false});
+            router.push(buildScoreboardHref(nextPeriod, DEFAULT_SCOREBOARD_PAGE, props.search, nextMode), {scroll: false});
         });
     }
 
@@ -114,7 +115,7 @@ export function ScoreboardClient(props: {
                         <>
                             <div className="mb-2 flex flex-wrap items-center gap-2">
                                 <ScoreboardModeToggle mode={mode} onChange={selectMode}/>
-                                <ScoreboardPeriodToggle period={period} onChange={selectPeriod}/>
+                                <ScoreboardPeriodToggle period={period} onChange={selectPeriod} mode={mode}/>
                             </div>
                             <p className="text-sm text-muted-foreground">
                                 {hasSearch

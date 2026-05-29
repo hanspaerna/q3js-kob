@@ -66,7 +66,7 @@ export function PlayerList({users, host, port}: Props) {
                 <ScrollArea
                     className="h-40 overflow-y-auto rounded-md border border-border/40 bg-background/40">
                     <div
-                        className={`grid ${canKick ? 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)_2rem]' : 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)]'} px-3 py-2 text-[11px] font-mono text-muted-foreground border-b border-border/40`}>
+                        className={`grid ${canKick ? 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)_2rem]' : 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)]'} px-3 py-2 text-[11px] text-muted-foreground border-b border-border/40`}>
                         <span>ID</span>
                         <span>SCORE</span>
                         <span>PING</span>
@@ -76,7 +76,7 @@ export function PlayerList({users, host, port}: Props) {
                     {users.map((u, idx) => (
                         <div
                             key={`player-${idx}-${u.name}`}
-                            className={`grid ${canKick ? 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)_2rem]' : 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)]'} px-3 py-1.5 text-[11px] font-mono text-foreground odd:bg-background/40 items-center`}
+                            className={`grid ${canKick ? 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)_2rem]' : 'grid-cols-[2rem_3rem_3rem_minmax(0,1fr)]'} px-3 py-1.5 text-[11px] text-foreground odd:bg-background/40 items-center`}
                         >
                             <span className="tabular-nums">{u.clientId}</span>
                             <span className="tabular-nums">{u.score}</span>
