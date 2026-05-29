@@ -1,11 +1,18 @@
 import "./globals.css";
 import type {Viewport} from "next";
-import {Rajdhani} from "next/font/google";
+import {Rajdhani, Oswald} from "next/font/google";
 
 const rajdhani = Rajdhani({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"],
     variable: "--font-rajdhani",
+    display: "swap",
+});
+
+const oswald = Oswald({
+    subsets: ["latin"],
+    weight: ["600", "700"],
+    variable: "--font-oswald",
     display: "swap",
 });
 import QueryClientProviderWrapper from "@/lib/query-client-provider-wrapper.tsx";
@@ -40,7 +47,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en-US" className={rajdhani.variable}>
+        <html lang="en-US" className={`${rajdhani.variable} ${oswald.variable}`}>
             <head>
                 <script dangerouslySetInnerHTML={{ __html: `
                     window.__ENV__ = {

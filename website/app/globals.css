@@ -72,7 +72,7 @@ code {
     --sidebar-accent-foreground: oklch(0.91 0 0);
     --sidebar-border: oklch(0.50 0.22 27);
     --sidebar-ring: oklch(0.50 0.22 27);
-    --font-sans: "Impact", sans-serif;
+    --font-sans: var(--font-oswald), "Impact", sans-serif;
     --font-serif: Georgia, serif;
     --font-mono: "Courier New", monospace;
     --radius: 0rem;

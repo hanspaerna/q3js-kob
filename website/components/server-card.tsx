@@ -69,7 +69,7 @@ export function ServerCard(props: {
                             </div>
 
                             {!props.hideJoinButton && (
-                                <div className="flex items-center gap-2 sm:self-start">
+                                <div className="flex items-center gap-2 self-start">
                                     {props.server.host && props.server.targetPort && (
                                         <ChatButton
                                             serverHost={props.server.host}
