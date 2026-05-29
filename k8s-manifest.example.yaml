@@ -1,0 +1,466 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: q3js-server
+  labels:
+    app: q3js-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: q3js-server
+  template:
+    metadata:
+      labels:
+        app: q3js-server
+    spec:
+      hostNetwork: true
+      containers:
+        - name: q3js-server
+          image: git.vpn.fingol.pro/yanumibaal/q3js-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 27960 # a regular Q3 Arena server
+              protocol: UDP
+            - name: http
+              containerPort: 27961 # a web socket for web clients
+              protocol: TCP
+          env:
+            - name: WS_PORT
+              value: "27961"
+            - name: MASTER_SERVER_BASE
+              value: "https://q3master.fingol.pro"
+            - name: SECONDARY_MASTER_SERVER_BASE
+              value: "https://master.q3js.com"
+            - name: PUBLISH_HOST
+              value: "q3srv.fingol.pro"
+            - name: PUBLISH_PORT
+              value: "443"
+            - name: SECURE
+              value: "true"
+            - name: FS_GAME
+              value: "cpma" # should be explicitly set to let users with standalone client to auto-download maps (ensure clients have 'seta cl_allowdownload 1' in their cfg file)
+            - name: API_TOKEN # API token of master service, required by mutations like /api/events
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: MASTER_API_TOKEN
+            - name: LOCATION
+              value: "Berlin, Germany"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1024Mi"
+          volumeMounts:
+            - name: baseq3
+              mountPath: /server/baseq3
+            - name: cpma
+              mountPath: /server/cpma
+            - name: configs
+              mountPath: /server/cpma/autoexec.cfg
+              subPath: autoexec.cfg # never use any other name, better not to intrude into the execution order of these cfg files (or it silently fails)
+            - name: configs-cpma-mapmodes
+              mountPath: /server/cpma/cfg-maps/mapmodes.txt
+              subPath: mapmodes.txt
+            - name: configs-cpma-maplist-ffa-cfg
+              mountPath: /server/cpma/cfg-maps/ffamaps.txt
+              subPath: ffamaps.txt
+            - name: configs-cpma-ffa-mode-cfg
+              mountPath: /server/cpma/modes/KOB_CPMDM.cfg
+              subPath: KOB_CPMDM.cfg
+            - name: configs-cpma-maplist-ctf-cfg
+              mountPath: /server/cpma/cfg-maps/ctfmaps.txt
+              subPath: ctfmaps.txt
+            - name: configs-cpma-ctf-mode-cfg
+              mountPath: /server/cpma/modes/KOB_CPMCTF.cfg
+              subPath: KOB_CPMCTF.cfg
+            - name: configs-cpma-maplist-tdm-cfg
+              mountPath: /server/cpma/cfg-maps/teammaps.txt
+              subPath: teammaps.txt
+            - name: configs-cpma-tdm-mode-cfg
+              mountPath: /server/cpma/modes/KOB_CPMTDM.cfg
+              subPath: KOB_CPMTDM.cfg
+            - name: persist
+              mountPath: /server/persist
+      volumes:
+        - name: baseq3
+          hostPath:
+            path: /opt/q3server/baseq3
+            type: DirectoryOrCreate
+        - name: cpma
+          hostPath:
+            path: /opt/q3server/cpma
+            type: DirectoryOrCreate
+        - name: configs
+          configMap:
+            name: q3-server-cfg
+        - name: configs-cpma-mapmodes
+          configMap:
+            name: q3-server-cpma-mapmodes-cfg
+        - name: configs-cpma-ffa-mode-cfg
+          configMap:
+            name: q3-server-cpma-gamemode-ffa-cfg
+        - name: configs-cpma-maplist-ffa-cfg
+          configMap:
+            name: q3-server-maplist-ffa-cfg
+        - name: configs-cpma-ctf-mode-cfg
+          configMap:
+            name: q3-server-cpma-gamemode-ctf-cfg
+        - name: configs-cpma-tdm-mode-cfg
+          configMap:
+            name: q3-server-cpma-gamemode-tdm-cfg
+        - name: configs-cpma-maplist-ctf-cfg
+          configMap:
+            name: q3-server-maplist-ctf-cfg
+        - name: configs-cpma-maplist-tdm-cfg
+          configMap:
+            name: q3-server-maplist-tdm-cfg
+        - name: persist # use for any persistent data (like chat logs) that needs to survive restarts
+          hostPath:
+            path: /opt/q3server/persist
+            type: DirectoryOrCreate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: q3js-website
+  labels:
+    app: q3js-website
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: q3js-website
+  template:
+    metadata:
+      labels:
+        app: q3js-website
+    spec:
+      containers:
+        - name: q3js-website
+          image: git.vpn.fingol.pro/yanumibaal/q3js-website:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          env:
+            - name: MASTER_SERVER_URL
+              value: "<insert_your_value>"
+            - name: WEBSITE_TITLE
+              value: "Q3JS SERVER (CPMA)"
+            - name: APP_VERSION
+              value: "1.2.0"
+            - name: AUTH_URL
+              value: "<insert_your_value>"
+            - name: AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: WEBSITE_OIDC_AUTH_SECRET
+            - name: AUTH_CLIENT_ID
+              value: "q3js-kob"
+            - name: AUTH_ISSUER
+              value: "<insert_your_value>"
+            - name: AUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: WEBSITE_OIDC_AUTH_CLIENT_SECRET
+            - name: RCON_PASSWORD
+              value: "<insert_your_value>"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1024Mi"
+          volumeMounts:
+            - name: baseq3
+              mountPath: /app/public/baseq3
+            - name: cpma
+              mountPath: /app/public/cpma
+      volumes:
+        - name: baseq3
+          hostPath:
+            path: /opt/q3server/baseq3
+            type: DirectoryOrCreate
+        - name: cpma
+          hostPath:
+            path: /opt/q3server/cpma
+            type: DirectoryOrCreate
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: q3js-master
+  labels:
+    app: q3js-master
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: q3js-master
+  template:
+    metadata:
+      labels:
+        app: q3js-master
+    spec:
+      initContainers:
+        - name: postgres
+          image: postgres:18
+          restartPolicy: Always
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: MASTER_POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: "postgres"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "100m"
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 3
+            failureThreshold: 10
+          volumeMounts:
+            - name: q3js-postgres-data
+              mountPath: /var/lib/postgresql
+      containers:
+        - name: q3js-master
+          image: git.vpn.fingol.pro/yanumibaal/q3js-master:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: Q3JS_DB_URL
+              value: "jdbc:postgresql://localhost:5432/postgres"
+            - name: Q3JS_DB_USER
+              value: "postgres"
+            - name: Q3JS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: MASTER_POSTGRES_PASSWORD
+            - name: API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: MASTER_API_TOKEN
+            - name: Q3JS_PROXY_CORS_ENABLED
+              value: "true"
+            - name: Q3JS_PROXY_CORS_ORIGINS
+              value: "http://localhost:3000,https://fingol.pro,https://q3.fingol.pro,https://q3master.fingol.pro,https://www.fingol.pro,https://q3srv.fingol.pro"
+            - name: Q3JS_RCON_PASSWORD
+              value: "<insert_your_value>"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "100m"
+              memory: "512Mi"
+      volumes:
+        - name: q3js-postgres-data
+          persistentVolumeClaim:
+            claimName: q3js-postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: q3js-website-svc
+spec:
+  selector:
+    app: q3js-website
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: q3js-master-svc
+spec:
+  selector:
+    app: q3js-master
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: q3js-postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-cfg
+data:
+  autoexec.cfg: |
+    set bot_enable 1
+    set dedicated 1
+    set sv_pure 0
+    set sv_maxclients 16
+    set bot_minplayers 0
+    set g_allowvote 0
+    set sv_hostname "Q3JS-KOB SERVER (CPMA)"
+    seta rconpassword "<insert_your_value>"
+    set ref_password "<insert_your_value>"
+    // set mode_start KOB_CPMCTF
+    // set mode_start KOB_CPMTDM
+    set mode_start KOB_CPMDM
+    set server_useMapModes 0
+    set map_rotate 1
+    map crescent // FFA default map; don't forget to install this map on server, otherwise the server will not run
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-cpma-mapmodes-cfg
+data:
+  mapmodes.txt: |
+    # You can assign a specific gamemode for each map in this file
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-cpma-gamemode-ffa-cfg
+data:
+  KOB_CPMDM.cfg: |
+    type 0
+    timelimit 10
+    overtime 0
+    instagib 0
+    hook 2
+    // items -BFG
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-cpma-gamemode-ctf-cfg
+data:
+  KOB_CPMCTF.cfg: |
+    type 4
+    hook 0
+    items -INVIS
+    items -SUIT
+    overtime 0
+    simplemega 1
+    timelimit 15
+    weaponrespawn 5
+    teamdamage 2
+    dropitems 2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-cpma-gamemode-tdm-cfg
+data:
+  KOB_CPMTDM.cfg: |
+    type 3
+    hook 2
+    items -INVIS
+    items -SUIT
+    overtime 0
+    simplemega 1
+    timelimit 15
+    weaponrespawn 5
+    teamdamage 3
+    dropitems 3
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-maplist-ffa-cfg
+data:
+  ffamaps.txt: |
+    phantq3dm4
+    zih_roof
+    rustgrad
+    rota3dm3
+    solitude
+    crescent
+    shibam
+    industrial
+    scorpion
+    zih_gaj
+    zih_weirdf
+    q3gwdm2
+    solarae
+    phdm2
+    pro-ct3tourney2
+    trespass
+    quadwell
+    houseby
+    phantq3dm3_rev
+    storm3tourney6
+    necro6
+    darkmeat
+    pom_bots
+    ct3dm4
+    chiropteradm
+    estatica
+    shkiper3dm1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-maplist-ctf-cfg
+data:
+  ctfmaps.txt: |
+    13dream_xt
+    13circle_xt
+    q3ctfp22_final
+    q3flogger1
+    q3mrlctf2
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: q3-server-maplist-tdm-cfg
+data:
+  teammaps.txt: |
+    13dream_xt
+    13circle_xt
+    q3ctfp22_final
+    q3flogger1
+    q3mrlctf2
