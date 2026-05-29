@@ -2,6 +2,7 @@
 
 This fork includes many changes and new features:
   - Server's admin UI that can be opened right in the game by pressing F2!
+  - Quake 3's client config can be customized on the website before joining
   - Integrated in-game chat that streams messages from Q3 server and allows sending them via website
   - Automatic downloading of custom player models to web clients
   - Server file manager for uploading player models and maps, if you are authenticated
@@ -16,6 +17,7 @@ This fork includes many changes and new features:
   - Home page is simplified (no server search)
   - Check of integrity of the client files and removal of those that are no longer on server
   - Usernames are limited to 16 chars according to CPMA requirements and cannot have spaces
+  - Server card is reactive, it is refreshed automatically with a reasonable interval
   - I've probably missed something...
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
