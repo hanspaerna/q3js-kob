@@ -47,7 +47,7 @@ export async function POST(req: Request) {
 
         const transliteratedMessage = transliterateCyrillic(message.trim());
         const response = await sendRconCommand(host, port, `say ${transliteratedMessage}`);
-        return NextResponse.json({ success: true, response });
+        return NextResponse.json({ success: true, transliteratedMessage: transliteratedMessage, response });
     } catch (error) {
         console.error('RCON say error:', error);
         return NextResponse.json({ error: 'Failed to send command' }, { status: 500 });
