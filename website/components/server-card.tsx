@@ -127,6 +127,7 @@ export function ServerCard(props: {
                                     users={sortedUsers}
                                     host={props.server.host}
                                     port={props.server.targetPort}
+                                    disablePlayerLinks={props.hideJoinButton}
                                 />
                             </div>
                             <div className="mt-4 border-t border-border/50 pt-4">

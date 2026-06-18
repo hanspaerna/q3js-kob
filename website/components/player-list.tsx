@@ -15,11 +15,12 @@ type Props = {
     users: ServerUserResponse[];
     host?: string;
     port?: number;
+    disablePlayerLinks?: boolean;
 };
 
 const COOLDOWN_MS = 2000;
 
-export function PlayerList({users, host, port}: Props) {
+export function PlayerList({users, host, port, disablePlayerLinks}: Props) {
     const {data: session} = useSession();
     const {showToast} = useToast();
     const [cooldown, setCooldown] = useState(false);
@@ -81,12 +82,17 @@ export function PlayerList({users, host, port}: Props) {
                             <span className="tabular-nums">{u.clientId}</span>
                             <span className="tabular-nums">{u.score}</span>
                             <span className="tabular-nums">{u.ping}</span>
-                            <Link
-                                href={`/players/${encodeURIComponent(u.name)}`}
-                                className="truncate hover:text-primary transition-colors"
-                            >
-                                <Q3ColoredText text={u.name}/>
-                            </Link>
+                            {!disablePlayerLinks
+                                ? (
+                                    <Link
+                                        href={`/players/${encodeURIComponent(u.name)}`}
+                                        className="truncate hover:text-primary transition-colors"
+                                    >
+                                        <Q3ColoredText text={u.name}/>
+                                    </Link>
+                                )
+                                : (<Q3ColoredText text={u.name}/>)
+                            }
                             {canKick && (
                                 <Button
                                     variant="ghost"
