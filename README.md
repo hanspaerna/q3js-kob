@@ -18,6 +18,7 @@ This fork includes many changes and new features:
   - Check of integrity of the client files and removal of those that are no longer on server
   - Usernames are limited to 16 chars according to CPMA requirements and cannot have spaces
   - Server card is reactive, it is refreshed automatically with a reasonable interval
+  - Added Telegram bot (./tgbot) that sends the messages starting with "/q3" from a chat into Q3 server chat, and vice versa
   - I've probably missed something...
 
 Q3JS compiles `ioquake3` to WebAssembly, streams the original `pak` assets through a modern React front end, tunnels UDP
@@ -34,6 +35,7 @@ You can just run one of these scripts to deploy the latest version to Docker reg
 ./pack-master.sh
 ./pack-server.sh
 ./pack-website.sh
+./pack-tgbot.sh
 ```
 
 ## Repository map
@@ -122,6 +124,12 @@ NB! The server's baseq3 folder must be mapped to /app/public/baseq3 of the websi
    ```
    Test the API: `curl http://localhost:8080/api/servers`.
 - Tests: `./mvnw test`. Native builds: `./mvnw package -Dnative`.
+
+### Telegram Chat Bot
+
+Completely optional. The idea is to send the messages from a group chat with friends into the game, if they start with "/q3".
+Every message from in-game Q3 chat goes automatically into the selected Telegram chat
+Cyrillic letters are automatically transliterated.
 
 ## Troubleshooting
 
