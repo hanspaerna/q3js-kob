@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sendRconCommand, isRconConfigured } from '@/lib/rcon';
 
+const RCON_PASSWORD = process.env.RCON_PASSWORD;
+
 const CYRILLIC_TO_LATIN: Record<string, string> = {
     'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh',
     'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
@@ -27,7 +29,7 @@ type SayRequest = {
 
 export async function POST(req: Request) {
     const session = await auth();
-    if (!session) {
+    if (!session && req.headers.get("authorization") !== "Bearer " + RCON_PASSWORD) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
