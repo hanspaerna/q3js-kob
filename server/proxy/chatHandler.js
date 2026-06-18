@@ -11,6 +11,9 @@ class ChatHandler {
         this.clients = new Set();
         this.saveTimeout = null;
 
+        // a temporary array of separate score log lines that are sequentially printed, needs to be cleaned afterward
+        this.scoreTable = [];
+
         this.load();
     }
 
@@ -48,12 +51,11 @@ class ChatHandler {
     }
 
     /**
-     * Extract chat message from a log line
+     * Extract chat message or specific server events from a log line
      * @param {string} line - Log line from server
-     * @returns {object|null} - Chat message object or null
+     * @returns {object|null} - Chat message / event object or null
      */
     extractMessage(line) {
-        // Match "say: PlayerName: message" pattern
         const sayMatch = line.match(/^say:\s*(.+)$/);
         if (sayMatch) {
             return {
@@ -71,6 +73,21 @@ class ChatHandler {
             };
         }
 
+        // Match "<username> has passed authorization." pattern
+        const playerJoinedMatch = line.match(/^(.+) has passed authorization\.$/);
+        if (playerJoinedMatch) {
+            return {
+                timestamp: new Date().toISOString(),
+                text: playerJoinedMatch[1] + " joined the game.",
+            };
+        }
+
+        const scoreLineMatch = line.match(/^score:\s*(-?\d+)\s+ping:\s*(\d+)\s+client:\s*(\d+)\s+(.+)$/);
+        if (scoreLineMatch) {
+            // cache line to print together later
+            this.scoreTable.push(`${scoreLineMatch[1]} (${scoreLineMatch[4]})`);
+        }
+
         return null;
     }
 
@@ -79,19 +96,37 @@ class ChatHandler {
      * @param {string} line - Log line from server
      */
     processLine(line) {
+        const messages = [];
+
         const message = this.extractMessage(line);
-        if (message) {
-            // Add to history
-            this.history.push(message);
-            if (this.history.length > CHAT_HISTORY_MAX) {
-                this.history.shift();
+        messages.push(message);
+
+        // a sequence of score log messages has ended; we must also print the accumulated score table
+        if (!line.startsWith("score") && this.scoreTable.length > 0) {
+            let table = "Match ended with: /";
+
+            for (const scoreLine of this.scoreTable) {
+                table += ` ${scoreLine} /`
             }
 
-            // Persist to disk
-            this.save();
+            messages.push(table);
+            this.scoreTable = [];
+        }
 
-            // Broadcast to connected clients
-            this.broadcast(message);
+        for (const message of messages) {
+            if (message) {
+                // Add to history
+                this.history.push(message);
+                if (this.history.length > CHAT_HISTORY_MAX) {
+                    this.history.shift();
+                }
+
+                // Persist to disk
+                this.save();
+
+                // Broadcast to connected clients
+                this.broadcast(message);
+            }
         }
     }
 
