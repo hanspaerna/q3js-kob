@@ -293,6 +293,56 @@ spec:
           persistentVolumeClaim:
             claimName: q3js-postgres-pvc
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: q3js-tgbot
+  labels:
+    app: q3js-tgbot
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: q3js-tgbot
+  template:
+    metadata:
+      labels:
+        app: q3js-tgbot
+    spec:
+      containers:
+        - name: q3js-tgbot
+          image: git.vpn.fingol.pro/yanumibaal/q3js-tgbot:latest
+          imagePullPolicy: Always
+          env:
+            - name: Q3JS_SERVER_HOST
+              value: "q3srv.fingol.pro"
+            - name: Q3JS_WEBSITE_HOST
+              value: "q3.fingol.pro"
+            - name: RCON_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: RCON_PASSWORD
+            - name: TELEGRAM_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: TELEGRAM_API_TOKEN
+            - name: TELEGRAM_CHAT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: q3-secret
+                  key: TELEGRAM_CHAT_ID
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+---
 apiVersion: v1
 kind: Service
 metadata:
