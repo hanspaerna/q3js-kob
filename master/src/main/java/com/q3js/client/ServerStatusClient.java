@@ -97,8 +97,7 @@ public class ServerStatusClient {
                     Math.toIntExact(System.currentTimeMillis() - startedAt)
             );
         } finally {
-            webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
-                    .exceptionally(ignored -> null);
+            webSocket.abort();
         }
     }
 
@@ -124,8 +123,7 @@ public class ServerStatusClient {
 
             return new String(rawResponse, StandardCharsets.UTF_8);
         } finally {
-            webSocket.sendClose(WebSocket.NORMAL_CLOSURE, "done")
-                    .exceptionally(ignored -> null);
+            webSocket.abort();
         }
     }
 
