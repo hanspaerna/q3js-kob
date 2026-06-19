@@ -1,8 +1,11 @@
 const WebSocket = require('ws');
+const { formatMatchTable } = require('./matchResultFormatter');
 const fs = require('fs');
+const {env} = require("./env");
 
 const CHAT_HISTORY_MAX = 10000;
 const DEFAULT_PERSISTENCE_PATH = '/server/persist/chat-history.json';
+const PROXY_PORT = env.PROXY_PORT;
 
 class ChatHandler {
     constructor(persistencePath = DEFAULT_PERSISTENCE_PATH) {
@@ -10,7 +13,6 @@ class ChatHandler {
         this.history = [];
         this.clients = new Set();
         this.saveTimeout = null;
-        this.requestScore = false; // if true, request the latest match results and put them in the log before anything else
 
         this.load();
     }
@@ -53,7 +55,7 @@ class ChatHandler {
      * @param {string} line - Log line from server
      * @returns {object|null} - Chat message / event object or null
      */
-    extractMessage(line) {
+    async extractMessage(line) {
         const sayMatch = line.match(/^say:\s*(.+)$/);
         if (sayMatch) {
             return {
@@ -80,9 +82,17 @@ class ChatHandler {
             };
         }
 
-        const limitHitMatch = line.match(/^(Frag|Time)limit hit:(.*)$/);
+        const limitHitMatch = line.match(/^Exit:(.*)$/);
         if (limitHitMatch) {
-            this.requestScore = true;
+            console.log("limitHitMatch");
+            const matchResult = await fetch(`http://localhost:${PROXY_PORT}/matchResult`)
+                .then(res => res.json());
+            console.log("fetched match data");
+
+            return {
+                timestamp: new Date().toISOString(),
+                text: formatMatchTable(matchResult)
+            };
         }
 
         return null;
@@ -92,8 +102,8 @@ class ChatHandler {
      * Process a log line, extract chat if present, store and broadcast
      * @param {string} line - Log line from server
      */
-    processLine(line) {
-        const message = this.extractMessage(line);
+    async processLine(line) {
+        const message = await this.extractMessage(line);
 
         if (message) {
             // Add to history
