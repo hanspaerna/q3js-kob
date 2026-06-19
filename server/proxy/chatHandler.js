@@ -7,6 +7,8 @@ const CHAT_HISTORY_MAX = 10000;
 const DEFAULT_PERSISTENCE_PATH = '/server/persist/chat-history.json';
 const PROXY_PORT = env.PROXY_PORT;
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 class ChatHandler {
     constructor(persistencePath = DEFAULT_PERSISTENCE_PATH) {
         this.persistencePath = persistencePath;
@@ -84,10 +86,11 @@ class ChatHandler {
 
         const limitHitMatch = line.match(/^Exit:(.*)$/);
         if (limitHitMatch) {
-            console.log("limitHitMatch");
+            await delay(2000); // it takes a bit of time for CPMA to write down a new XML to disk
+
             const matchResult = await fetch(`http://localhost:${PROXY_PORT}/matchResult`)
                 .then(res => res.json());
-            console.log("fetched match data");
+            console.log("[CHAT] Fetched match data from XML");
 
             return {
                 timestamp: new Date().toISOString(),
