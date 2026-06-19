@@ -60,7 +60,7 @@ class ChatHandler {
         if (sayMatch) {
             return {
                 timestamp: new Date().toISOString(),
-                text: sayMatch[1],
+                text: this._stripQuakeColors(sayMatch[1]),
             };
         }
 
@@ -69,7 +69,7 @@ class ChatHandler {
         if (rconMatch) {
             return {
                 timestamp: new Date().toISOString(),
-                text: rconMatch[1],
+                text: this._stripQuakeColors(rconMatch[1]),
             };
         }
 
@@ -78,7 +78,7 @@ class ChatHandler {
         if (playerJoinedMatch) {
             return {
                 timestamp: new Date().toISOString(),
-                text: playerJoinedMatch[1] + " joined the game.",
+                text: this._stripQuakeColors(playerJoinedMatch[1]) + " joined the game.",
             };
         }
 
@@ -159,6 +159,10 @@ class ChatHandler {
     getHistory(limit = CHAT_HISTORY_MAX) {
         const count = Math.min(limit, this.history.length);
         return this.history.slice(-count);
+    }
+
+    _stripQuakeColors(nickname) {
+        return nickname.replace(/\^[0-9]/g, '');
     }
 }
 
