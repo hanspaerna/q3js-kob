@@ -10,9 +10,7 @@ class ChatHandler {
         this.history = [];
         this.clients = new Set();
         this.saveTimeout = null;
-
-        // a temporary array of separate score log lines that are sequentially printed, needs to be cleaned afterward
-        this.scoreTable = [];
+        this.requestScore = false; // if true, request the latest match results and put them in the log before anything else
 
         this.load();
     }
@@ -82,10 +80,9 @@ class ChatHandler {
             };
         }
 
-        const scoreLineMatch = line.match(/^score:\s*(-?\d+)\s+ping:\s*(\d+)\s+client:\s*(\d+)\s+(.+)$/);
-        if (scoreLineMatch) {
-            // cache line to print together later
-            this.scoreTable.push(`${scoreLineMatch[1]} (${scoreLineMatch[4]})`);
+        const limitHitMatch = line.match(/^(Frag|Time)limit hit:(.*)$/);
+        if (limitHitMatch) {
+            this.requestScore = true;
         }
 
         return null;
@@ -96,37 +93,20 @@ class ChatHandler {
      * @param {string} line - Log line from server
      */
     processLine(line) {
-        const messages = [];
-
         const message = this.extractMessage(line);
-        messages.push(message);
 
-        // a sequence of score log messages has ended; we must also print the accumulated score table
-        if (!line.startsWith("score") && this.scoreTable.length > 0) {
-            let table = "Match ended with: /";
-
-            for (const scoreLine of this.scoreTable) {
-                table += ` ${scoreLine} /`
+        if (message) {
+            // Add to history
+            this.history.push(message);
+            if (this.history.length > CHAT_HISTORY_MAX) {
+                this.history.shift();
             }
 
-            messages.push(table);
-            this.scoreTable = [];
-        }
+            // Persist to disk
+            this.save();
 
-        for (const message of messages) {
-            if (message) {
-                // Add to history
-                this.history.push(message);
-                if (this.history.length > CHAT_HISTORY_MAX) {
-                    this.history.shift();
-                }
-
-                // Persist to disk
-                this.save();
-
-                // Broadcast to connected clients
-                this.broadcast(message);
-            }
+            // Broadcast to connected clients
+            this.broadcast(message);
         }
     }
 

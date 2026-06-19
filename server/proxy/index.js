@@ -8,8 +8,10 @@ const { env } = require('./env');
 const LogParser = require('./logParser');
 const EventBatcher = require('./eventBatcher');
 const ChatHandler = require('./chatHandler');
+const MatchResultParser = require('./matchResultParser');
 
 const chatHandler = new ChatHandler();
+const matchResultParser = new MatchResultParser();
 
 const MASTER_SERVER_BASE = env.MASTER_SERVER_BASE;
 const SECONDARY_MASTER_SERVER_BASE = env.SECONDARY_MASTER_SERVER_BASE;
@@ -199,8 +201,13 @@ const httpServer = http.createServer(async (req, res) => {
         return;
     }
 
+    if (req.method === 'GET' && path.startsWith('/matchResult')) {
+        const matchResult = matchResultParser.parse();
+        sendJson(res, 200, matchResult);
+        return;
+    }
+
     if (req.method === 'GET' && path.startsWith('/chat')) {
-        const url = new URL(req.url, `http://${req.headers.host}`);
         const limit = 100;
         sendJson(res, 200, chatHandler.getHistory(limit));
         return;
