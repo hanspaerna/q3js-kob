@@ -98,6 +98,16 @@ class ChatHandler {
             };
         }
 
+        const fraggedWithHookMatch= line.match(/^Kill: \d+ \d+ \d+: (\S+) killed (\S+) by MOD_GRAPPLE/);
+        if (fraggedWithHookMatch) {
+            const [, killer, victim] = fraggedWithHookMatch;
+
+            return {
+                timestamp: new Date().toISOString(),
+                text: `Holy shit, ${killer.toUpperCase()} has just punched a hole in ${victim.toUpperCase()} with a goddamn HOOK`
+            };
+        }
+
         return null;
     }
 
