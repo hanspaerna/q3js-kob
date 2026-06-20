@@ -13,6 +13,10 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 let lastMessageSentByConsole = "";
 
+function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
 function connectWebSocket() {
     const ws = new WebSocket(`wss://${env.Q3JS_SERVER_HOST}/chat`);
 
@@ -31,7 +35,12 @@ function connectWebSocket() {
             await delay(1000);
 
             if (text && text !== lastMessageSentByConsole) {
-                await bot.sendMessage(env.TELEGRAM_CHAT_ID, text);
+                if (text.startsWith("Match Result")) {
+                    await bot.sendMessage(env.TELEGRAM_CHAT_ID, `<pre>${escapeHtml(text)}</pre>`, {parse_mode: 'HTML'});
+                } else {
+                    await bot.sendMessage(env.TELEGRAM_CHAT_ID, text);
+                }
+
                 lastMessageSentByConsole = "";
             }
         } catch (err) {

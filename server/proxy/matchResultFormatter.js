@@ -40,7 +40,8 @@ export function formatMatchTable(result) {
     const isTeam = match.isTeamGame;
     const lines = [];
 
-    lines.push(`${match.map} | ${match.gameType} | ${formatDuration(match.duration)}`);
+    lines.push(`Match Result | ${match.map} | ${match.gameType} | ${formatDuration(match.duration)}`);
+    lines.push('');
 
     if (isTeam && match.teams) {
         lines.push(match.teams.map((t) => `${t.name} ${t.score}`).join(' - '));
