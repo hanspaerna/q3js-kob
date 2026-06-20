@@ -172,7 +172,7 @@ function ChatOverlay({ serverHost, serverPort, onClose }: ChatOverlayProps) {
                                         )}
                                     </span>
                                     <span className="text-muted-foreground">: </span>
-                                    <span style={{ whiteSpace: 'pre-line' }}>{message.includes('\n') ? '\n' + message : message}</span>
+                                    <span style={{ whiteSpace: 'pre-line' }}>{message.includes('\n') ? <pre style={{ fontSize: "0.8em" }}>{message}</pre> : message}</span>
                                 </div>
                             );
                         })}
