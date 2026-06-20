@@ -88,6 +88,8 @@ spec:
               subPath: KOB_CPMTDM.cfg
             - name: persist
               mountPath: /server/persist
+            - name: persist-stats
+              mountPath: /root/.local/share/Quake3/cpma/stats
       volumes:
         - name: baseq3
           hostPath:
@@ -124,6 +126,10 @@ spec:
         - name: persist # use for any persistent data (like chat logs) that needs to survive restarts
           hostPath:
             path: /opt/q3server/persist
+            type: DirectoryOrCreate
+        - name: persist-stats # keep statistics of CPMA matches
+          hostPath:
+            path: /opt/q3server/persist/stats
             type: DirectoryOrCreate
 ---
 apiVersion: apps/v1
