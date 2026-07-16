@@ -1,9 +1,11 @@
-import TelegramBot from 'node-telegram-bot-api';
+import { TelegramBot } from 'node-telegram-bot-api';
 import WebSocket from 'ws';
 import { env } from './env.js';
 
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(env.TELEGRAM_API_TOKEN, { polling: true });
+const bot = new TelegramBot(env.TELEGRAM_API_TOKEN, {
+    polling: true,
+});
 
 await bot.setMyCommands([
     { command: 'q3', description: 'Send a message to the Skeleton\'s Lair CPMA server' },
@@ -97,4 +99,14 @@ bot.on('message', async (msg) => {
     } catch (err) {
         console.error('Failed to forward message:', err);
     }
+});
+
+bot.on('polling_error', (err) => {
+    console.error('[FATAL] polling:', err.code, err.message);
+    process.exit(1);
+});
+
+bot.on('webhook_error', (err) => {
+    console.error('[FATAL] webhook:', err.code, err.message);
+    process.exit(1);
 });
